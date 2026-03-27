@@ -1,0 +1,24 @@
+# Compiled objects
+*.o
+*.obj
+
+# Executables
+game
+*.exe
+*.out
+*.app
+
+# Build directory
+build/
+dist/
+
+# IDE and editor configurations
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS specific
+Thumbs.db

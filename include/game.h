@@ -22,8 +22,8 @@ const double CRIT_MULTIPLIER = 1.5;
 const int MAX_COMBAT_TICKS = 200;
 
 // Save file name
-const std::string SAVE_FILE = "savegame.dat";
-const std::string RECORD_FILE = "records.txt";
+const std::string SAVE_FILE = "docs/savegame.dat";
+const std::string RECORD_FILE = "docs/records.txt";
 
 // ---------------------------------------------------------------------
 // Game

@@ -1,41 +1,30 @@
 # ============================================================
 # Makefile for Auto-Battler Arena
-# Usage:
-#   make game    — compile all source files and produce the executable
-#   make clean   — remove compiled objects and the executable
 # ============================================================
 
 CXX      = g++
-CXXFLAGS = -std=c++11 -Wall -Wextra -pedantic
+CXXFLAGS = -std=c++11 -Wall -Wextra -pedantic -Iinclude
 TARGET   = game
 
-# Source files
-SRCS = main.cpp unit.cpp board.cpp shop.cpp player.cpp ai.cpp game.cpp synergy.cpp event.cpp
+SRC_DIR  = src
+OBJ_DIR  = build
 
-# Object files (derived from sources)
-OBJS = $(SRCS:.cpp=.o)
+SRCS = $(SRC_DIR)/main.cpp $(SRC_DIR)/unit.cpp $(SRC_DIR)/board.cpp \
+       $(SRC_DIR)/shop.cpp $(SRC_DIR)/player.cpp $(SRC_DIR)/ai.cpp \
+       $(SRC_DIR)/game.cpp $(SRC_DIR)/synergy.cpp $(SRC_DIR)/event.cpp
 
-# Default target
-game: $(OBJS)
+OBJS = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
+
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
+
+game: $(OBJ_DIR) $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
 
-# Pattern rule: compile each .cpp into a .o
-%.o: %.cpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Header dependencies
-main.o:     main.cpp game.h
-unit.o:     unit.cpp unit.h
-board.o:    board.cpp board.h unit.h
-shop.o:     shop.cpp shop.h unit.h
-player.o:   player.cpp player.h unit.h
-ai.o:       ai.cpp ai.h unit.h board.h shop.h
-game.o:     game.cpp game.h board.h shop.h player.h ai.h unit.h synergy.h event.h
-synergy.o:  synergy.cpp synergy.h unit.h
-event.o:    event.cpp event.h player.h unit.h shop.h
-
-# Clean up build artifacts
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -rf $(OBJ_DIR) $(TARGET)
 
 .PHONY: game clean
