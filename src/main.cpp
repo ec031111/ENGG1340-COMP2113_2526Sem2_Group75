@@ -101,7 +101,7 @@ int main() {
         } else if (choice == "3") {
             // Load game - try to read save file and resume
             // Need to read difficulty from save file first
-            std::ifstream checkFile("savegame.dat");
+            std::ifstream checkFile("docs/savegame.dat");
             if (!checkFile.is_open()) {
                 std::cout << "  No save file found." << std::endl;
             } else {
