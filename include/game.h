@@ -37,7 +37,8 @@ public:
     ~Game();
 
     // Main game loop. Returns final score (rounds survived).
-    int run();
+    // showIntro: if true, prints the story introduction (new games only).
+    int run(bool showIntro = true);
 
     // File I/O
     void saveRecord() const;
@@ -75,6 +76,7 @@ private:
 
     // --- UI ---
     void printHelp() const;
+    void showIntro() const;
 };
 
 #endif // GAME_H

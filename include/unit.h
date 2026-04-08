@@ -57,7 +57,10 @@ public:
     int  getStarLevel() const;
     bool isAlive() const;
     bool isPlayerUnit() const;
+    bool isRaged() const;
     char getSymbol() const;
+    std::string getSymbolString() const;
+    std::string getAbilityTag() const;
 
     // Setters ----------------------------------------------------------
     void setPosition(int row, int col);
@@ -105,6 +108,14 @@ public:
     std::string getClassString() const;
 
     // -----------------------------------------------------------------
+    // getClassDescription
+    // What it does : returns a one-line lore description for a unit class.
+    // Input  : cls - the UnitClass to describe
+    // Output : string with flavor text for that class
+    // -----------------------------------------------------------------
+    static std::string getClassDescription(UnitClass cls);
+
+    // -----------------------------------------------------------------
     // getStarString
     // What it does : returns star display like "*", "**", "***"
     // Input  : none
@@ -123,6 +134,16 @@ public:
     void upgrade();
 
     // -----------------------------------------------------------------
+    // forceSetStarLevel
+    // What it does : sets the star level directly WITHOUT rescaling stats.
+    //                Used by the load system when stats are already saved
+    //                post-upgrade.
+    // Input  : level – the target star level (1-3)
+    // Output : none
+    // -----------------------------------------------------------------
+    void forceSetStarLevel(int level);
+
+    // -----------------------------------------------------------------
     // applyAtkBonus / applyCritBonus
     // What it does : adds a flat bonus to ATK or crit chance.
     //                Used by the synergy system.
@@ -139,6 +160,22 @@ public:
     // Output : none
     // -----------------------------------------------------------------
     void resetBonuses();
+
+    // -----------------------------------------------------------------
+    // clearRage
+    // What it does : resets the rage flag. Called at start of each combat.
+    // Input  : none
+    // Output : none
+    // -----------------------------------------------------------------
+    void clearRage();
+
+    // -----------------------------------------------------------------
+    // setRaged
+    // What it does : marks the unit as having entered rage mode.
+    // Input  : none
+    // Output : none
+    // -----------------------------------------------------------------
+    void setRaged();
 
     // -----------------------------------------------------------------
     // getDisplayName
@@ -163,6 +200,7 @@ private:
     int baseCritBonus_;
     int attackRange_;
     int starLevel_;
+    bool raged_;       // Warrior Rage flag (applied once per combat)
     int atkBonus_;    // synergy bonus
     int critBonusExtra_; // synergy bonus
     bool playerOwned_;

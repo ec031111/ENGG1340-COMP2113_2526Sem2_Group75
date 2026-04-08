@@ -168,7 +168,7 @@ void Player::displayStatus() const {
 
     std::ostringstream line2;
     line2 << "  Round: " << std::left << std::setw(5) << roundsPlayed_
-          << "Win Streak: " << winStreak_;
+          << "Win: " << winStreak_ << "  Loss: " << lossStreak_;
     std::string s2 = line2.str();
     if ((int)s2.size() < W) s2 += std::string(W - s2.size(), ' ');
     std::cout << "  |" << s2 << "|" << std::endl;
@@ -185,15 +185,25 @@ void Player::displayStatus() const {
 // -----------------------------------------------------------------
 void Player::startNewRound() {
     roundsPlayed_++;
-    int income = GOLD_PER_ROUND + (winStreak_ * WIN_STREAK_BONUS);
-    gold_ += income;
+    int baseIncome = GOLD_PER_ROUND;
+    int winStreakGold = winStreak_ * WIN_STREAK_BONUS;
+    int lossStreakGold = lossStreak_ * LOSS_STREAK_BONUS;
+    int interest = std::min(gold_ / 10, 5) * INTEREST_PER_10;
+    int totalIncome = baseIncome + winStreakGold + lossStreakGold + interest;
+    gold_ += totalIncome;
     std::cout << "\n  === Round " << roundsPlayed_ << " ===" << std::endl;
-    std::cout << "  You receive " << income << " gold";
+    std::cout << "  Income: " << totalIncome << " gold"
+              << " (base:" << baseIncome;
     if (winStreak_ > 0) {
-        std::cout << " (+" << winStreak_ * WIN_STREAK_BONUS
-                  << " streak bonus)";
+        std::cout << " +win streak:" << winStreakGold;
     }
-    std::cout << "." << std::endl;
+    if (lossStreak_ > 0) {
+        std::cout << " +loss streak:" << lossStreakGold;
+    }
+    if (interest > 0) {
+        std::cout << " +interest:" << interest;
+    }
+    std::cout << "). Total gold: " << gold_ << std::endl;
 }
 
 // -----------------------------------------------------------------
