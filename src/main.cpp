@@ -93,7 +93,7 @@ int main() {
         if (choice == "1") {
             Difficulty diff = selectDifficulty();
             Game game(diff);
-            game.run();
+            game.run(true);
 
         } else if (choice == "2") {
             Game::displayLeaderboard();
@@ -111,7 +111,7 @@ int main() {
                 Difficulty diff = EASY;
                 Game game(diff);
                 if (game.loadGame()) {
-                    game.run();
+                    game.run(false);
                 } else {
                     std::cout << "  Save file is corrupted." << std::endl;
                 }

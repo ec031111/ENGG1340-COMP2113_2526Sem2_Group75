@@ -1,0 +1,2 @@
+Player 2 10 Easy
+Player 2 12 Hard
