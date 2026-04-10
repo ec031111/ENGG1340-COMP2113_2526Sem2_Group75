@@ -76,6 +76,8 @@ private:
 
     // --- UI ---
     void printHelp() const;
+    void printCommandTips() const;
+    void printStatusBar() const;  // Compact status display
     void showIntro() const;
 };
 

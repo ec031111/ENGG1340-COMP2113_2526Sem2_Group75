@@ -139,7 +139,6 @@ void Tutorial::lessonIntro() {
     if (choice == "skip" || choice == "SKIP") {
         std::cout << "  Skipping this lesson..." << std::endl;
     }
-    waitForInput();
 }
 
 // -----------------------------------------------------------------
@@ -187,24 +186,36 @@ void Tutorial::lessonShop() {
         std::cout << "  | 5. Archer   (4 gold)    |" << std::endl;
         std::cout << "  +----- YOUR GOLD: 15 -----+" << std::endl;
         std::cout << std::endl;
-        std::cout << "  Try buying a unit! Type: buy 1" << std::endl;
-        std::cout << "  (Then press Enter)" << std::endl;
+        std::cout << "  SHOP COMMANDS:" << std::endl;
+        std::cout << "  • buy <1-5>     - Buy a unit" << std::endl;
+        std::cout << "  • info shop N   - See unit details" << std::endl;
+        std::cout << "  • refresh       - Re-roll shop" << std::endl;
         std::cout << std::endl;
-        std::cout << "  > ";
         
-        std::string input;
-        std::getline(std::cin, input);
-        
-        std::cout << std::endl;
-        if (input.find("buy") != std::string::npos) {
-            std::cout << "  ✓ Great! You've bought a Warrior!" << std::endl;
-            std::cout << "  ✓ It's now in your bench (workbench)." << std::endl;
-            printEncouragement();
-        } else {
-            std::cout << "  You can try commands like 'buy 1' or 'buy 2'" << std::endl;
+        bool validInput = false;
+        while (!validInput) {
+            std::cout << "  Try buying a unit! Type: buy 1" << std::endl;
+            std::cout << "  (Then press Enter)" << std::endl;
+            std::cout << std::endl;
+            std::cout << "  > ";
+            
+            std::string input;
+            std::getline(std::cin, input);
+            
+            std::cout << std::endl;
+            if (input.find("buy") != std::string::npos) {
+                std::cout << "  ✓ Great! You've bought a Warrior!" << std::endl;
+                std::cout << "  ✓ It's now in your bench (workbench)." << std::endl;
+                printEncouragement();
+                std::cout << "  Press Enter to continue" << std::endl;
+                validInput = true;
+            } else {
+                std::cout << "  Oops! That's not quite right." << std::endl;
+                std::cout << "  You can try commands like 'buy 1' or 'buy 2'" << std::endl;
+                std::cout << std::endl;
+            }
         }
     }
-    waitForInput();
 }
 
 // -----------------------------------------------------------------
@@ -241,7 +252,6 @@ void Tutorial::lessonUnits() {
     if (choice == "skip" || choice == "SKIP") {
         std::cout << "  Skipping this lesson..." << std::endl;
     }
-    waitForInput();
 }
 
 // -----------------------------------------------------------------
@@ -291,25 +301,38 @@ void Tutorial::lessonPlacement() {
         std::cout << "  Your gold: 5             [Row 3] [ ][ ][ ][ ]" << std::endl;
         std::cout << "                           [Row 4] [ ][ ][ ][ ]" << std::endl;
         std::cout << std::endl;
-        std::cout << "  Try placing the Warrior at Row 2, Column 0!" << std::endl;
-        std::cout << "  Type: place 1 2 0" << std::endl;
-        std::cout << "  (Then press Enter)" << std::endl;
+        std::cout << "  PLACEMENT COMMANDS:" << std::endl;
+        std::cout << "  • place <idx> <row> <col>  - Place unit at position" << std::endl;
+        std::cout << "  • remove <row> <col>       - Remove unit from board" << std::endl;
+        std::cout << "  • auto                     - Auto-place all units" << std::endl;
+        std::cout << "  • formation                - Show current formation" << std::endl;
         std::cout << std::endl;
-        std::cout << "  > ";
         
-        std::string input;
-        std::getline(std::cin, input);
-        
-        std::cout << std::endl;
-        if (input.find("place") != std::string::npos) {
-            std::cout << "  ✓ Perfect! You've placed the Warrior on the grid!" << std::endl;
-            std::cout << "  ✓ Defensive units like Warriors belong in the front." << std::endl;
-            printEncouragement();
-        } else {
-            std::cout << "  Remember the command format: place <idx> <row> <col>" << std::endl;
+        bool validInput = false;
+        while (!validInput) {
+            std::cout << "  Try placing the Warrior at Row 2, Column 0!" << std::endl;
+            std::cout << "  Type: place 1 2 0" << std::endl;
+            std::cout << "  (Then press Enter)" << std::endl;
+            std::cout << std::endl;
+            std::cout << "  > ";
+            
+            std::string input;
+            std::getline(std::cin, input);
+            
+            std::cout << std::endl;
+            if (input.find("place") != std::string::npos) {
+                std::cout << "  ✓ Perfect! You've placed the Warrior on the grid!" << std::endl;
+                std::cout << "  ✓ Defensive units like Warriors belong in the front." << std::endl;
+                printEncouragement();
+                std::cout << "  Press Enter to continue" << std::endl;
+                validInput = true;
+            } else {
+                std::cout << "  Oops! That's not quite right." << std::endl;
+                std::cout << "  Remember the command format: place <idx> <row> <col>" << std::endl;
+                std::cout << std::endl;
+            }
         }
     }
-    waitForInput();
 }
 
 // -----------------------------------------------------------------
@@ -346,7 +369,6 @@ void Tutorial::lessonCombat() {
     if (choice == "skip" || choice == "SKIP") {
         std::cout << "  Skipping this lesson..." << std::endl;
     }
-    waitForInput();
 }
 
 // -----------------------------------------------------------------
@@ -383,7 +405,6 @@ void Tutorial::lessonSynergy() {
     if (choice == "skip" || choice == "SKIP") {
         std::cout << "  Skipping this lesson..." << std::endl;
     }
-    waitForInput();
 }
 
 // -----------------------------------------------------------------
@@ -420,7 +441,6 @@ void Tutorial::lessonGoldManagement() {
     if (choice == "skip" || choice == "SKIP") {
         std::cout << "  Skipping this lesson..." << std::endl;
     }
-    waitForInput();
 }
 
 // -----------------------------------------------------------------
@@ -457,7 +477,6 @@ void Tutorial::lessonLevelUp() {
     if (choice == "skip" || choice == "SKIP") {
         std::cout << "  Skipping this lesson..." << std::endl;
     }
-    waitForInput();
 }
 
 // -----------------------------------------------------------------
@@ -619,7 +638,6 @@ bool Tutorial::run() {
     std::cout << "  Press Enter to continue" << std::endl;
     waitForInput();
     
-    lessonIntro();
     lessonShop();
     lessonUnits();
     lessonPlacement();
