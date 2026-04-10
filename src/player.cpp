@@ -154,24 +154,39 @@ void Player::displayBench() const {
 // Output : none (stdout)
 // -----------------------------------------------------------------
 void Player::displayStatus() const {
-    const int W = 35;
+    const int W = 55;
     std::cout << std::endl;
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
 
+    // Line 1: Player name and gold
     std::ostringstream line1;
-    line1 << "  " << std::left << std::setw(10) << name_
-          << "HP: " << std::left << std::setw(5) << hp_
-          << "Gold: " << gold_;
+    line1 << "  " << std::left << std::setw(15) << name_
+          << "Gold: " << std::left << std::setw(6) << gold_;
     std::string s1 = line1.str();
     if ((int)s1.size() < W) s1 += std::string(W - s1.size(), ' ');
     std::cout << "  |" << s1 << "|" << std::endl;
 
+    // Line 2: HP with visual bar
+    const int HP_BAR_WIDTH = 20;
+    int filled = (hp_ * HP_BAR_WIDTH) / STARTING_HP;
+    if (filled < 0) filled = 0;
+    if (filled > HP_BAR_WIDTH) filled = HP_BAR_WIDTH;
+    
+    std::string hpBar = "[" + std::string(filled, '=') + std::string(HP_BAR_WIDTH - filled, ' ') + "]";
     std::ostringstream line2;
-    line2 << "  Round: " << std::left << std::setw(5) << roundsPlayed_
-          << "Win: " << winStreak_ << "  Loss: " << lossStreak_;
+    line2 << "  HP: " << std::left << std::setw(3) << hp_ 
+          << "/" << STARTING_HP << " " << hpBar;
     std::string s2 = line2.str();
     if ((int)s2.size() < W) s2 += std::string(W - s2.size(), ' ');
     std::cout << "  |" << s2 << "|" << std::endl;
+
+    // Line 3: Round and streaks
+    std::ostringstream line3;
+    line3 << "  Round: " << std::left << std::setw(5) << roundsPlayed_
+          << "Win: " << winStreak_ << "  Loss: " << lossStreak_;
+    std::string s3 = line3.str();
+    if ((int)s3.size() < W) s3 += std::string(W - s3.size(), ' ');
+    std::cout << "  |" << s3 << "|" << std::endl;
 
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
 }
