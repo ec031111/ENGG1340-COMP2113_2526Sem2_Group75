@@ -84,6 +84,14 @@ public:
     void heal(int amount);
 
     // -----------------------------------------------------------------
+    // healToFull
+    // What it does : restores HP to maximum (used for resurrection).
+    // Input  : none
+    // Output : none
+    // -----------------------------------------------------------------
+    void healToFull();
+
+    // -----------------------------------------------------------------
     // getSellPrice
     // What it does : returns the gold refund (half cost * star level).
     // Input  : none
