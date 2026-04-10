@@ -8,10 +8,11 @@ COMP2113 / ENGG1340 Course Project - 2025-2026 2nd Semester, Group 75.
 
 | Name           | UID        | GitHub                      |
 | :--------------- | :----------- | :---------------------------- |
-| Liu Jing Zhong | 3036393984 | https://github.com/ec031111 |
-| Fang Chu Ran   | 3036480206 | https://github.com/fffcr    |
-| Yu Zi Yi       | 3036666185 | https://github.com/Elisa-Y  |
-| Li XInyang     | 3036590984 | https://github.com/oscarlixy|
+| Liu Jing Zhong | 3036393984 | https://github.com/ec031111  |
+| Fang Chu Ran   | 3036480206 | https://github.com/fffcr     |
+| Yu Zi Yi       | 3036666185 | https://github.com/Elisa-Y   |
+| Li XInyang     | 3036590984 | https://github.com/oscarlixy |
+| Ye Chin Ho     | 3036589222 | https://github.com/chinho-hub|
 
 
 
