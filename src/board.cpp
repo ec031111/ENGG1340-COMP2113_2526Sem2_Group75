@@ -92,14 +92,15 @@ void Board::clear() {
 // -----------------------------------------------------------------
 void Board::display() const {
     std::cout << std::endl;
-    std::cout << "      Player Side    |    AI Side" << std::endl;
-    std::cout << "      0   1   2   3  |  4   5   6   7" << std::endl;
-    std::cout << "    +---------------+|+---------------+" << std::endl;
+    std::cout << "  +---------+---------+" << std::endl;
+    std::cout << "  | PLAYER  |   AI    |" << std::endl;
+    std::cout << "  | 0 1 2 3 | 4 5 6 7 |" << std::endl;
+    std::cout << "  +---------+---------+" << std::endl;
 
     for (int r = 0; r < BOARD_ROWS; ++r) {
-        std::cout << "  " << r << " |";
+        std::cout << " " << r << "|";
         for (int c = 0; c < BOARD_COLS; ++c) {
-            if (c == AI_MIN_COL) std::cout << "||";
+            if (c == AI_MIN_COL) std::cout << "|";
             std::cout << " ";
             if (grid_[r][c] != nullptr) {
                 std::cout << grid_[r][c]->getSymbolString();
@@ -109,7 +110,7 @@ void Board::display() const {
         }
         std::cout << "|" << std::endl;
     }
-    std::cout << "    +---------------+|+---------------+" << std::endl;
+    std::cout << "  +---------+---------+" << std::endl;
     std::cout << std::endl;
 }
 
@@ -122,12 +123,13 @@ void Board::display() const {
 // -----------------------------------------------------------------
 void Board::displayPlayerSide() const {
     std::cout << std::endl;
-    std::cout << "    Your Formation:" << std::endl;
-    std::cout << "      0   1   2   3" << std::endl;
-    std::cout << "    +---------------+" << std::endl;
+    std::cout << "  +---------------+" << std::endl;
+    std::cout << "  | YOUR FORMATION |" << std::endl;
+    std::cout << "  |    0 1 2 3     |" << std::endl;
+    std::cout << "  +---------------+" << std::endl;
 
     for (int r = 0; r < BOARD_ROWS; ++r) {
-        std::cout << "  " << r << " |";
+        std::cout << " " << r << " |";
         for (int c = 0; c <= PLAYER_MAX_COL; ++c) {
             std::cout << " ";
             if (grid_[r][c] != nullptr) {
@@ -136,9 +138,9 @@ void Board::displayPlayerSide() const {
                 std::cout << ". ";
             }
         }
-        std::cout << "|" << std::endl;
+        std::cout << " |" << std::endl;
     }
-    std::cout << "    +---------------+" << std::endl;
+    std::cout << "  +---------------+" << std::endl;
     std::cout << std::endl;
 }
 
@@ -146,7 +148,7 @@ void Board::displayPlayerSide() const {
 // findNearestEnemy
 // What it does : iterates over the grid to find the closest enemy unit
 //                (by Manhattan distance). "Enemy" = different ownership.
-// Input  : unit – the unit searching for a target
+// Input  : unit - the unit searching for a target
 // Output : pointer to the nearest enemy, or nullptr if none exist
 // -----------------------------------------------------------------
 Unit* Board::findNearestEnemy(const Unit* unit) const {
