@@ -300,7 +300,7 @@ void Game::giveRandomFreeUnit() {
 void Game::shopPhase() {
     std::string line;
     bool ready = false;
-    bool firstRound = (player_.getRoundsPlayed() == 1);
+    bool shouldShow = true;  // Flag to control when to clear and show full screen
 
     // Return board units to bench for repositioning
     for (int r = 0; r < BOARD_ROWS; ++r)
@@ -316,25 +316,35 @@ void Game::shopPhase() {
     checkAndMerge();
 
     while (!ready && running_) {
-        // Display player status bar (always show Gold + HP)
-        printStatusBar();
-        std::cout << std::endl;
-        
-        shop_.setPlayerGold(player_.getGold());
-        shop_.display();
-        player_.displayBench();
-
-        std::vector<Unit*> placed = board_.getPlayerUnits();
-        if (!placed.empty()) {
-            board_.displayPlayerSide();
-        }
-
-        // Only show command tips on first round
-        if (firstRound) {
+        // Only clear and show full screen when needed
+        if (shouldShow) {
+            // Clear screen for clean pagination
+            #ifdef _WIN32
+                system("cls");
+            #else
+                system("clear");
+            #endif
+            
+            // Display status bar
+            printStatusBar();
+            std::cout << std::endl;
+            
+            // Display shop
+            shop_.setPlayerGold(player_.getGold());
+            shop_.display();
+            std::cout << std::endl;
+            
+            // Always show commands before bench
             printCommandTips();
-            firstRound = false;
+            std::cout << std::endl;
+            
+            // Display bench
+            player_.displayBench();
+            std::cout << std::endl;
+            
+            shouldShow = false;  // Don't re-show until a successful action
         }
-        
+
         std::cout << "  Command > ";
         if (!std::getline(std::cin, line)) {
             running_ = false;
@@ -378,6 +388,7 @@ void Game::shopPhase() {
             // Check for 3-merge after each purchase
             checkAndMerge();
             player_.displayStatus();
+            shouldShow = true;  // Refresh display after successful buy
 
         } else if (cmd == "sell") {
             int idx;
@@ -388,8 +399,10 @@ void Game::shopPhase() {
             idx--;
             if (!player_.sellUnit(idx)) {
                 std::cout << "  Invalid bench index." << std::endl;
+                continue;
             }
             player_.displayStatus();
+            shouldShow = true;  // Refresh display after successful sell
 
         } else if (cmd == "place") {
             int idx, row, col;
@@ -415,6 +428,7 @@ void Game::shopPhase() {
             std::cout << "  Placed " << unit->getName() << " at ("
                       << row << "," << col << ")." << std::endl;
             board_.displayPlayerSide();
+            shouldShow = true;  // Refresh display after successful place
 
         } else if (cmd == "remove") {
             int row, col;
@@ -434,6 +448,7 @@ void Game::shopPhase() {
             board_.removeUnit(row, col);
             player_.addToBench(unit);
             std::cout << "  Removed " << unit->getName() << " back to bench." << std::endl;
+            shouldShow = true;  // Refresh display after successful remove
 
         } else if (cmd == "formation" || cmd == "form" || cmd == "f") {
             board_.displayPlayerSide();
@@ -453,6 +468,7 @@ void Game::shopPhase() {
             }
             std::cout << "  Smart-placed " << placed << " units." << std::endl;
             board_.displayPlayerSide();
+            shouldShow = true;  // Refresh display after successful auto
 
         } else if (cmd == "refresh") {
             if (!player_.spendGold(shop_.getRefreshCost())) {
@@ -462,6 +478,7 @@ void Game::shopPhase() {
             shop_.refresh();
             std::cout << "  Shop refreshed!" << std::endl;
             player_.displayStatus();
+            shouldShow = true;  // Refresh display after successful refresh
 
         } else if (cmd == "save") {
             saveGame();
@@ -543,6 +560,10 @@ void Game::shopPhase() {
 
         } else if (cmd == "help") {
             printHelp();
+
+        } else if (cmd == "menu") {
+            // Return to main menu without asking
+            running_ = false;
 
         } else if (cmd == "quit" || cmd == "exit") {
             std::cout << "  Save before quitting? (y/n) > ";
@@ -1135,7 +1156,8 @@ void Game::printHelp() const {
     printBoxLine("  GAME:", W);
     printBoxLine("    ready          Start the battle!", W);
     printBoxLine("    save           Save game to file", W);
-    printBoxLine("    quit           Exit", W);
+    printBoxLine("    menu           Return to main menu", W);
+    printBoxLine("    quit           Exit game completely", W);
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
     printBoxTitle("CLASS ABILITIES", W);
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
@@ -1167,7 +1189,7 @@ void Game::printCommandTips() const {
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
     printBoxLine("  buy <1-5>  sell <idx>  refresh  info <idx>", W);
     printBoxLine("  place <idx> <row> <col>  remove <row> <col>", W);
-    printBoxLine("  auto    ready    formation    help", W);
+    printBoxLine("  auto    ready    formation    help    menu", W);
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
 }
 
