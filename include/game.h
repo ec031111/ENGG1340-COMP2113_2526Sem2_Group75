@@ -14,6 +14,11 @@
 const int LOSS_DAMAGE_BASE = 5;
 const int LOSS_DAMAGE_PER_SURVIVING = 2;
 
+// Maximum units player can deploy per round
+// Round 1: 3, Round 2: 4, Round 3: 5, Round 4+: 6
+const int MAX_DEPLOY_UNITS[] = {3, 4, 5, 6, 6, 6, 6, 6, 6, 6,  // rounds 1-10
+                                 6, 6, 6, 6, 6, 6, 6, 6, 6, 6}; // rounds 11-20
+
 // Base critical hit chance (percentage, 0-100).
 const int BASE_CRIT_CHANCE = 20;
 const double CRIT_MULTIPLIER = 1.5;
@@ -60,10 +65,10 @@ private:
     bool battlePhase();
 
     // --- Combat ---
-    bool resolveCombat();
+    bool resolveCombat(std::vector<Unit*>& deadUnits);
     int  performAttack(Unit* attacker, Unit* defender);
     void performAbility(Unit* attacker, Unit* defender, std::vector<Unit*>& allUnits);
-    void cleanupDeadUnits();
+    void cleanupDeadUnits(std::vector<Unit*>& deadUnits);
 
     // --- Unit merging (3 -> 1 upgrade) ---
     void checkAndMerge();
@@ -78,7 +83,10 @@ private:
     void printHelp() const;
     void printCommandTips() const;
     void printStatusBar() const;  // Compact status display
+    void printDeployLimit() const;  // Show deploy limit for current round
+    void printFormation() const;  // Show formation with HP bars
     void showIntro() const;
+    int getMaxDeployUnits() const;  // Get max units for current round
 };
 
 #endif // GAME_H
