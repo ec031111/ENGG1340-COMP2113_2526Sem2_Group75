@@ -11,7 +11,7 @@ Unit::Unit(const std::string& name, UnitClass unitClass, int maxHp,
     : baseName_(name), unitClass_(unitClass), hp_(maxHp), maxHp_(maxHp),
       baseMaxHp_(maxHp), atk_(atk), baseAtk_(atk), cost_(cost),
       row_(-1), col_(-1), critBonus_(critBonus), baseCritBonus_(critBonus),
-      attackRange_(attackRange), starLevel_(1),
+      attackRange_(attackRange), starLevel_(1), raged_(false),
       atkBonus_(0), critBonusExtra_(0), playerOwned_(true) {}
 
 // -----------------------------------------------------------------
@@ -23,7 +23,7 @@ Unit::Unit(const Unit& other)
       atk_(other.atk_), baseAtk_(other.baseAtk_), cost_(other.cost_),
       row_(other.row_), col_(other.col_),
       critBonus_(other.critBonus_), baseCritBonus_(other.baseCritBonus_),
-      attackRange_(other.attackRange_), starLevel_(other.starLevel_),
+      attackRange_(other.attackRange_), starLevel_(other.starLevel_), raged_(other.raged_),
       atkBonus_(other.atkBonus_), critBonusExtra_(other.critBonusExtra_),
       playerOwned_(other.playerOwned_) {}
 
@@ -42,20 +42,50 @@ int  Unit::getAttackRange() const       { return attackRange_; }
 int  Unit::getStarLevel() const         { return starLevel_; }
 bool Unit::isAlive() const              { return hp_ > 0; }
 bool Unit::isPlayerUnit() const         { return playerOwned_; }
+bool Unit::isRaged() const              { return raged_; }
 
 // -----------------------------------------------------------------
 // getSymbol
-// What it does : returns the first char of name. Star 2+ gets lowercase.
+// What it does : returns display symbol for the board.
+//                Star 1: first char uppercase (e.g. 'W')
+//                Star 2: first char + '2' indicator
+//                Star 3: first char + '3' indicator
 // Input  : none
-// Output : char
+// Output : char (first character of name)
 // -----------------------------------------------------------------
 char Unit::getSymbol() const {
-    char c = baseName_[0];
+    return baseName_[0];
+}
+
+// -----------------------------------------------------------------
+// getSymbolString
+// What it does : returns a 2-char display string for the board.
+// Input  : none
+// Output : string like "W ", "W2", "W3"
+// -----------------------------------------------------------------
+std::string Unit::getSymbolString() const {
+    std::string s;
+    s += baseName_[0];
     if (starLevel_ >= 2) {
-        // Use uppercase for visibility, add star count nearby
-        return c;
+        s += ('0' + starLevel_);
+    } else {
+        s += ' ';
     }
-    return c;
+    return s;
+}
+
+// -----------------------------------------------------------------
+// getAbilityTag
+// -----------------------------------------------------------------
+std::string Unit::getAbilityTag() const {
+    switch (unitClass_) {
+        case WARRIOR:  return "Rage";
+        case MAGE:     return "AOE";
+        case TANK:     return "Block";
+        case ASSASSIN: return "Crit";
+        case ARCHER:   return "DblShot";
+        default:       return "?";
+    }
 }
 
 // --- Setters ---
@@ -76,6 +106,13 @@ void Unit::takeDamage(int damage) {
 void Unit::heal(int amount) {
     hp_ += amount;
     if (hp_ > maxHp_) hp_ = maxHp_;
+}
+
+// -----------------------------------------------------------------
+// healToFull
+// -----------------------------------------------------------------
+void Unit::healToFull() {
+    hp_ = maxHp_;
 }
 
 // -----------------------------------------------------------------
@@ -105,6 +142,21 @@ std::string Unit::getClassString() const {
         case ASSASSIN: return "Assassin";
         case ARCHER:   return "Archer";
         default:       return "Unknown";
+    }
+}
+
+// -----------------------------------------------------------------
+// getClassDescription
+// Returns a one-line lore description for each unit class.
+// -----------------------------------------------------------------
+std::string Unit::getClassDescription(UnitClass cls) {
+    switch (cls) {
+        case WARRIOR:  return "Fearless fighters who grow stronger when wounded.";
+        case MAGE:     return "Glass cannons wielding devastating area magic.";
+        case TANK:     return "Iron-walled defenders who shrug off blows.";
+        case ASSASSIN: return "Shadowy killers with lethal critical strikes.";
+        case ARCHER:   return "Precise marksmen who can fire twice in succession.";
+        default:       return "Unknown class.";
     }
 }
 
@@ -147,6 +199,14 @@ void Unit::upgrade() {
 }
 
 // -----------------------------------------------------------------
+// forceSetStarLevel
+// -----------------------------------------------------------------
+void Unit::forceSetStarLevel(int level) {
+    if (level < 1 || level > MAX_STAR_LEVEL) return;
+    starLevel_ = level;
+}
+
+// -----------------------------------------------------------------
 // applyAtkBonus / applyCritBonus
 // -----------------------------------------------------------------
 void Unit::applyAtkBonus(int bonus)  { atkBonus_ += bonus; }
@@ -158,4 +218,18 @@ void Unit::applyCritBonus(int bonus) { critBonusExtra_ += bonus; }
 void Unit::resetBonuses() {
     atkBonus_ = 0;
     critBonusExtra_ = 0;
+}
+
+// -----------------------------------------------------------------
+// clearRage
+// -----------------------------------------------------------------
+void Unit::clearRage() {
+    raged_ = false;
+}
+
+// -----------------------------------------------------------------
+// setRaged
+// -----------------------------------------------------------------
+void Unit::setRaged() {
+    raged_ = true;
 }

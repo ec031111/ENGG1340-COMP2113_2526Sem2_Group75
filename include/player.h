@@ -13,6 +13,8 @@ const int STARTING_HP   = 100;
 const int STARTING_GOLD = 10;
 const int GOLD_PER_ROUND = 5;
 const int WIN_STREAK_BONUS = 1;   // extra gold per consecutive win
+const int LOSS_STREAK_BONUS = 1;  // extra gold per consecutive loss
+const int INTEREST_PER_10 = 1;    // earn 1 gold per 10 gold saved, max 5
 
 // ---------------------------------------------------------------------
 // Player
