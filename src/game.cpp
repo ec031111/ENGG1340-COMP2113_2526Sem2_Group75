@@ -22,6 +22,71 @@ static void printBoxTitle(const std::string& title, int W) {
               << std::string(W - pad - (int)title.size(), ' ') << "|" << std::endl;
 }
 
+// Helper: build an HP bar string of given width
+// e.g. hpBar(current, max, 10) => "===       "
+static std::string hpBar(int hp, int maxHp, int width) {
+    if (maxHp <= 0) return std::string(width, ' ');
+    int filled = (hp * width) / maxHp;
+    if (filled < 0) filled = 0;
+    if (filled > width) filled = width;
+    return std::string(filled, '=') + std::string(width - filled, ' ');
+}
+
+// Helper: preferred column for smart placement by class
+static int smartPlaceCol(UnitClass cls) {
+    switch (cls) {
+        case TANK:     return 3;  // front line
+        case WARRIOR:  return 3;
+        case ARCHER:   return 0;  // back line
+        case MAGE:     return 0;
+        case ASSASSIN: return 1;  // middle
+        default:       return 2;
+    }
+}
+
+// Helper: smart-place a unit on the player side
+static bool smartPlaceUnit(Board& board, Unit* unit) {
+    int pc = smartPlaceCol(unit->getClass());
+    for (int off = 0; off <= PLAYER_MAX_COL; ++off) {
+        for (int d = 0; d < 2; ++d) {
+            int c = (d == 0) ? pc - off : pc + off;
+            if (c < 0 || c > PLAYER_MAX_COL) continue;
+            if (off == 0 && d == 1) continue;
+            for (int r = 0; r < BOARD_ROWS; ++r) {
+                if (board.isEmpty(r, c)) {
+                    board.placeUnit(unit, r, c);
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+// Helper: ability name for shop display
+static std::string abilityName(UnitClass cls) {
+    switch (cls) {
+        case WARRIOR:  return "Rage";
+        case MAGE:     return "AOE";
+        case TANK:     return "Block";
+        case ASSASSIN: return "Crit";
+        case ARCHER:   return "DblShot";
+        default:       return "?";
+    }
+}
+
+// Helper: ability description for info command
+static std::string abilityDesc(UnitClass cls) {
+    switch (cls) {
+        case WARRIOR:  return "Below 50% HP: +30% ATK (once per combat)";
+        case MAGE:     return "30% chance: 50% splash to nearby enemies";
+        case TANK:     return "25% chance: block 40% of incoming damage";
+        case ASSASSIN: return "25% chance: extra 50% damage (backstab)";
+        case ARCHER:   return "20% chance: attack again (can crit)";
+        default:       return "Unknown";
+    }
+}
+
 // =====================================================================
 // Constructor / Destructor
 // =====================================================================
@@ -32,9 +97,36 @@ Game::Game(Difficulty difficulty)
 Game::~Game() {}
 
 // =====================================================================
+// showIntro - Story introduction for new games
+// =====================================================================
+void Game::showIntro() const {
+    const int W = 60;
+    std::cout << std::endl;
+    std::cout << "  +" << std::string(W, '=') << "+" << std::endl;
+    printBoxTitle("THE BATTLE FOR AETHORIA", W);
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    printBoxLine("", W);
+    printBoxLine("  In the war-torn realm of Aethoria, the Dark Lord", W);
+    printBoxLine("  Malachar has raised an army of darkness. As the", W);
+    printBoxLine("  last surviving commander of the Allied Forces,", W);
+    printBoxLine("  you must recruit heroes, form your formation,", W);
+    printBoxLine("  and fight wave after wave of enemies to protect", W);
+    printBoxLine("  what remains of civilization.", W);
+    printBoxLine("", W);
+    printBoxLine("  Each round, Malachar's forces grow stronger.", W);
+    printBoxLine("  Your task: survive as long as you can, and", W);
+    printBoxLine("  perhaps... turn the tide of war.", W);
+    printBoxLine("", W);
+    std::cout << "  +" << std::string(W, '=') << "+" << std::endl;
+    std::cout << "\n  [Press Enter to begin your campaign...]";
+    std::string dummy;
+    std::getline(std::cin, dummy);
+}
+
+// =====================================================================
 // run - Master game loop
 // =====================================================================
-int Game::run() {
+int Game::run(bool show_intro) {
     std::cout << std::endl;
     std::cout << "  +======================================+" << std::endl;
     std::cout << "  |       AUTO-BATTLER ARENA             |" << std::endl;
@@ -43,14 +135,46 @@ int Game::run() {
     std::cout << "  +======================================+" << std::endl;
     std::cout << "\n  Type 'help' for commands. 'save' to save game.\n" << std::endl;
 
+    // Show story intro for new games only
+    if (show_intro) {
+        showIntro();
+        printHelp();  // Show full command list after intro
+    } else {
+        printCommandTips();  // Show quick commands if loading saved game
+    }
+
     while (running_ && player_.isAlive()) {
         player_.startNewRound();
+
+        // --- Round flavor text ---
+        {
+            int round = player_.getRoundsPlayed();
+            std::cout << std::endl;
+            if (round == 1) {
+                std::cout << "  ~ The first wave approaches... ~" << std::endl;
+            } else if (round == 5) {
+                std::cout << "  ~ The enemy grows restless... ~" << std::endl;
+            } else if (round == 10) {
+                std::cout << "  ~ A formidable army approaches! ~" << std::endl;
+            } else if (round == 15) {
+                std::cout << "  ~ The Dark Lord himself sends his elite guard! ~" << std::endl;
+            } else if (round >= 20) {
+                std::cout << "  ~ The final battle rages on... ~" << std::endl;
+            } else {
+                const std::string flavor[] = {
+                    "  ~ The winds of war howl across the battlefield. ~",
+                    "  ~ Malachar's minions march ever onward. ~",
+                    "  ~ The scent of battle fills the air. ~",
+                    "  ~ Your soldiers steady themselves for the coming fight. ~"
+                };
+                std::cout << flavor[rand() % 4] << std::endl;
+            }
+            std::cout << std::endl;
+        }
 
         // --- Random event ---
         currentEvent_ = Event::rollEvent(player_.getRoundsPlayed());
         handleEvent();
-
-        player_.displayStatus();
 
         // --- Shop Phase ---
         shop_.refresh();
@@ -64,26 +188,63 @@ int Game::run() {
 
         if (playerWon) {
             player_.recordWin();
-            std::cout << "\n  >> YOU WON this round! <<" << std::endl;
+            const std::string victoryMessages[] = {
+                "  >> The enemy retreats! Victory is yours! <<",
+                "  >> Your forces prevail! The Dark Army scatters! <<",
+                "  >> A glorious victory! The Allied Forces stand strong! <<"
+            };
+            std::cout << "\n" << victoryMessages[rand() % 3] << std::endl;
         } else {
             player_.recordLoss();
             int damage = LOSS_DAMAGE_BASE
                 + (ai_.getArmySize() * LOSS_DAMAGE_PER_SURVIVING);
             player_.takeDamage(damage);
-            std::cout << "\n  >> YOU LOST this round. You take "
-                      << damage << " damage. <<" << std::endl;
+            const std::string defeatMessages[] = {
+                "  >> Your forces fall... the Dark Army advances. <<",
+                "  >> Defeat! Your soldiers couldn't hold the line. <<"
+            };
+            std::cout << "\n" << defeatMessages[rand() % 2]
+                      << " You take " << damage << " damage." << std::endl;
         }
 
-        board_.clear();
+        // Note: Unit cleanup is handled in battlePhase() for unit persistence
         currentEvent_ = EVENT_NONE;
 
         if (!player_.isAlive()) {
-            const int GW = 35;
+            const int GW = 50;
+            int rounds = player_.getRoundsPlayed();
+            int maxHp = STARTING_HP;  // From player.h
+            
             std::cout << std::endl;
             std::cout << "  +" << std::string(GW, '=') << "+" << std::endl;
             printBoxTitle("GAME OVER", GW);
-            std::string t2 = "You survived " + std::to_string(player_.getRoundsPlayed()) + " rounds!";
+            std::string t2 = "You survived " + std::to_string(rounds) + " rounds!";
             printBoxTitle(t2, GW);
+            std::cout << "  +" << std::string(GW, '-') << "+" << std::endl;
+
+            // Narrative text based on rounds survived
+            std::string narrative;
+            if (rounds < 5) {
+                narrative = "The Dark Lord's forces overwhelmed you...";
+            } else if (rounds < 10) {
+                narrative = "You fought bravely, but Malachar's army was too strong.";
+            } else if (rounds < 15) {
+                narrative = "A valiant effort! Your name will be remembered.";
+            } else if (rounds < 20) {
+                narrative = "Legendary commander! You held the line longer than anyone.";
+            } else {
+                narrative = "IMMORTAL! The bards will sing of your deeds forever!";
+            }
+            printBoxLine("  " + narrative, GW);
+            std::cout << "  +" << std::string(GW, '-') << "+" << std::endl;
+            
+            // Final HP display with blood bar
+            std::ostringstream hpLine;
+            hpLine << "  Final HP: 0/" << maxHp << " [";
+            hpLine << std::string(20, ' ');  // Empty bar since HP is 0
+            hpLine << "]";
+            printBoxLine(hpLine.str(), GW);
+            
             std::cout << "  +" << std::string(GW, '=') << "+" << std::endl;
         } else {
             std::cout << "\n  [Press Enter to continue to next round...]";
@@ -139,6 +300,8 @@ void Game::giveRandomFreeUnit() {
 void Game::shopPhase() {
     std::string line;
     bool ready = false;
+    bool shouldShow = true;  // Flag to control when to clear and show full screen
+    bool firstPrompt = true;  // Show help on first prompt
 
     // Return board units to bench for repositioning
     for (int r = 0; r < BOARD_ROWS; ++r)
@@ -150,17 +313,50 @@ void Game::shopPhase() {
             }
         }
 
+    // Note: All units are already healed to full HP when returning from battle
+
     // Check for auto-merges after returning units
     checkAndMerge();
 
     while (!ready && running_) {
-        shop_.setPlayerGold(player_.getGold());
-        shop_.display();
-        player_.displayBench();
+        // Only clear and show full screen when needed
+        if (shouldShow) {
+            // Clear screen for clean pagination
+            #ifdef _WIN32
+                system("cls");
+            #else
+                system("clear");
+            #endif
 
-        std::vector<Unit*> placed = board_.getPlayerUnits();
-        if (!placed.empty()) {
+            // Display status bar
+            printStatusBar();
+            printDeployLimit();
+            std::cout << std::endl;
+
+            // Display formation before each operation
             board_.displayPlayerSide();
+            printFormation();
+
+            // Display shop
+            shop_.setPlayerGold(player_.getGold());
+            shop_.display();
+            std::cout << std::endl;
+
+            // Always show commands before bench
+            printCommandTips();
+            std::cout << std::endl;
+
+            // Display bench
+            player_.displayBench();
+            std::cout << std::endl;
+
+            // Auto-show help on first prompt of the game
+            if (firstPrompt) {
+                printHelp();
+                firstPrompt = false;
+            }
+
+            shouldShow = false;  // Don't re-show until a successful action
         }
 
         std::cout << "  Command > ";
@@ -206,6 +402,7 @@ void Game::shopPhase() {
             // Check for 3-merge after each purchase
             checkAndMerge();
             player_.displayStatus();
+            shouldShow = true;  // Refresh display after successful buy
 
         } else if (cmd == "sell") {
             int idx;
@@ -216,8 +413,10 @@ void Game::shopPhase() {
             idx--;
             if (!player_.sellUnit(idx)) {
                 std::cout << "  Invalid bench index." << std::endl;
+                continue;
             }
             player_.displayStatus();
+            shouldShow = true;  // Refresh display after successful sell
 
         } else if (cmd == "place") {
             int idx, row, col;
@@ -234,6 +433,23 @@ void Game::shopPhase() {
                 std::cout << "  That cell is occupied!" << std::endl;
                 continue;
             }
+            // Check deployment limit AND bench capacity
+            int maxUnits = getMaxDeployUnits();
+            int currentUnits = board_.getPlayerUnits().size();
+            if (currentUnits >= maxUnits) {
+                std::cout << "  Deployment limit reached! Max " << maxUnits << " units this round." << std::endl;
+                std::cout << "  Use 'remove' to take a unit back to bench first." << std::endl;
+                continue;
+            }
+            // Check if bench would overflow after battle (bench - 1 + currentUnits <= MAX_BENCH)
+            int benchAfterPlace = player_.getBenchSize() - 1;  // -1 because we're about to move one to board
+            if (benchAfterPlace + currentUnits + 1 > MAX_BENCH_SIZE) {
+                std::cout << "  Cannot place! Bench would overflow after battle." << std::endl;
+                std::cout << "  Total units (bench + board): " << (benchAfterPlace + currentUnits + 1)
+                          << " > Max bench: " << MAX_BENCH_SIZE << std::endl;
+                std::cout << "  Sell some units first." << std::endl;
+                continue;
+            }
             Unit* unit = player_.removeFromBench(idx);
             if (unit == nullptr) {
                 std::cout << "  Invalid bench index." << std::endl;
@@ -243,6 +459,7 @@ void Game::shopPhase() {
             std::cout << "  Placed " << unit->getName() << " at ("
                       << row << "," << col << ")." << std::endl;
             board_.displayPlayerSide();
+            shouldShow = true;  // Refresh display after successful place
 
         } else if (cmd == "remove") {
             int row, col;
@@ -262,28 +479,48 @@ void Game::shopPhase() {
             board_.removeUnit(row, col);
             player_.addToBench(unit);
             std::cout << "  Removed " << unit->getName() << " back to bench." << std::endl;
+            shouldShow = true;  // Refresh display after successful remove
 
         } else if (cmd == "formation" || cmd == "form" || cmd == "f") {
             board_.displayPlayerSide();
 
         } else if (cmd == "auto") {
             int benchSize = player_.getBenchSize();
+            int maxUnits = getMaxDeployUnits();
+            int currentUnits = board_.getPlayerUnits().size();
+            // Check bench capacity before auto-placing
+            if (currentUnits + benchSize > MAX_BENCH_SIZE) {
+                std::cout << "  Cannot auto-place! Total units would exceed bench capacity." << std::endl;
+                std::cout << "  Currently deployed: " << currentUnits << ", Bench: " << benchSize
+                          << ", Max bench: " << MAX_BENCH_SIZE << std::endl;
+                std::cout << "  Sell some units first." << std::endl;
+                continue;
+            }
             int placed = 0;
             for (int i = 0; i < benchSize; ++i) {
+                if (currentUnits + placed >= maxUnits) {
+                    // Put remaining units back on bench
+                    Unit* unit = player_.removeFromBench(0);
+                    if (unit != nullptr) {
+                        player_.addToBench(unit);
+                    }
+                    break;
+                }
                 Unit* unit = player_.removeFromBench(0);
                 if (unit == nullptr) continue;
-                bool ok = false;
-                for (int c = PLAYER_MAX_COL; c >= 0 && !ok; --c)
-                    for (int r = 0; r < BOARD_ROWS && !ok; ++r)
-                        if (board_.isEmpty(r, c)) {
-                            board_.placeUnit(unit, r, c);
-                            ok = true;
-                            placed++;
-                        }
-                if (!ok) { player_.addToBench(unit); break; }
+                if (smartPlaceUnit(board_, unit)) {
+                    placed++;
+                } else {
+                    player_.addToBench(unit);
+                    break;
+                }
             }
-            std::cout << "  Auto-placed " << placed << " units." << std::endl;
+            std::cout << "  Smart-placed " << placed << " units." << std::endl;
+            if (currentUnits + placed >= maxUnits) {
+                std::cout << "  Deployment limit (" << maxUnits << ") reached!" << std::endl;
+            }
             board_.displayPlayerSide();
+            shouldShow = true;  // Refresh display after successful auto
 
         } else if (cmd == "refresh") {
             if (!player_.spendGold(shop_.getRefreshCost())) {
@@ -293,34 +530,114 @@ void Game::shopPhase() {
             shop_.refresh();
             std::cout << "  Shop refreshed!" << std::endl;
             player_.displayStatus();
+            shouldShow = true;  // Refresh display after successful refresh
 
         } else if (cmd == "save") {
             saveGame();
             std::cout << "  Game saved!" << std::endl;
 
         } else if (cmd == "ready") {
-            // Auto-place bench leftovers
+            // Smart-place bench leftovers (respecting deployment limit)
             int benchSize = player_.getBenchSize();
-            for (int i = 0; i < benchSize; ++i) {
-                Unit* unit = player_.removeFromBench(0);
-                if (unit == nullptr) continue;
-                bool ok = false;
-                for (int c = PLAYER_MAX_COL; c >= 0 && !ok; --c)
-                    for (int r = 0; r < BOARD_ROWS && !ok; ++r)
-                        if (board_.isEmpty(r, c)) {
-                            board_.placeUnit(unit, r, c);
-                            ok = true;
-                        }
-                if (!ok) { player_.addToBench(unit); break; }
-            }
-            if (board_.getPlayerUnits().empty()) {
-                std::cout << "  No units! Buy some first." << std::endl;
+            int maxUnits = getMaxDeployUnits();
+            int currentUnits = board_.getPlayerUnits().size();
+            // Check: after battle, units return to bench
+            // So we need: currentUnits + benchSize <= MAX_BENCH_SIZE
+            if (currentUnits + benchSize > MAX_BENCH_SIZE) {
+                std::cout << "  Cannot start battle! Bench would overflow after units return." << std::endl;
+                std::cout << "  Currently deployed: " << currentUnits << ", Bench: " << benchSize
+                          << ", Max bench: " << MAX_BENCH_SIZE << std::endl;
+                std::cout << "  Sell some units or remove some from board first." << std::endl;
                 continue;
             }
+            for (int i = 0; i < benchSize; ++i) {
+                if (currentUnits >= maxUnits) {
+                    // Put remaining units back on bench
+                    Unit* unit = player_.removeFromBench(0);
+                    if (unit != nullptr) {
+                        player_.addToBench(unit);
+                    }
+                    continue;
+                }
+                Unit* unit = player_.removeFromBench(0);
+                if (unit == nullptr) continue;
+                if (!smartPlaceUnit(board_, unit)) {
+                    player_.addToBench(unit);
+                    break;
+                }
+                currentUnits++;
+            }
+            if (board_.getPlayerUnits().empty()) {
+                std::cout << "  No units deployed! Place at least 1 unit." << std::endl;
+                continue;
+            }
+            std::cout << "  Deploying " << board_.getPlayerUnits().size()
+                      << " units (limit: " << maxUnits << ")..." << std::endl;
             ready = true;
+
+        } else if (cmd == "info") {
+            std::string target;
+            if (!(iss >> target)) {
+                std::cout << "  Usage: info <bench#>  or  info shop <slot#>" << std::endl;
+                continue;
+            }
+            Unit* infoUnit = nullptr;
+            if (target == "shop") {
+                int slot;
+                if (!(iss >> slot)) {
+                    std::cout << "  Usage: info shop <1-5>" << std::endl;
+                    continue;
+                }
+                slot--;
+                infoUnit = shop_.getUnit(slot);
+                if (infoUnit == nullptr) {
+                    std::cout << "  That shop slot is empty." << std::endl;
+                    continue;
+                }
+            } else {
+                // Try parsing as bench index
+                int idx = 0;
+                std::istringstream ts(target);
+                if (!(ts >> idx)) {
+                    std::cout << "  Usage: info <bench#>  or  info shop <slot#>" << std::endl;
+                    continue;
+                }
+                idx--;
+                infoUnit = player_.getBenchUnit(idx);
+                if (infoUnit == nullptr) {
+                    std::cout << "  Invalid bench index." << std::endl;
+                    continue;
+                }
+            }
+            // Display detailed unit info
+            const int IW = 45;
+            std::cout << std::endl;
+            std::cout << "  +" << std::string(IW, '-') << "+" << std::endl;
+            printBoxTitle("UNIT INFO", IW);
+            std::cout << "  +" << std::string(IW, '-') << "+" << std::endl;
+            printBoxLine("  Name:   " + infoUnit->getDisplayName(), IW);
+            printBoxLine("  Class:  " + infoUnit->getClassString(), IW);
+            printBoxLine("  Star:   " + infoUnit->getStarString(), IW);
+            std::cout << "  +" << std::string(IW, '-') << "+" << std::endl;
+            printBoxLine("  HP:     " + std::to_string(infoUnit->getMaxHp()), IW);
+            printBoxLine("  ATK:    " + std::to_string(infoUnit->getAtk()), IW);
+            printBoxLine("  Crit:   " + std::to_string(BASE_CRIT_CHANCE + infoUnit->getCritBonus()) + "%", IW);
+            printBoxLine("  Range:  " + std::to_string(infoUnit->getAttackRange()), IW);
+            std::cout << "  +" << std::string(IW, '-') << "+" << std::endl;
+            printBoxLine("  Ability: " + abilityName(infoUnit->getClass()), IW);
+            printBoxLine("  " + abilityDesc(infoUnit->getClass()), IW);
+            printBoxLine("  Lore: " + Unit::getClassDescription(infoUnit->getClass()), IW);
+            std::cout << "  +" << std::string(IW, '-') << "+" << std::endl;
+            printBoxLine("  Cost: $" + std::to_string(infoUnit->getCost())
+                         + "  |  Sell: $" + std::to_string(infoUnit->getSellPrice()), IW);
+            std::cout << "  +" << std::string(IW, '-') << "+" << std::endl;
 
         } else if (cmd == "help") {
             printHelp();
+
+        } else if (cmd == "menu") {
+            // Return to main menu without asking
+            running_ = false;
 
         } else if (cmd == "quit" || cmd == "exit") {
             std::cout << "  Save before quitting? (y/n) > ";
@@ -406,13 +723,13 @@ bool Game::battlePhase() {
     // Show armies
     pUnits = board_.getPlayerUnits();
     std::vector<Unit*> aUnits = board_.getAIUnits();
-    std::cout << "  YOUR ARMY (" << pUnits.size() << "): ";
+    std::cout << "  ALLIED FORCES (" << pUnits.size() << "): ";
     for (size_t i = 0; i < pUnits.size(); ++i) {
         std::cout << pUnits[i]->getName();
         if (i + 1 < pUnits.size()) std::cout << ", ";
     }
     std::cout << std::endl;
-    std::cout << "  ENEMY (" << aUnits.size() << "):     ";
+    std::cout << "  Dark Army (" << aUnits.size() << "):      ";
     for (size_t i = 0; i < aUnits.size(); ++i) {
         std::cout << aUnits[i]->getName();
         if (i + 1 < aUnits.size()) std::cout << ", ";
@@ -427,21 +744,70 @@ bool Game::battlePhase() {
     std::getline(std::cin, input);
     if (input == "s" || input == "S") skipCombat_ = true;
 
-    bool playerWon = resolveCombat();
+    std::vector<Unit*> deadUnits;
+    bool playerWon = resolveCombat(deadUnits);
 
     // Clear synergy bonuses
     pUnits = board_.getPlayerUnits();
     Synergy::clearSynergies(pUnits);
 
-    // Cleanup surviving units
-    for (int r = 0; r < BOARD_ROWS; ++r)
+    // UNIT PERSISTENCE: ALL player units return to bench with FULL HP
+    // Dead units are RESURRECTED with full HP
+    // Surviving units are HEALED to full HP
+    for (int r = 0; r < BOARD_ROWS; ++r) {
         for (int c = 0; c < BOARD_COLS; ++c) {
             Unit* u = board_.getUnit(r, c);
             if (u != nullptr) {
                 board_.removeUnit(r, c);
-                delete u;
+                if (u->isPlayerUnit()) {
+                    // Check if unit was dead BEFORE healing
+                    bool wasDead = !u->isAlive();
+                    // Heal to full HP before returning to bench
+                    u->healToFull();
+                    // Add to bench (may fail if bench is full - we check this before battle)
+                    if (!player_.addToBench(u)) {
+                        // This should not happen if deployment limits were enforced
+                        std::cerr << "  ERROR: Bench full! Unit " << u->getName() << " lost!" << std::endl;
+                        delete u;  // Clean up to prevent memory leak
+                    } else {
+                        if (wasDead) {
+                            // Unit was dead - show resurrection message
+                            std::cout << "  [RESURRECT] " << u->getName() << " has risen with full HP ("
+                                      << u->getMaxHp() << "/" << u->getMaxHp() << ")!" << std::endl;
+                        } else {
+                            // Unit survived - show healed message
+                            std::cout << "  [HEALED] " << u->getName() << " returns with full HP ("
+                                      << u->getMaxHp() << "/" << u->getMaxHp() << ")!" << std::endl;
+                        }
+                    }
+                } else {
+                    // AI unit - always delete (AI gets fresh units each round)
+                    delete u;
+                }
             }
         }
+    }
+
+    // Check for auto-merges after returning units
+    checkAndMerge();
+
+    // UNIT PERSISTENCE: Dead player units collected during combat are also resurrected
+    for (size_t i = 0; i < deadUnits.size(); ++i) {
+        Unit* u = deadUnits[i];
+        if (u->isPlayerUnit()) {
+            u->healToFull();
+            if (!player_.addToBench(u)) {
+                std::cerr << "  ERROR: Bench full! Unit " << u->getName() << " lost!" << std::endl;
+                delete u;
+            } else {
+                std::cout << "  [RESURRECT] " << u->getName() << " has risen with full HP ("
+                          << u->getMaxHp() << "/" << u->getMaxHp() << ")!" << std::endl;
+            }
+        } else {
+            // AI unit
+            delete u;
+        }
+    }
 
     return playerWon;
 }
@@ -449,10 +815,16 @@ bool Game::battlePhase() {
 // =====================================================================
 // resolveCombat - tick-by-tick with abilities
 // =====================================================================
-bool Game::resolveCombat() {
+bool Game::resolveCombat(std::vector<Unit*>& deadUnits) {
     int totalPlayerKills = 0, totalAIKills = 0;
     int totalPlayerDmg = 0, totalAIDmg = 0;
     int lastTick = 0;
+
+    // Clear rage flags for all units at combat start
+    std::vector<Unit*> allUnitsInit = board_.getAllUnits();
+    for (size_t i = 0; i < allUnitsInit.size(); ++i) {
+        allUnitsInit[i]->clearRage();
+    }
 
     for (int tick = 1; tick <= MAX_COMBAT_TICKS; ++tick) {
         std::vector<Unit*> allUnits = board_.getAllUnits();
@@ -472,16 +844,16 @@ bool Game::resolveCombat() {
             board_.display();
             std::vector<Unit*> p = board_.getPlayerUnits();
             std::vector<Unit*> a = board_.getAIUnits();
-            std::cout << "  YOU: ";
+            std::cout << "  ALLIED: ";
             for (size_t i = 0; i < p.size(); ++i) {
-                std::cout << p[i]->getSymbol();
-                if (p[i]->getStarLevel() > 1) std::cout << p[i]->getStarLevel();
-                std::cout << "(" << p[i]->getHp() << ")";
+                std::cout << p[i]->getSymbolString()
+                          << "[" << hpBar(p[i]->getHp(), p[i]->getMaxHp(), 10) << "]";
                 if (i + 1 < p.size()) std::cout << " ";
             }
-            std::cout << "  vs  ENEMY: ";
+            std::cout << "  vs  DARK ARMY: ";
             for (size_t i = 0; i < a.size(); ++i) {
-                std::cout << a[i]->getSymbol() << "(" << a[i]->getHp() << ")";
+                std::cout << a[i]->getSymbolString()
+                          << "[" << hpBar(a[i]->getHp(), a[i]->getMaxHp(), 10) << "]";
                 if (i + 1 < a.size()) std::cout << " ";
             }
             std::cout << std::endl << std::endl;
@@ -517,7 +889,7 @@ bool Game::resolveCombat() {
             }
         }
 
-        cleanupDeadUnits();
+        cleanupDeadUnits(deadUnits);
 
         if (!skipCombat_) {
             std::cout << "\n  [Enter] next | [s] skip > ";
@@ -644,24 +1016,46 @@ void Game::performAbility(Unit* attacker, Unit* defender, std::vector<Unit*>& al
             break;
         }
         case WARRIOR: {
-            // Rage: below 50% HP, gain +30% ATK (applied once)
-            if (attacker->getHp() < attacker->getMaxHp() / 2) {
-                // The bonus is temporary for display - applied via synergy system
-                if (!skipCombat_ && rand() % 100 < 10) {
+            // Rage: below 50% HP, permanently gain +30% ATK (once per combat)
+            if (!attacker->isRaged() && attacker->getHp() < attacker->getMaxHp() / 2) {
+                int rageBonus = attacker->getAtk() * 30 / 100;
+                attacker->applyAtkBonus(rageBonus);
+                attacker->setRaged();
+                if (!skipCombat_) {
                     std::cout << "  [RAGE] " << attacker->getName()
-                              << " fights harder at low HP!" << std::endl;
+                              << " enters a berserker rage! +" << rageBonus << " ATK!" << std::endl;
                 }
             }
             break;
         }
         case ARCHER: {
-            // Double Shot: 20% chance to attack twice
+            // Double Shot: 20% chance to attack again (can crit)
             if (rand() % 100 < 20 && defender->isAlive()) {
                 int dmg2 = attacker->getAtk();
+                bool crit2 = false;
+                int critChance = BASE_CRIT_CHANCE + attacker->getCritBonus();
+                if (rand() % 100 < critChance) {
+                    dmg2 = (int)(dmg2 * CRIT_MULTIPLIER);
+                    crit2 = true;
+                }
+                // Tank block for double shot too
+                if (defender->getClass() == TANK && rand() % 100 < 25) {
+                    int blocked = dmg2 * 40 / 100;
+                    dmg2 -= blocked;
+                    if (!skipCombat_) {
+                        std::cout << "  [BLOCK] " << defender->getName()
+                                  << " blocks " << blocked << " dmg from double shot!" << std::endl;
+                    }
+                }
                 defender->takeDamage(dmg2);
                 if (!skipCombat_) {
-                    std::cout << "  [DOUBLE SHOT] " << attacker->getName()
-                              << " fires again for " << dmg2 << " dmg!" << std::endl;
+                    if (crit2) {
+                        std::cout << "  [DOUBLE SHOT] " << attacker->getName()
+                                  << " fires a CRIT for " << dmg2 << " dmg!" << std::endl;
+                    } else {
+                        std::cout << "  [DOUBLE SHOT] " << attacker->getName()
+                                  << " fires again for " << dmg2 << " dmg!" << std::endl;
+                    }
                 }
             }
             break;
@@ -674,13 +1068,13 @@ void Game::performAbility(Unit* attacker, Unit* defender, std::vector<Unit*>& al
 // =====================================================================
 // cleanupDeadUnits
 // =====================================================================
-void Game::cleanupDeadUnits() {
+void Game::cleanupDeadUnits(std::vector<Unit*>& deadUnits) {
     for (int r = 0; r < BOARD_ROWS; ++r)
         for (int c = 0; c < BOARD_COLS; ++c) {
             Unit* u = board_.getUnit(r, c);
             if (u != nullptr && !u->isAlive()) {
                 board_.removeUnit(r, c);
-                delete u;
+                deadUnits.push_back(u);
             }
         }
 }
@@ -766,14 +1160,12 @@ bool Game::loadGame() {
             file.close();
             return false;
         }
-        // Create unit with base stats (before star scaling)
-        // We store post-upgrade stats, so use them directly
+        // Create unit with saved post-upgrade stats directly.
+        // Do NOT call upgrade() again — the stats are already scaled.
         Unit* u = new Unit(name, (UnitClass)cls, maxHp, atk, cost, critBonus, range);
-        // Set star level by calling upgrade() the right number of times
-        // But since we saved post-upgrade maxHp/atk, just create with those stats
-        // and manually set star level
+        // Manually set star level without re-scaling stats
         for (int s = 1; s < starLevel; ++s) {
-            u->upgrade();
+            u->forceSetStarLevel(s + 1);
         }
         loadedUnits.push_back(u);
     }
@@ -868,7 +1260,7 @@ void Game::displayLeaderboard() {
 // printHelp
 // =====================================================================
 void Game::printHelp() const {
-    const int W = 50;
+    const int W = 55;
     std::cout << std::endl;
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
     printBoxTitle("COMMANDS", W);
@@ -877,17 +1269,128 @@ void Game::printHelp() const {
     printBoxLine("    buy 1-5        Buy unit from shop slot", W);
     printBoxLine("    sell 1-N       Sell unit from bench", W);
     printBoxLine("    refresh        Re-roll shop ($" + std::to_string(shop_.getRefreshCost()) + ")", W);
+    printBoxLine("    info N         Show bench unit details", W);
+    printBoxLine("    info shop N    Show shop unit details", W);
     printBoxLine("  FORMATION:", W);
     printBoxLine("    place 1 2 3    Bench# -> row col", W);
     printBoxLine("    remove 2 3     Pick up unit at row col", W);
-    printBoxLine("    auto           Auto-place all units", W);
+    printBoxLine("    auto           Smart-place (by class)", W);
     printBoxLine("    formation      Show current formation", W);
     printBoxLine("  GAME:", W);
     printBoxLine("    ready          Start the battle!", W);
     printBoxLine("    save           Save game to file", W);
-    printBoxLine("    quit           Exit", W);
+    printBoxLine("    menu           Return to main menu", W);
+    printBoxLine("    quit           Exit game completely", W);
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
-    std::cout << "  SYNERGIES: 2+ same class = bonus. 3+ = stronger!" << std::endl;
-    std::cout << "  MERGE: Buy 3 of same unit -> auto-upgrade to next star!" << std::endl;
-    std::cout << "  Tip: Tanks in col 3 (front), Archers in col 0 (back)" << std::endl;
+    printBoxTitle("CLASS ABILITIES", W);
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    printBoxLine("  Warrior [Rage]    : Below 50% HP: +30% ATK", W);
+    printBoxLine("  Mage    [AOE]     : 30% splash to nearby enemies", W);
+    printBoxLine("  Tank    [Block]   : 25% chance: block 40% dmg", W);
+    printBoxLine("  Assassin [Crit]   : 25% extra damage (backstab)", W);
+    printBoxLine("  Archer  [DblShot] : 20% chance: attack twice", W);
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    printBoxTitle("TIPS", W);
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    printBoxLine("  SYNERGIES: 2+ same class = bonus. 3+ = stronger!", W);
+    printBoxLine("  MERGE: Buy 3 of same unit -> auto-upgrade star!", W);
+    printBoxLine("  INTEREST: Earn 1 gold per 10 saved (max +5/round)", W);
+    printBoxLine("  FORMATION: Tanks front (col3), Mages back (col0)", W);
+    printBoxLine("  Assassins in middle (col1) for balanced engage", W);
+    printBoxLine("  Saving gold earns interest - balance spending!", W);
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+}
+
+// =====================================================================
+// printCommandTips - Compact command menu for reference during gameplay
+// =====================================================================
+void Game::printCommandTips() const {
+    const int W = 55;
+    std::cout << std::endl;
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    printBoxTitle("QUICK COMMANDS", W);
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    printBoxLine("  buy <1-5>  sell <idx>  refresh  info <idx>", W);
+    printBoxLine("  place <idx> <row> <col>  remove <row> <col>", W);
+    printBoxLine("  auto    ready    formation    help    menu", W);
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+}
+
+// =====================================================================
+// printStatusBar - Compact player status (Gold + HP bar)
+// =====================================================================
+void Game::printStatusBar() const {
+    const int W = 62;
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    
+    // Line 1: Gold
+    std::ostringstream line1;
+    line1 << "  Gold: " << player_.getGold();
+    std::string s1 = line1.str();
+    if ((int)s1.size() < W) s1 += std::string(W - s1.size(), ' ');
+    std::cout << "  |" << s1 << "|" << std::endl;
+    
+    // Line 2: HP with bar
+    const int HP_BAR_WIDTH = 25;
+    int hp = player_.getHp();
+    int maxHp = STARTING_HP;
+    int filled = (hp * HP_BAR_WIDTH) / maxHp;
+    if (filled < 0) filled = 0;
+    if (filled > HP_BAR_WIDTH) filled = HP_BAR_WIDTH;
+    
+    std::string hpBar = "[" + std::string(filled, '=') + std::string(HP_BAR_WIDTH - filled, ' ') + "]";
+    std::ostringstream line2;
+    line2 << "  HP: " << std::left << std::setw(3) << hp
+          << "/" << maxHp << " " << hpBar;
+    std::string s2 = line2.str();
+    if ((int)s2.size() < W) s2 += std::string(W - s2.size(), ' ');
+    std::cout << "  |" << s2 << "|" << std::endl;
+
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+}
+
+// =====================================================================
+// getMaxDeployUnits - Get maximum deployable units for current round
+// =====================================================================
+int Game::getMaxDeployUnits() const {
+    int round = player_.getRoundsPlayed();
+    if (round <= 0) return MAX_DEPLOY_UNITS[0];
+    if (round > 20) return MAX_DEPLOY_UNITS[19];
+    return MAX_DEPLOY_UNITS[round - 1];
+}
+
+// =====================================================================
+// printDeployLimit - Show deploy limit for current round
+// =====================================================================
+void Game::printDeployLimit() const {
+    int maxUnits = getMaxDeployUnits();
+    int currentUnits = board_.getPlayerUnits().size();
+    std::cout << "  Units deployed: " << currentUnits << "/" << maxUnits << std::endl;
+}
+
+// =====================================================================
+// printFormation - Show player formation with HP bars
+// =====================================================================
+void Game::printFormation() const {
+    std::vector<Unit*> units = board_.getPlayerUnits();
+    if (units.empty()) {
+        std::cout << "  No units deployed." << std::endl;
+        return;
+    }
+
+    const int W = 55;
+    std::cout << std::endl;
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    printBoxTitle("YOUR FORMATION", W);
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+
+    for (size_t i = 0; i < units.size(); ++i) {
+        Unit* u = units[i];
+        std::ostringstream line;
+        line << "  " << u->getName() << " "
+             << "[" << hpBar(u->getHp(), u->getMaxHp(), 10) << "] "
+             << u->getHp() << "/" << u->getMaxHp() << " HP";
+        printBoxLine(line.str(), W);
+    }
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
 }

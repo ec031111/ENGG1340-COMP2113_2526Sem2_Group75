@@ -112,7 +112,7 @@ Unit* Shop::buyUnit(int slotIndex) {
 // Output : none (stdout)
 // -----------------------------------------------------------------
 void Shop::display() const {
-    const int W = 50;  // inner width between the two '|'
+    const int W = 58;  // inner width between the two '|'
     std::cout << std::endl;
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
 
@@ -128,14 +128,16 @@ void Shop::display() const {
         std::ostringstream line;
         if (slots_[i] != nullptr) {
             bool canAfford = (slots_[i]->getCost() <= playerGoldRef_);
-            if (!canAfford) line << "  X ";
-            else            line << "    ";
+            if (!canAfford) line << " X";
+            else            line << "  ";
             line << "[" << (i + 1) << "] "
                  << std::left << std::setw(10) << slots_[i]->getName()
-                 << std::setw(9) << slots_[i]->getClassString()
-                 << "HP:" << std::setw(5) << slots_[i]->getMaxHp()
-                 << "ATK:" << std::setw(4) << slots_[i]->getAtk()
-                 << "$" << slots_[i]->getCost();
+                 << std::setw(4) << slots_[i]->getClassString()
+                 << "HP:" << std::setw(4) << slots_[i]->getMaxHp()
+                 << "ATK:" << std::setw(3) << slots_[i]->getAtk()
+                 << "R:" << slots_[i]->getAttackRange()
+                 << " [" << slots_[i]->getAbilityTag() << "]"
+                 << " $" << slots_[i]->getCost();
         } else {
             line << "    [" << (i + 1) << "] -- SOLD --";
         }

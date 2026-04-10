@@ -1,4 +1,5 @@
 #include "game.h"
+#include "tutorial.h"
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -29,9 +30,10 @@ void displayMainMenu() {
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
     boxLine("", W);
     boxLine("  1.  New Game", W);
-    boxLine("  2.  Leaderboard", W);
-    boxLine("  3.  Load Game", W);
-    boxLine("  4.  Quit", W);
+    boxLine("  2.  Tutorial", W);
+    boxLine("  3.  Leaderboard", W);
+    boxLine("  4.  Load Game", W);
+    boxLine("  5.  Quit", W);
     boxLine("", W);
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
     std::cout << std::endl;
@@ -91,14 +93,20 @@ int main() {
         if (!std::getline(std::cin, choice)) break;
 
         if (choice == "1") {
+            // New Game - directly select difficulty and start
             Difficulty diff = selectDifficulty();
             Game game(diff);
-            game.run();
+            game.run(true);
 
         } else if (choice == "2") {
-            Game::displayLeaderboard();
+            // Tutorial - run standalone tutorial
+            Tutorial tutorial;
+            tutorial.run();
 
         } else if (choice == "3") {
+            Game::displayLeaderboard();
+
+        } else if (choice == "4") {
             // Load game - try to read save file and resume
             // Need to read difficulty from save file first
             std::ifstream checkFile("docs/savegame.dat");
@@ -111,13 +119,13 @@ int main() {
                 Difficulty diff = EASY;
                 Game game(diff);
                 if (game.loadGame()) {
-                    game.run();
+                    game.run(false);
                 } else {
                     std::cout << "  Save file is corrupted." << std::endl;
                 }
             }
 
-        } else if (choice == "4" || choice == "quit" || choice == "exit") {
+        } else if (choice == "5" || choice == "quit" || choice == "exit") {
             std::cout << "\n  Thanks for playing Auto-Battler Arena! Goodbye.\n"
                       << std::endl;
             running = false;
