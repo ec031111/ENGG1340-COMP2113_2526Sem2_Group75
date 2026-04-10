@@ -138,6 +138,9 @@ int Game::run(bool show_intro) {
     // Show story intro for new games only
     if (show_intro) {
         showIntro();
+        printHelp();  // Show full command list after intro
+    } else {
+        printCommandTips();  // Show quick commands if loading saved game
     }
 
     while (running_ && player_.isAlive()) {
@@ -172,8 +175,6 @@ int Game::run(bool show_intro) {
         // --- Random event ---
         currentEvent_ = Event::rollEvent(player_.getRoundsPlayed());
         handleEvent();
-
-        player_.displayStatus();
 
         // --- Shop Phase ---
         shop_.refresh();
@@ -210,8 +211,10 @@ int Game::run(bool show_intro) {
         currentEvent_ = EVENT_NONE;
 
         if (!player_.isAlive()) {
-            const int GW = 45;
+            const int GW = 50;
             int rounds = player_.getRoundsPlayed();
+            int maxHp = STARTING_HP;  // From player.h
+            
             std::cout << std::endl;
             std::cout << "  +" << std::string(GW, '=') << "+" << std::endl;
             printBoxTitle("GAME OVER", GW);
@@ -233,6 +236,15 @@ int Game::run(bool show_intro) {
                 narrative = "IMMORTAL! The bards will sing of your deeds forever!";
             }
             printBoxLine("  " + narrative, GW);
+            std::cout << "  +" << std::string(GW, '-') << "+" << std::endl;
+            
+            // Final HP display with blood bar
+            std::ostringstream hpLine;
+            hpLine << "  Final HP: 0/" << maxHp << " [";
+            hpLine << std::string(20, ' ');  // Empty bar since HP is 0
+            hpLine << "]";
+            printBoxLine(hpLine.str(), GW);
+            
             std::cout << "  +" << std::string(GW, '=') << "+" << std::endl;
         } else {
             std::cout << "\n  [Press Enter to continue to next round...]";
@@ -288,6 +300,7 @@ void Game::giveRandomFreeUnit() {
 void Game::shopPhase() {
     std::string line;
     bool ready = false;
+    bool firstRound = (player_.getRoundsPlayed() == 1);
 
     // Return board units to bench for repositioning
     for (int r = 0; r < BOARD_ROWS; ++r)
@@ -303,6 +316,10 @@ void Game::shopPhase() {
     checkAndMerge();
 
     while (!ready && running_) {
+        // Display player status bar (always show Gold + HP)
+        printStatusBar();
+        std::cout << std::endl;
+        
         shop_.setPlayerGold(player_.getGold());
         shop_.display();
         player_.displayBench();
@@ -312,6 +329,12 @@ void Game::shopPhase() {
             board_.displayPlayerSide();
         }
 
+        // Only show command tips on first round
+        if (firstRound) {
+            printCommandTips();
+            firstRound = false;
+        }
+        
         std::cout << "  Command > ";
         if (!std::getline(std::cin, line)) {
             running_ = false;
@@ -1130,5 +1153,53 @@ void Game::printHelp() const {
     printBoxLine("  FORMATION: Tanks front (col3), Mages back (col0)", W);
     printBoxLine("  Assassins in middle (col1) for balanced engage", W);
     printBoxLine("  Saving gold earns interest - balance spending!", W);
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+}
+
+// =====================================================================
+// printCommandTips - Compact command menu for reference during gameplay
+// =====================================================================
+void Game::printCommandTips() const {
+    const int W = 55;
+    std::cout << std::endl;
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    printBoxTitle("QUICK COMMANDS", W);
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    printBoxLine("  buy <1-5>  sell <idx>  refresh  info <idx>", W);
+    printBoxLine("  place <idx> <row> <col>  remove <row> <col>", W);
+    printBoxLine("  auto    ready    formation    help", W);
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+}
+
+// =====================================================================
+// printStatusBar - Compact player status (Gold + HP bar)
+// =====================================================================
+void Game::printStatusBar() const {
+    const int W = 62;
+    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    
+    // Line 1: Gold
+    std::ostringstream line1;
+    line1 << "  Gold: " << player_.getGold();
+    std::string s1 = line1.str();
+    if ((int)s1.size() < W) s1 += std::string(W - s1.size(), ' ');
+    std::cout << "  |" << s1 << "|" << std::endl;
+    
+    // Line 2: HP with bar
+    const int HP_BAR_WIDTH = 25;
+    int hp = player_.getHp();
+    int maxHp = STARTING_HP;
+    int filled = (hp * HP_BAR_WIDTH) / maxHp;
+    if (filled < 0) filled = 0;
+    if (filled > HP_BAR_WIDTH) filled = HP_BAR_WIDTH;
+    
+    std::string hpBar = "[" + std::string(filled, '=') + std::string(HP_BAR_WIDTH - filled, ' ') + "]";
+    std::ostringstream line2;
+    line2 << "  HP: " << std::left << std::setw(3) << hp 
+          << "/" << maxHp << " " << hpBar;
+    std::string s2 = line2.str();
+    if ((int)s2.size() < W) s2 += std::string(W - s2.size(), ' ');
+    std::cout << "  |" << s2 << "|" << std::endl;
+    
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
 }
