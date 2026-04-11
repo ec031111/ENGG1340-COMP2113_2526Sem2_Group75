@@ -940,24 +940,49 @@ void Game::printHelp() const {
     const int W = 50;
     std::cout << std::endl;
     std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
-    printBoxTitle(BOLD << CYAN << "COMMANDS" << RESET, W);
+
+    std::cout << BOLD << CYAN;
+    printBoxTitle("COMMANDS", W);
+    std::cout << RESET;
+
     std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
-    printBoxLine(BOLD << YELLOW << "  SHOPPING:", W);
+
+    // SHOPPING
+    std::cout << BOLD << YELLOW;
+    printBoxLine("  SHOPPING:", W);
+    std::cout << RESET;
+
     printBoxLine("    buy 1-5        Buy unit from shop slot", W);
     printBoxLine("    sell 1-N       Sell unit from bench", W);
     printBoxLine("    refresh        Re-roll shop ($" + std::to_string(shop_.getRefreshCost()) + ")", W);
-    printBoxLine(BOLD << YELLOW << "  BAGS:" << RESET, W);
+
+    // BAGS
+    std::cout << BOLD << YELLOW;
+    printBoxLine("  BAGS:", W);
+    std::cout << RESET;
+
     printBoxLine("    gold           Number of gold remained", W);
-    printBoxLine("    status         HP, Gold remained, Round Number, Win Streak", W);
-    printBoxLine(BOLD << YELLOW << "  FORMATION:" << RESET, W);
+    printBoxLine("    status         HP, Gold, Round, Win Streak", W);
+
+    // FORMATION
+    std::cout << BOLD << YELLOW;
+    printBoxLine("  FORMATION:", W);
+    std::cout << RESET;
+
     printBoxLine("    place 1 2 3    Bench# -> row col", W);
     printBoxLine("    remove 2 3     Pick up unit at row col", W);
     printBoxLine("    auto           Auto-place all units", W);
     printBoxLine("    formation      Show current formation", W);
-    printBoxLine(BOLD << YELLOW << "  GAME:" << RESET, W);
+
+    // GAME
+    std::cout << BOLD << YELLOW;
+    printBoxLine("  GAME:", W);
+    std::cout << RESET;
+
     printBoxLine("    ready          Start the battle!", W);
     printBoxLine("    save           Save game to file", W);
     printBoxLine("    quit           Exit", W);
+
     std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
     std::cout << BOLD << GREEN << "  SYNERGIES: 2+ same class = bonus. 3+ = stronger!" << RESET << std::endl;
     std::cout << BOLD << GREEN << "  MERGE: Buy 3 of same unit -> auto-upgrade to next star!" << RESET << std::endl;
