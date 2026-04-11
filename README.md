@@ -25,7 +25,7 @@ COMP2113 / ENGG1340 Course Project - 2025-2026 2nd Semester, Group 75.
 
 ### Step 1: Compile the Game
 
-Naviate to the project directory and compile using Make:
+Navigate to the project directory and compile using Make:
 
 ```bash
 make game
