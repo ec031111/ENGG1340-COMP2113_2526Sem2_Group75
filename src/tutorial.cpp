@@ -43,6 +43,11 @@ void Tutorial::clearScreen() const {
 // -----------------------------------------------------------------
 void Tutorial::printBox(const std::string& text, int width) {
     std::string line = text;
+    // If text is longer than width, truncate it
+    if ((int)line.size() > width) {
+        line = line.substr(0, width);
+    }
+    // Pad with spaces to match the width
     if ((int)line.size() < width) {
         line += std::string(width - line.size(), ' ');
     }
@@ -203,11 +208,22 @@ void Tutorial::lessonShop() {
             std::getline(std::cin, input);
             
             std::cout << std::endl;
-            if (input.find("buy") != std::string::npos) {
+            // Parse command: "buy <1-5>"
+            std::istringstream iss(input);
+            std::string cmd;
+            int unitNum = -1;
+            bool validCmd = false;
+            
+            if (iss >> cmd >> unitNum && cmd == "buy" && unitNum >= 1 && unitNum <= 5) {
+                validCmd = true;
+            }
+            
+            if (validCmd) {
                 std::cout << "  ✓ Great! You've bought a Warrior!" << std::endl;
                 std::cout << "  ✓ It's now in your bench (workbench)." << std::endl;
                 printEncouragement();
                 std::cout << "  Press Enter to continue" << std::endl;
+                waitForInput();
                 validInput = true;
             } else {
                 std::cout << "  Oops! That's not quite right." << std::endl;
@@ -294,12 +310,20 @@ void Tutorial::lessonPlacement() {
         std::cout << std::endl;
         std::cout << "  Let's practice placing units on the battlefield!" << std::endl;
         std::cout << std::endl;
-        std::cout << "  Your Bench:              Battle Grid (Your side):" << std::endl;
-        std::cout << "  [1] Warrior              [Row 0] [ ][ ][ ][ ]" << std::endl;
-        std::cout << "  [2] Archer               [Row 1] [ ][ ][ ][ ]" << std::endl;
-        std::cout << "                           [Row 2] [ ][ ][ ][ ]" << std::endl;
-        std::cout << "  Your gold: 5             [Row 3] [ ][ ][ ][ ]" << std::endl;
-        std::cout << "                           [Row 4] [ ][ ][ ][ ]" << std::endl;
+        std::cout << "  Your Bench:" << std::endl;
+        std::cout << "  [1] Warrior" << std::endl;
+        std::cout << "  [2] Archer" << std::endl;
+        std::cout << std::endl;
+        std::cout << "  +---------------+" << std::endl;
+        std::cout << "  | YOUR FORMATION |" << std::endl;
+        std::cout << "  |    0 1 2 3     |" << std::endl;
+        std::cout << "  +---------------+" << std::endl;
+        std::cout << " 0 | . . . . |" << std::endl;
+        std::cout << " 1 | . . . . |" << std::endl;
+        std::cout << " 2 | . . . . |" << std::endl;
+        std::cout << " 3 | . . . . |" << std::endl;
+        std::cout << " 4 | . . . . |" << std::endl;
+        std::cout << "  +---------------+" << std::endl;
         std::cout << std::endl;
         std::cout << "  PLACEMENT COMMANDS:" << std::endl;
         std::cout << "  • place <idx> <row> <col>  - Place unit at position" << std::endl;
@@ -320,11 +344,24 @@ void Tutorial::lessonPlacement() {
             std::getline(std::cin, input);
             
             std::cout << std::endl;
-            if (input.find("place") != std::string::npos) {
+            // Parse command: "place <1-2> <0-4> <0-7>"
+            std::istringstream iss(input);
+            std::string cmd;
+            int idx, row, col;
+            bool validCmd = false;
+            
+            if (iss >> cmd >> idx >> row >> col && 
+                cmd == "place" && idx >= 1 && idx <= 2 && 
+                row >= 0 && row <= 4 && col >= 0 && col <= 7) {
+                validCmd = true;
+            }
+            
+            if (validCmd) {
                 std::cout << "  ✓ Perfect! You've placed the Warrior on the grid!" << std::endl;
                 std::cout << "  ✓ Defensive units like Warriors belong in the front." << std::endl;
                 printEncouragement();
                 std::cout << "  Press Enter to continue" << std::endl;
+                waitForInput();
                 validInput = true;
             } else {
                 std::cout << "  Oops! That's not quite right." << std::endl;
