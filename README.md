@@ -18,26 +18,14 @@ COMP2113 / ENGG1340 Course Project - 2025-2026 2nd Semester, Group 75.
 
 ### System Requirements
 
-- **OS**: Linux or macOS
 - **Compiler**: GCC (g++) version 5.0 or higher (supporting C++11)
 - **Build Tool**: GNU Make
 - **Terminal**: Any standard terminal emulator
 
-### Prerequisites Check
-
-To verify your system is ready:
-
-```bash
-# Check g++ version
-g++ --version
-
-# Check make is installed
-make --version
-```
 
 ### Step 1: Compile the Game
 
-Navigate to the project directory and compile using Make:
+Naviate to the project directory and compile using Make:
 
 ```bash
 make game
@@ -56,25 +44,11 @@ make clean
 
 ### Step 2: Run the Game
 
-Once compiled, start the game with:
+Once compiled, you can start the game with:
 
 ```bash
 ./game
 ```
-
-### First Run
-
-1. Select your difficulty level (Easy or Hard)
-2. Choose to start a new game or load an existing save
-3. Follow the in-game tutorial to learn the basic controls
-4. Use commands like:
-   - `place <unit_index> <row> <col>` to position units
-   - `buy <unit_index>` to purchase from shop
-   - `sell <bench_index>` to sell units
-   - `start` to begin battle
-   - `save` to save your progress
-
-Detailed command documentation is available in-game by typing `help`.
 
 ## Game Description
 
