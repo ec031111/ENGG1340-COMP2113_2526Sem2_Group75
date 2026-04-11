@@ -86,6 +86,28 @@ int Game::run() {
             printBoxTitle(t2, GW);
             std::cout << "  +" << std::string(GW, '=') << "+" << std::endl;
         } else {
+            int min_cost = 999;
+            for (int i = 0; i < SHOP_SIZE; i++) {
+                Unit* u = shop_.getUnit(i);
+                if (u != nullptr) {
+                    int cost = u->getCost();
+                    if (cost < min_cost) {
+                        min_cost = cost;
+                    }
+                }
+            }
+            int my_gold = player_.getGold();
+            if (my_gold < min_cost) {
+                std::cout << "\n================================================================" << std::endl;
+                std::cout << " Your gold remained cannot afford heros sold in the shop..." << std::endl;
+                std::cout << "do you want to quit the game? (yes/no) > ";
+                std::string answer;
+                std::getline(std::cin, answer);
+                if (answer == "yes" || answer == "y") {
+                    running_ = false;
+                    break;
+                }
+            }
             std::cout << "\n  [Press Enter to continue to next round...]";
             std::string dummy;
             std::getline(std::cin, dummy);
@@ -134,7 +156,7 @@ void Game::giveRandomFreeUnit() {
 }
 
 // =====================================================================
-// shopPhase - Buy, sell, place, merge, then ready
+// shopPhase - Buy, sell, place, merge, status, gold, then ready
 // =====================================================================
 void Game::shopPhase() {
     std::string line;
@@ -185,6 +207,16 @@ void Game::shopPhase() {
                 std::cout << "  That slot is empty." << std::endl;
                 continue;
             }
+            
+            //purchase confirmation
+            std::cout << "Are you sure you want to buy " << u->getName() << "? (yes/no) > ";
+            std::string confirm;
+            std::getline(std::cin, confirm);
+            if (confirm != "yes" && confirm != "y") {
+                std::cout << " Purchase cancelled.\n";
+                continue;
+            }
+            //=========================================================
             int cost = u->getCost();
             // Apply shop discount event
             if (currentEvent_ == EVENT_SHOP_DISCOUNT) {
@@ -214,6 +246,19 @@ void Game::shopPhase() {
                 continue;
             }
             idx--;
+            Unit* Sold = player_.getBenchUnit(idx);
+            if (Sold == nullptr) {
+                std::cout << " Invalid bench index." << std::endl;
+                continue;
+            }
+            //selling confirmation
+            std::cout << " Sure you want to sell " << Sold->getName() << "? (yes/no) > ";
+            std::string confirm;
+            std::getline(std::cin, confirm);
+            if (confirm != "yes" && confirm != "y") {
+                std::cout << " Sell cancelled." << std::endl;
+                continue;
+            }
             if (!player_.sellUnit(idx)) {
                 std::cout << "  Invalid bench index." << std::endl;
             }
@@ -293,6 +338,7 @@ void Game::shopPhase() {
             shop_.refresh();
             std::cout << "  Shop refreshed!" << std::endl;
             player_.displayStatus();
+        
 
         } else if (cmd == "save") {
             saveGame();
@@ -319,6 +365,12 @@ void Game::shopPhase() {
             }
             ready = true;
 
+        } else if (cmd == "status") {
+            player_.displayStatus();
+            
+        } else if (cmd == "gold") {
+            std::cout << "Gold: " << player_.getGold() << std::endl;
+            
         } else if (cmd == "help") {
             printHelp();
 
