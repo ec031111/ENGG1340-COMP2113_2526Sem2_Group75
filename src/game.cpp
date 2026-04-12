@@ -24,27 +24,7 @@ std::string toLower(std::string s) {
         [](unsigned char c) { return std::tolower(c); });
     return s;
 }
-//---- word type ----
-#define BOLD        "\033[1m"
-#define ITALIC      "\033[3m"    
-#define UNDERLINE   "\033[4m"    
-//--- color define ---
-#define RESET       "\033[0m"
-#define RED         "\033[31m"
-#define GREEN       "\033[32m"
-#define YELLOW      "\033[33m"
-#define BLUE        "\033[34m"
-#define MAGENTA     "\033[35m"
-#define CYAN        "\033[36m"
-#define WHITE       "\033[37m"
-#define GRAY        "\033[90m"
-#define BR_RED      "\033[91m"
-#define BR_GREEN    "\033[92m"
-#define BR_YELLOW   "\033[93m"
-#define BR_BLUE     "\033[94m"
-#define BR_PURPLE   "\033[95m"
-#define BR_CYAN     "\033[96m"
-#define BR_WHITE    "\033[97m"
+
 
 // Helper: print a line padded to width W inside |...|
 static void printBoxLine(const std::string& text, int W) {
@@ -533,23 +513,8 @@ void Game::shopPhase() {
                 std::cout << RED << "  That cell is occupied!" << RESET << std::endl;
                 continue;
             }
-            // Check deployment limit AND bench capacity
-            int maxUnits = getMaxDeployUnits();
-            int currentUnits = board_.getPlayerUnits().size();
-            if (currentUnits >= maxUnits) {
-                std::cout << "  Deployment limit reached! Max " << maxUnits << " units this round." << std::endl;
-                std::cout << "  Use 'remove' to take a unit back to bench first." << std::endl;
-                continue;
-            }
-            // Check if bench would overflow after battle (bench - 1 + currentUnits <= MAX_BENCH)
-            int benchAfterPlace = player_.getBenchSize() - 1;  // -1 because we're about to move one to board
-            if (benchAfterPlace + currentUnits + 1 > MAX_BENCH_SIZE) {
-                std::cout << "  Cannot place! Bench would overflow after battle." << std::endl;
-                std::cout << "  Total units (bench + board): " << (benchAfterPlace + currentUnits + 1)
-                          << " > Max bench: " << MAX_BENCH_SIZE << std::endl;
-                std::cout << "  Sell some units first." << std::endl;
-                continue;
-            }
+            
+            
             // Check deployment limit AND bench capacity
             int maxUnits = getMaxDeployUnits();
             int currentUnits = board_.getPlayerUnits().size();
@@ -1507,6 +1472,7 @@ void Game::printCommandTips() const {
 // =====================================================================
 // printStatusBar - Compact player status (Gold + HP bar)
 // =====================================================================
+
 void Game::printStatusBar() const {
     const int W = 62;
     std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
@@ -1518,19 +1484,28 @@ void Game::printStatusBar() const {
     if ((int)s1.size() < W) s1 += std::string(W - s1.size(), ' ');
     std::cout << "  |" << s1 << "|" << std::endl;
     
-    // Line 2: HP with bar
+    // Line 2: HP with bar  
     const int HP_BAR_WIDTH = 25;
     int hp = player_.getHp();
     int maxHp = STARTING_HP;
     int filled = (hp * HP_BAR_WIDTH) / maxHp;
     if (filled < 0) filled = 0;
     if (filled > HP_BAR_WIDTH) filled = HP_BAR_WIDTH;
+
     
     std::string hpBar;
     if (hp > maxHp * 0.5) {
-        hpBar = "[" + BOLD BR_GREEN std::string(filled, '=') RESET + std::string(HP_BAR_WIDTH - filled, ' ') + "]";
+        hpBar = "[" + std::string(BOLD) + std::string(BR_GREEN) 
+              + std::string(filled, '=') 
+              + std::string(RESET) 
+              + std::string(HP_BAR_WIDTH - filled, ' ') 
+              + "]";
     } else {
-        hpBar = "[" + BOLD BR_RED std::string(filled, '=') RESET + std::string(HP_BAR_WIDTH - filled, ' ') + "]";
+        hpBar = "[" + std::string(BOLD) + std::string(BR_RED) 
+              + std::string(filled, '=') 
+              + std::string(RESET) 
+              + std::string(HP_BAR_WIDTH - filled, ' ') 
+              + "]";
     }
 
     std::ostringstream line2;
