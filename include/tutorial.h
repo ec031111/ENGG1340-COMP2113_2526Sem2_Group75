@@ -34,16 +34,16 @@ public:
     // Returns false if player quit
     bool run();
 
-    // Individual lesson methods
-    void lessonIntro();
-    void lessonShop();
-    void lessonUnits();
-    void lessonPlacement();
-    void lessonCombat();
-    void lessonSynergy();
-    void lessonGoldManagement();
-    void lessonLevelUp();
-    void lessonCompletion();
+    // Individual lesson methods (return false if user quits to menu)
+    bool lessonIntro();
+    bool lessonShop();
+    bool lessonUnits();
+    bool lessonPlacement();
+    bool lessonCombat();
+    bool lessonSynergy();
+    bool lessonGoldManagement();
+    bool lessonLevelUp();
+    bool lessonCompletion();
 
 private:
     std::vector<TutorialLesson> lessons_;
