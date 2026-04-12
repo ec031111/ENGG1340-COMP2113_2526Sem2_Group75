@@ -129,7 +129,7 @@ int Game::run() {
             int damage = LOSS_DAMAGE_BASE
                 + (ai_.getArmySize() * LOSS_DAMAGE_PER_SURVIVING);
             player_.takeDamage(damage);
-            std::cout << BOLD << RED << "\n  >> ☠️ YOU LOST this round ☠️. You take "
+            std::cout << BOLD << RED << "\n  >> ☠️ YOU LOST this round ! ☠️ You take "
                       << damage << " damage. <<" << RESET << std::endl;
         }
 
@@ -414,6 +414,10 @@ void Game::shopPhase() {
                     }
                     std::cout << GREEN << " Auto-placed " << placed << " units!" << RESET << std::endl;
                     board_.displayPlayerSide();
+                }   else {
+                    // if no
+                    std::cout << YELLOW << " Please place your units manually, then type 'ready' again." << RESET << std::endl;
+                    continue;
                 }
             }
             // Auto-place bench leftovers
