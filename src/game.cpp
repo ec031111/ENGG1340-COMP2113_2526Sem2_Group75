@@ -7,6 +7,23 @@
 #include <ctime>
 #include <vector>
 #include <iomanip>
+//--- asking yes or no ---
+#include <cctype>
+#include <algorithm>
+//remove blank space
+std::string trim(const std::string& s) {
+    size_t start = s.find_first_not_of(" \t\n\r");
+    size_t end = s.find_last_not_of(" \t\n\r");
+    if (start == std::string::npos) return "";
+    return s.substr(start, end - start + 1);
+}
+
+// return to lowercase
+std::string toLower(std::string s) {
+    std::transform(s.begin(), s.end(), s.begin(),
+        [](unsigned char c) { return std::tolower(c); });
+    return s;
+}
 //--- color define ---
 #define RESET   "\033[0m"
 #define RED     "\033[31m"
@@ -61,7 +78,10 @@ int Game::run() {
         handleEvent();
 
         player_.displayStatus();
-        //--- Ask Quit when Gold is insufficent ---
+
+        //--- Ask Quit when Gold is insufficient (ROUND 2 ONLY) ---
+        
+        if (player_.getRoundsPlayed() >= 2) {
             int min_cost = 999;
             for (int i = 0; i < SHOP_SIZE; i++) {
                 Unit* u = shop_.getUnit(i);
@@ -72,19 +92,25 @@ int Game::run() {
                     }
                 }
             }
+
             int my_gold = player_.getGold();
             if (my_gold < min_cost) {
-                std::cout << "\n================================================================" << std::endl;
-                std::cout << " You don't have enough gold to buy any champion." << std::endl;
-                std::cout << " Do you want to quit the game? (yes/yo) > ";
+                std::cout << BOLD << RED << "\n======================================" << RESET << std::endl;
+                std::cout << BOLD << RED << " Your gold CANNOT buy any hero in shop!" << RESET << std::endl;
+                std::cout << BOLD << YELLOW << " Do you want to quit? (yes/no) > " << RESET;
                 std::string answer;
                 std::getline(std::cin, answer);
-                if (answer == "yes" || answer == "y") {
+                std::string clean_an = toLower(trim(answer));
+                if (clean_an == "yes" || clean_an == "y") {
                     running_ = false;
                     break;
                 }
             }
+        }
 
+
+        
+// ==============================================
         // --- Shop Phase ---
         shop_.refresh();
         shopPhase();
@@ -97,13 +123,13 @@ int Game::run() {
 
         if (playerWon) {
             player_.recordWin();
-            std::cout << BOLD << YELLOW << "\n  >> 🥳YOU WON this round!🥳 <<" << RESET << std::endl;
+            std::cout << BOLD << YELLOW << "\n  >> 🥳 YOU WON this round! 🥳 <<" << RESET << std::endl;
         } else {
             player_.recordLoss();
             int damage = LOSS_DAMAGE_BASE
                 + (ai_.getArmySize() * LOSS_DAMAGE_PER_SURVIVING);
             player_.takeDamage(damage);
-            std::cout << BOLD << RED << "\n  >> ☠️YOU LOST this round☠️. You take "
+            std::cout << BOLD << RED << "\n  >> ☠️ YOU LOST this round ☠️. You take "
                       << damage << " damage. <<" << RESET << std::endl;
         }
 
@@ -138,7 +164,7 @@ void Game::handleEvent() {
     std::string desc = Event::applyEvent(currentEvent_, player_);
     if (!desc.empty()) {
         std::cout << BOLD << BLUE << "\n  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << RESET << std::endl;
-        std::cout << BOLD << BLUE << "  !  EVENT🫢: " << desc << RESET << std::endl;
+        std::cout << BOLD << BLUE << "  !  EVENT 🫢: " << desc << RESET << std::endl;
         std::cout << BOLD << BLUE << "  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << RESET << std::endl;
     }
 
@@ -224,7 +250,8 @@ void Game::shopPhase() {
             std::cout << BLUE << " Are you sure you want to buy " << WHITE << u->getName() << BLUE << "? (yes/no) > " << RESET;
             std::string confirm;
             std::getline(std::cin, confirm);
-            if (confirm != "yes" && confirm != "y") {
+            std::string c = toLower(trim(confirm));
+            if (c != "yes" && c != "y") {
                 std::cout << YELLOW << " Purchase cancelled." << RESET << '\n';
                 continue;
             }
@@ -267,7 +294,8 @@ void Game::shopPhase() {
             std::cout << BLUE << " Sure you want to sell " << WHITE << Sold->getName() << BLUE << "? (yes/no) > " << RESET;
             std::string confirm;
             std::getline(std::cin, confirm);
-            if (confirm != "yes" && confirm != "y") {
+            std::string c = toLower(trim(confirm));
+            if (c != "yes" && c != "y") {
                 std::cout << YELLOW << " Sell cancelled." << RESET << std::endl;
                 continue;
             }
@@ -360,6 +388,34 @@ void Game::shopPhase() {
             std::cout << GREEN << "  ✅ Game saved!" << RESET << std::endl;
 
         } else if (cmd == "ready") {
+            // No champion on the board
+            if (board_.getPlayerUnits().empty()) {
+                std::cout << YELLOW << "\n You haven't placed any soldiers yet!" << RESET << std::endl;
+                std::cout << YELLOW << " Do you want to AUTO PLACE units? (yes/no) > " << RESET;
+                std::string ans;
+                std::getline(std::cin, ans);
+                std::string choice = toLower(trim(ans)); 
+                if (choice == "yes" || choice == "y") {
+            // Auto-place bench leftovers (when no champions on board)
+                    int benchSize = player_.getBenchSize();
+                    int placed = 0;
+                    for (int i = 0; i < benchSize; ++i) {
+                       Unit* unit = player_.removeFromBench(0);
+                       if (unit == nullptr) break;
+                       bool ok = false;
+                       for (int c = PLAYER_MAX_COL; c >= 0 && !ok; --c )
+                           for (int r = 0; r < BOARD_ROWS && !ok; ++r)
+                               if (board_.isEmpty(r, c)) {
+                                   board_.placeUnit(unit, r, c);
+                                   ok = true;
+                                   placed++;
+                               }
+                           if (!ok) { player_.addToBench(unit); break; }
+                    }
+                    std::cout << GREEN << " Auto-placed " << placed << " units!" << RESET << std::endl;
+                    board_.displayPlayerSide();
+                }
+            }
             // Auto-place bench leftovers
             int benchSize = player_.getBenchSize();
             for (int i = 0; i < benchSize; ++i) {
@@ -394,7 +450,8 @@ void Game::shopPhase() {
             std::cout << YELLOW << "  Save before quitting? (y/n) > " << RESET;
             std::string ans;
             std::getline(std::cin, ans);
-            if (ans == "y" || ans == "Y" || ans == "yes") {
+            std::string c = toLower(trim(ans));
+            if (c == "y" || c == "yes") {
                 saveGame();
                 std::cout << GREEN << "  ✅ Game saved!" << RESET << std::endl;
             }
