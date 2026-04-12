@@ -55,11 +55,11 @@ void Tutorial::printBox(const std::string& text, int width) {
 }
 
 // -----------------------------------------------------------------
-// Helper: Get user input choice
+// Helper: Get user input with menu option
 // -----------------------------------------------------------------
 std::string Tutorial::getUserChoice() {
     std::string input;
-    std::cout << "  Press Enter to continue" << std::endl;
+    std::cout << "  (Type 'menu' to return to main menu, or press Enter)" << std::endl;
     std::cout << "  > ";
     if (!std::getline(std::cin, input)) {
         return "";
@@ -120,7 +120,7 @@ void Tutorial::displayLesson(const std::string& title,
 // -----------------------------------------------------------------
 // Lesson 1: Introduction
 // -----------------------------------------------------------------
-void Tutorial::lessonIntro() {
+bool Tutorial::lessonIntro() {
     const std::vector<std::string> content = {
         "Welcome, Commander!",
         "",
@@ -141,15 +141,19 @@ void Tutorial::lessonIntro() {
     displayLesson("Welcome, Commander!", content);
     
     std::string choice = getUserChoice();
-    if (choice == "skip" || choice == "SKIP") {
-        std::cout << "  Skipping this lesson..." << std::endl;
+    if (choice == "menu" || choice == "MENU") {
+        std::cout << "  Returning to main menu..." << std::endl;
+        std::cout << "  Press Enter to continue" << std::endl;
+        waitForInput();
+        return false;
     }
+    return true;
 }
 
 // -----------------------------------------------------------------
 // Lesson 2: Shop System (with interactive practice)
 // -----------------------------------------------------------------
-void Tutorial::lessonShop() {
+bool Tutorial::lessonShop() {
     const std::vector<std::string> content = {
         "THE SHOP SYSTEM",
         "",
@@ -173,6 +177,13 @@ void Tutorial::lessonShop() {
     displayLesson("The Shop System", content);
     
     std::string choice = getUserChoice();
+    if (choice == "menu" || choice == "MENU") {
+        std::cout << "  Returning to main menu..." << std::endl;
+        std::cout << "  Press Enter to continue" << std::endl;
+        waitForInput();
+        return false;
+    }
+    
     std::cout << std::endl;
     
     if (choice == "skip" || choice == "SKIP") {
@@ -207,6 +218,15 @@ void Tutorial::lessonShop() {
             std::string input;
             std::getline(std::cin, input);
             
+            // Check if user wants to return to menu
+            if (input == "menu" || input == "MENU") {
+                std::cout << std::endl;
+                std::cout << "  Returning to main menu..." << std::endl;
+                std::cout << "  Press Enter to continue" << std::endl;
+                waitForInput();
+                return false;
+            }
+            
             std::cout << std::endl;
             // Parse command: "buy <1-5>"
             std::istringstream iss(input);
@@ -232,12 +252,13 @@ void Tutorial::lessonShop() {
             }
         }
     }
+    return true;
 }
 
 // -----------------------------------------------------------------
 // Lesson 3: Units and Attributes
 // -----------------------------------------------------------------
-void Tutorial::lessonUnits() {
+bool Tutorial::lessonUnits() {
     const std::vector<std::string> content = {
         "UNIT CLASSES & SPECIAL ABILITIES",
         "",
@@ -265,15 +286,22 @@ void Tutorial::lessonUnits() {
     displayLesson("Units and Special Abilities", content);
     
     std::string choice = getUserChoice();
+    if (choice == "menu" || choice == "MENU") {
+        std::cout << "  Returning to main menu..." << std::endl;
+        std::cout << "  Press Enter to continue" << std::endl;
+        waitForInput();
+        return false;
+    }
     if (choice == "skip" || choice == "SKIP") {
         std::cout << "  Skipping this lesson..." << std::endl;
     }
+    return true;
 }
 
 // -----------------------------------------------------------------
 // Lesson 4: Board Placement (with interactive practice)
 // -----------------------------------------------------------------
-void Tutorial::lessonPlacement() {
+bool Tutorial::lessonPlacement() {
     const std::vector<std::string> content = {
         "BOARD PLACEMENT & FORMATION",
         "",
@@ -300,6 +328,12 @@ void Tutorial::lessonPlacement() {
     displayLesson("Board Placement & Formation", content);
     
     std::string choice = getUserChoice();
+    if (choice == "menu" || choice == "MENU") {
+        std::cout << "  Returning to main menu..." << std::endl;
+        std::cout << "  Press Enter to continue" << std::endl;
+        waitForInput();
+        return false;
+    }
     std::cout << std::endl;
     
     if (choice == "skip" || choice == "SKIP") {
@@ -343,6 +377,15 @@ void Tutorial::lessonPlacement() {
             std::string input;
             std::getline(std::cin, input);
             
+            // Check if user wants to return to menu
+            if (input == "menu" || input == "MENU") {
+                std::cout << std::endl;
+                std::cout << "  Returning to main menu..." << std::endl;
+                std::cout << "  Press Enter to continue" << std::endl;
+                waitForInput();
+                return false;
+            }
+            
             std::cout << std::endl;
             // Parse command: "place <1-2> <0-4> <0-7>"
             std::istringstream iss(input);
@@ -370,12 +413,13 @@ void Tutorial::lessonPlacement() {
             }
         }
     }
+    return true;
 }
 
 // -----------------------------------------------------------------
 // Lesson 5: Combat System
 // -----------------------------------------------------------------
-void Tutorial::lessonCombat() {
+bool Tutorial::lessonCombat() {
     const std::vector<std::string> content = {
         "HOW COMBAT WORKS",
         "",
@@ -403,15 +447,22 @@ void Tutorial::lessonCombat() {
     displayLesson("Combat System", content);
     
     std::string choice = getUserChoice();
+    if (choice == "menu" || choice == "MENU") {
+        std::cout << "  Returning to main menu..." << std::endl;
+        std::cout << "  Press Enter to continue" << std::endl;
+        waitForInput();
+        return false;
+    }
     if (choice == "skip" || choice == "SKIP") {
         std::cout << "  Skipping this lesson..." << std::endl;
     }
+    return true;
 }
 
 // -----------------------------------------------------------------
 // Lesson 6: Synergy Effects
 // -----------------------------------------------------------------
-void Tutorial::lessonSynergy() {
+bool Tutorial::lessonSynergy() {
     const std::vector<std::string> content = {
         "SYNERGY EFFECTS",
         "",
@@ -439,15 +490,22 @@ void Tutorial::lessonSynergy() {
     displayLesson("Synergy Effects", content);
     
     std::string choice = getUserChoice();
+    if (choice == "menu" || choice == "MENU") {
+        std::cout << "  Returning to main menu..." << std::endl;
+        std::cout << "  Press Enter to continue" << std::endl;
+        waitForInput();
+        return false;
+    }
     if (choice == "skip" || choice == "SKIP") {
         std::cout << "  Skipping this lesson..." << std::endl;
     }
+    return true;
 }
 
 // -----------------------------------------------------------------
 // Lesson 7: Gold Management
 // -----------------------------------------------------------------
-void Tutorial::lessonGoldManagement() {
+bool Tutorial::lessonGoldManagement() {
     const std::vector<std::string> content = {
         "GOLD & RESOURCE MANAGEMENT",
         "",
@@ -475,15 +533,22 @@ void Tutorial::lessonGoldManagement() {
     displayLesson("Gold & Resource Management", content);
     
     std::string choice = getUserChoice();
+    if (choice == "menu" || choice == "MENU") {
+        std::cout << "  Returning to main menu..." << std::endl;
+        std::cout << "  Press Enter to continue" << std::endl;
+        waitForInput();
+        return false;
+    }
     if (choice == "skip" || choice == "SKIP") {
         std::cout << "  Skipping this lesson..." << std::endl;
     }
+    return true;
 }
 
 // -----------------------------------------------------------------
 // Lesson 8: Leveling Up (Unit Merging)
 // -----------------------------------------------------------------
-void Tutorial::lessonLevelUp() {
+bool Tutorial::lessonLevelUp() {
     const std::vector<std::string> content = {
         "UNIT LEVELING & MERGING",
         "",
@@ -511,9 +576,16 @@ void Tutorial::lessonLevelUp() {
     displayLesson("Unit Leveling & Merging", content);
     
     std::string choice = getUserChoice();
+    if (choice == "menu" || choice == "MENU") {
+        std::cout << "  Returning to main menu..." << std::endl;
+        std::cout << "  Press Enter to continue" << std::endl;
+        waitForInput();
+        return false;
+    }
     if (choice == "skip" || choice == "SKIP") {
         std::cout << "  Skipping this lesson..." << std::endl;
     }
+    return true;
 }
 
 // -----------------------------------------------------------------
@@ -630,7 +702,7 @@ void Tutorial::demonstrateFullGameplay() {
 }
 
 // -----------------------------------------------------------------
-void Tutorial::lessonCompletion() {
+bool Tutorial::lessonCompletion() {
     // First, show a complete game demo
     demonstrateFullGameplay();
     
@@ -663,6 +735,7 @@ void Tutorial::lessonCompletion() {
     printEncouragement();
     std::cout << "\n  You will now return to the main menu..." << std::endl;
     waitForInput();
+    return true;
 }
 
 // -----------------------------------------------------------------
@@ -675,14 +748,15 @@ bool Tutorial::run() {
     std::cout << "  Press Enter to continue" << std::endl;
     waitForInput();
     
-    lessonShop();
-    lessonUnits();
-    lessonPlacement();
-    lessonCombat();
-    lessonSynergy();
-    lessonGoldManagement();
-    lessonLevelUp();
-    lessonCompletion();
+    if (!lessonIntro()) return false;
+    if (!lessonShop()) return false;
+    if (!lessonUnits()) return false;
+    if (!lessonPlacement()) return false;
+    if (!lessonCombat()) return false;
+    if (!lessonSynergy()) return false;
+    if (!lessonGoldManagement()) return false;
+    if (!lessonLevelUp()) return false;
+    if (!lessonCompletion()) return false;
     
     return true;
 }
