@@ -14,7 +14,41 @@ COMP2113 / ENGG1340 Course Project - 2025-2026 2nd Semester, Group 75.
 | Li XInyang     | 3036590984 | https://github.com/oscarlixy |
 | Ye Chin Ho     | 3036589222 | https://github.com/chinho-hub|
 
+## Quick Start
 
+### System Requirements
+
+- **Compiler**: GCC (g++) version 5.0 or higher (supporting C++11)
+- **Build Tool**: GNU Make
+- **Terminal**: Any standard terminal emulator
+
+
+### Step 1: Compile the Game
+
+Navigate to the project directory and compile using Make:
+
+```bash
+make game
+```
+
+This will:
+- Compile all source files in the `src/` directory
+- Generate object files in the `build/` directory
+- Link them into the executable `game` in the project root
+
+To clean previous builds:
+
+```bash
+make clean
+```
+
+### Step 2: Run the Game
+
+Once compiled, you can start the game with:
+
+```bash
+./game
+```
 
 ## Game Description
 

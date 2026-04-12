@@ -197,35 +197,45 @@ void AI::placeHard(Board& board) {
     }
 
     // Place tanks in front column (AI_MIN_COL)
-    int row = 0;
-    for (size_t i = 0; i < tanks.size() && row < BOARD_ROWS; ++i) {
-        if (board.isEmpty(row, AI_MIN_COL)) {
-            board.placeUnit(tanks[i], row, AI_MIN_COL);
+    for (size_t i = 0; i < tanks.size(); ++i) {
+        bool placed = false;
+        for (int r = 0; r < BOARD_ROWS && !placed; ++r) {
+            if (board.isEmpty(r, AI_MIN_COL)) {
+                board.placeUnit(tanks[i], r, AI_MIN_COL);
+                placed = true;
+            }
         }
-        row++;
+        // Fallback: try next column
+        if (!placed) {
+            for (int r = 0; r < BOARD_ROWS && !placed; ++r) {
+                if (board.isEmpty(r, AI_MIN_COL + 1)) {
+                    board.placeUnit(tanks[i], r, AI_MIN_COL + 1);
+                    placed = true;
+                }
+            }
+        }
     }
 
     // Place damage dealers in back column (BOARD_COLS - 1)
-    row = 0;
-    int backCol = BOARD_COLS - 1;
     for (size_t i = 0; i < damage.size(); ++i) {
-        while (row < BOARD_ROWS && !board.isEmpty(row, backCol)) {
-            row++;
+        bool placed = false;
+        // Try back column first
+        for (int r = 0; r < BOARD_ROWS && !placed; ++r) {
+            if (board.isEmpty(r, BOARD_COLS - 1)) {
+                board.placeUnit(damage[i], r, BOARD_COLS - 1);
+                placed = true;
+            }
         }
-        if (row < BOARD_ROWS) {
-            board.placeUnit(damage[i], row, backCol);
-            row++;
-        } else {
-            // Overflow: try middle columns
-            for (int c = AI_MIN_COL + 1; c < BOARD_COLS - 1; ++c) {
-                for (int r = 0; r < BOARD_ROWS; ++r) {
+        // Fallback: try middle columns
+        if (!placed) {
+            for (int c = BOARD_COLS - 2; c >= AI_MIN_COL && !placed; --c) {
+                for (int r = 0; r < BOARD_ROWS && !placed; ++r) {
                     if (board.isEmpty(r, c)) {
                         board.placeUnit(damage[i], r, c);
-                        goto nextUnit;
+                        placed = true;
                     }
                 }
             }
-            nextUnit:;
         }
     }
 }
