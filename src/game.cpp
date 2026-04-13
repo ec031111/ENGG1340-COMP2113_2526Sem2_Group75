@@ -7,9 +7,10 @@
 #include <ctime>
 #include <vector>
 #include <iomanip>
-//--- asking yes or no ---
 #include <cctype>
 #include <algorithm>
+#include <thread>
+#include <chrono>
 //remove blank space
 std::string trim(const std::string& s) {
     size_t start = s.find_first_not_of(" \t\n\r");
@@ -156,7 +157,26 @@ int Game::run(bool show_intro) {
     // Show story intro for new games only
     if (show_intro) {
         showIntro();
+        
+        // Clear screen before showing full help
+        #ifdef _WIN32
+            system("cls");
+        #else
+            system("clear");
+        #endif
+        
+        // Show full help on first playthrough
         printHelp();  // Show full command list after intro
+        std::cout << std::endl << "  [Press Enter to continue...]";
+        std::string dummy;
+        std::getline(std::cin, dummy);
+        
+        // Clear screen before starting game
+        #ifdef _WIN32
+            system("cls");
+        #else
+            system("clear");
+        #endif
     } else {
         printCommandTips();  // Show quick commands if loading saved game
     }
@@ -193,8 +213,6 @@ int Game::run(bool show_intro) {
         // --- Random event ---
         currentEvent_ = Event::rollEvent(player_.getRoundsPlayed());
         handleEvent();
-
-        player_.displayStatus();
 
         //--- Ask Quit when Gold is insufficient (ROUND 2 ONLY) ---
         
@@ -355,7 +373,7 @@ void Game::shopPhase() {
     std::string line;
     bool ready = false;
     bool shouldShow = true;  // Flag to control when to clear and show full screen
-    bool firstPrompt = true;  // Show help on first prompt
+    bool isFirstDisplay = true;  // Don't clear screen on first display
 
     // Return board units to bench for repositioning
     for (int r = 0; r < BOARD_ROWS; ++r)
@@ -375,15 +393,18 @@ void Game::shopPhase() {
     while (!ready && running_) {
         // Only clear and show full screen when needed
         if (shouldShow) {
-            // Clear screen for clean pagination
-            #ifdef _WIN32
-                system("cls");
-            #else
-                system("clear");
-            #endif
+            // Clear screen for clean pagination (but not on first display)
+            if (!isFirstDisplay) {
+                #ifdef _WIN32
+                    system("cls");
+                #else
+                    system("clear");
+                #endif
+            }
+            isFirstDisplay = false;
 
             // Display status bar
-            printStatusBar();
+            player_.displayStatus();
             printDeployLimit();
             std::cout << std::endl;
 
@@ -403,12 +424,6 @@ void Game::shopPhase() {
             // Display bench
             player_.displayBench();
             std::cout << std::endl;
-
-            // Auto-show help on first prompt of the game
-            if (firstPrompt) {
-                printHelp();
-                firstPrompt = false;
-            }
 
             shouldShow = false;  // Don't re-show until a successful action
         }
@@ -437,11 +452,11 @@ void Game::shopPhase() {
             }
             
             //purchase confirmation
-            std::cout << UNDERLINE << BLUE << " Are you sure you want to buy " << WHITE << u->getName() << BLUE << "? (yes/no) > " << RESET;
+            std::cout << UNDERLINE << BLUE << " Are you sure you want to buy " << WHITE << u->getName() << BLUE << "? (y/n) > " << RESET;
             std::string confirm;
             std::getline(std::cin, confirm);
             std::string c = toLower(trim(confirm));
-            if (c != "yes" && c != "y") {
+            if (c != "y") {
                 std::cout << YELLOW << " Purchase cancelled." << RESET << '\n';
                 continue;
             }
@@ -464,9 +479,10 @@ void Game::shopPhase() {
                 continue;
             }
             std::cout << GREEN << "  ✅ Purchased " << bought->getName() << "!" << RESET << std::endl;
+            // Pause to let user see the purchase message
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
             // Check for 3-merge after each purchase
             checkAndMerge();
-            player_.displayStatus();
             shouldShow = true;  // Refresh display after successful buy
 
         } else if (cmd == "sell") {
@@ -688,6 +704,16 @@ void Game::shopPhase() {
                 continue;
             }
             std::cout << BLUE << " 🎯 Ready for battle!" << RESET << std::endl;
+            // Pause to let user see the message
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            
+            // Clear screen before battle
+            #ifdef _WIN32
+                system("cls");
+            #else
+                system("clear");
+            #endif
+            
             ready = true;
 
         } else if (cmd == "status") {
@@ -875,37 +901,31 @@ bool Game::battlePhase() {
     pUnits = board_.getPlayerUnits();
     Synergy::clearSynergies(pUnits);
 
-    // UNIT PERSISTENCE: ALL player units return to bench with FULL HP
-    // Dead units are RESURRECTED with full HP
-    // Surviving units are HEALED to full HP
+    // UNIT PERSISTENCE: Only SURVIVING player units return to bench
+    // Dead units are permanently deleted (no resurrection)
     for (int r = 0; r < BOARD_ROWS; ++r) {
         for (int c = 0; c < BOARD_COLS; ++c) {
             Unit* u = board_.getUnit(r, c);
             if (u != nullptr) {
                 board_.removeUnit(r, c);
                 if (u->isPlayerUnit()) {
-                    // Check if unit was dead BEFORE healing
-                    bool wasDead = !u->isAlive();
-                    // Heal to full HP before returning to bench
-                    u->healToFull();
-                    // Add to bench (may fail if bench is full - we check this before battle)
-                    if (!player_.addToBench(u)) {
-                        // This should not happen if deployment limits were enforced
-                        std::cerr << "  ERROR: Bench full! Unit " << u->getName() << " lost!" << std::endl;
-                        delete u;  // Clean up to prevent memory leak
+                    if (!u->isAlive()) {
+                        // Dead unit - permanently delete it
+                        std::cout << "  [PERMANENT LOSS] " << u->getName() << " has fallen in battle!" << std::endl;
+                        delete u;
                     } else {
-                        if (wasDead) {
-                            // Unit was dead - show resurrection message
-                            std::cout << "  [RESURRECT] " << u->getName() << " has risen with full HP ("
-                                      << u->getMaxHp() << "/" << u->getMaxHp() << ")!" << std::endl;
+                        // Surviving unit - heal to full HP and return to bench
+                        u->healToFull();
+                        if (!player_.addToBench(u)) {
+                            std::cerr << "  ERROR: Bench full! Unit " << u->getName() << " lost!" << std::endl;
+                            delete u;  
                         } else {
-                            // Unit survived - show healed message
                             std::cout << "  [HEALED] " << u->getName() << " returns with full HP ("
                                       << u->getMaxHp() << "/" << u->getMaxHp() << ")!" << std::endl;
                         }
                     }
                 } else {
-                    // AI unit - always delete (AI gets fresh units each round)
+                    // AI unit - always delete
                     delete u;
                 }
             }
@@ -915,22 +935,10 @@ bool Game::battlePhase() {
     // Check for auto-merges after returning units
     checkAndMerge();
 
-    // UNIT PERSISTENCE: Dead player units collected during combat are also resurrected
+    // Delete all dead units collected during combat
     for (size_t i = 0; i < deadUnits.size(); ++i) {
         Unit* u = deadUnits[i];
-        if (u->isPlayerUnit()) {
-            u->healToFull();
-            if (!player_.addToBench(u)) {
-                std::cerr << "  ERROR: Bench full! Unit " << u->getName() << " lost!" << std::endl;
-                delete u;
-            } else {
-                std::cout << "  [RESURRECT] " << u->getName() << " has risen with full HP ("
-                          << u->getMaxHp() << "/" << u->getMaxHp() << ")!" << std::endl;
-            }
-        } else {
-            // AI unit
-            delete u;
-        }
+        delete u;  // All dead units are permanently deleted
     }
 
     return playerWon;
@@ -962,6 +970,18 @@ bool Game::resolveCombat(std::vector<Unit*>& deadUnits) {
         }
         if (!playerAlive || !aiAlive) break;
         lastTick = tick;
+
+        // Clear screen before each tick (except first) and redisplay battle header
+        if (!skipCombat_ && tick > 1) {
+            #ifdef _WIN32
+                system("cls");
+            #else
+                system("clear");
+            #endif
+            
+            // Redisplay Battle Phase title
+            std::cout << BOLD << RED << "  ⚔️ ========== BATTLE PHASE ========== ⚔️" << RESET << std::endl;
+        }
 
         if (!skipCombat_) {
             std::cout << "\n  -------- Tick " << tick << " --------" << std::endl;
