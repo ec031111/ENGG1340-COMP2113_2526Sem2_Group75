@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include <iomanip>
+#include <unistd.h>
 
 // -----------------------------------------------------------------
 // Constructor
@@ -44,15 +45,45 @@ void Tutorial::clearScreen() const {
 // -----------------------------------------------------------------
 // Helper: Print a boxed line
 // -----------------------------------------------------------------
+int Tutorial::getDisplayWidth(const std::string& str) const {
+    int width = 0;
+    bool inEscape = false;
+    for (size_t i = 0; i < str.size(); i++) {
+        if (str[i] == '\033') {  // ESC character starts ANSI sequence
+            inEscape = true;
+        } else if (inEscape && str[i] == 'm') {  // 'm' ends ANSI sequence
+            inEscape = false;
+        } else if (!inEscape) {
+            // Check for multi-byte UTF-8 characters (emoji, etc)
+            unsigned char c = (unsigned char)str[i];
+            if ((c & 0x80) == 0) {
+                // Single byte ASCII: 1 column
+                width++;
+            } else if ((c & 0xE0) == 0xC0) {
+                // 2-byte UTF-8
+                width += 2;  // Most emoji are 2 columns wide
+                i++;  // Skip next byte
+            } else if ((c & 0xF0) == 0xE0) {
+                // 3-byte UTF-8
+                width += 2;  // Eastern fonts are typically 2 columns
+                i += 2;  // Skip next 2 bytes
+            } else if ((c & 0xF8) == 0xF0) {
+                // 4-byte UTF-8 (emoji)
+                width += 2;  // Emoji are typically 2 columns
+                i += 3;  // Skip next 3 bytes
+            }
+        }
+    }
+    return width;
+}
+
 void Tutorial::printBox(const std::string& text, int width) {
     std::string line = text;
-    // If text is longer than width, truncate it
-    if ((int)line.size() > width) {
-        line = line.substr(0, width);
-    }
-    // Pad with spaces to match the width
-    if ((int)line.size() < width) {
-        line += std::string(width - line.size(), ' ');
+    int displayWidth = getDisplayWidth(text);
+    
+    // Pad with spaces to match the desired width
+    if (displayWidth < width) {
+        line += std::string(width - displayWidth, ' ');
     }
     std::cout << "  |" << line << "|" << std::endl;
 }
@@ -123,8 +154,14 @@ void Tutorial::printProgressBar(int current, int total) {
 // Helper: Display a lesson with content
 // -----------------------------------------------------------------
 void Tutorial::displayLesson(const std::string& title, 
-                              const std::vector<std::string>& content) {
+                              const std::vector<std::string>& content,
+                              int current, int total) {
     clearScreen();
+    
+    // Display progress bar if current > 0
+    if (current > 0) {
+        printProgressBar(current, total);
+    }
     
     const int W = 70;
     std::cout << std::endl;
@@ -146,26 +183,25 @@ void Tutorial::displayLesson(const std::string& title,
 // Lesson 1: Introduction
 // -----------------------------------------------------------------
 bool Tutorial::lessonIntro() {
-    printProgressBar(1, 9);  // 1 of 9 lessons
     
     const std::vector<std::string> content = {
-        "Welcome, Commander!",
+        BOLD BR_CYAN "Welcome, Commander!" RESET,
         "",
-        "You are the last hope of the war-torn Kingdom of Aethelia.",
-        "Dark forces threaten to consume your homeland. You must",
-        "recruit heroes, build a powerful army, and defend the realm",
+        "You are the " BOLD BR_PURPLE "last hope" RESET " of the war-torn Kingdom of Aethelia.",
+        "Dark forces threaten to consume your homeland. You " BOLD BR_PURPLE "must" RESET,
+        "" BR_GREEN "recruit heroes" RESET ", " BR_GREEN "build a powerful army" RESET ", and " BR_GREEN "defend the realm" RESET,
         "against the darkness.",
         "",
-        "Your objective is simple: survive as many rounds as possible!",
+        "Your objective is " BR_YELLOW "simple" RESET ": " BOLD BR_YELLOW "survive as many rounds as possible" RESET "!",
         "",
         "Each round consists of:",
-        "  1. SHOPPING - Buy units and arrange your formation",
-        "  2. COMBAT - Your army fights automatically",
+        "  1. " BR_CYAN "SHOPPING" RESET " - Buy units and arrange your formation",
+        "  2. " BR_CYAN "COMBAT" RESET " - Your army fights automatically",
         "",
-        "Destroy all enemy units to win!"
+        "" BR_RED "Destroy all enemy units to win!" RESET
     };
     
-    displayLesson("Welcome, Commander!", content);
+    displayLesson("Welcome, Commander!", content, 1, 9);
     
     std::string choice = getUserChoice();
     if (choice == "menu" || choice == "MENU") {
@@ -181,29 +217,28 @@ bool Tutorial::lessonIntro() {
 // Lesson 2: Shop System (with interactive practice)
 // -----------------------------------------------------------------
 bool Tutorial::lessonShop() {
-    printProgressBar(2, 9);  // 2 of 9 lessons
     
     const std::vector<std::string> content = {
-        "THE SHOP SYSTEM",
+        BOLD BR_YELLOW "THE SHOP SYSTEM" RESET,
         "",
-        "Each round, the shop offers 5 randomly generated units.",
+        "Each round, the shop offers " BR_YELLOW "5 randomly generated units" RESET ".",
         "",
-        "KEY ACTIONS:",
-        "  • buy <1-5>      - Purchase a unit using gold",
-        "  • sell <1-8>     - Sell a unit from your bench",
-        "  • refresh <cost> - Refresh shop (costs 2 gold)",
+        BOLD BR_CYAN "KEY ACTIONS:" RESET,
+        "  • " BR_YELLOW "buy <1-5>" RESET "      - Purchase a unit using gold",
+        "  • " BR_YELLOW "sell <1-8>" RESET "     - Sell a unit from your bench",
+        "  • " BR_YELLOW "refresh <cost>" RESET " - Refresh shop (costs " BR_YELLOW "2 gold" RESET ")",
         "",
-        "GOLD MANAGEMENT:",
-        "  • Start with 15 gold per game",
-        "  • Earn 5 gold at the start of each new round",
-        "  • Interest: Every 10 gold gives 1 bonus gold",
-        "  • Winning/losing streaks give bonus gold",
+        BOLD BR_GREEN "GOLD MANAGEMENT:" RESET,
+        "  • Start with " BR_YELLOW "15 gold" RESET " per game",
+        "  • Earn " BR_YELLOW "5 gold" RESET " at the start of each new round",
+        "  • Interest: Every " BR_YELLOW "10 gold" RESET " gives " BR_YELLOW "1 bonus gold" RESET,
+        "  • Winning/losing streaks give " BR_YELLOW "bonus gold" RESET,
         "",
-        "STRATEGY TIP: Balance spending on units vs. saving for",
+        "💡 " BOLD BR_YELLOW "STRATEGY TIP: " RESET "Balance spending on units vs. saving for",
         "interest bonuses!"
     };
     
-    displayLesson("The Shop System", content);
+    displayLesson("The Shop System", content, 2, 9);
     
     std::string choice = getUserChoice();
     if (choice == "menu" || choice == "MENU") {
@@ -220,6 +255,7 @@ bool Tutorial::lessonShop() {
     } else {
         // Interactive: Show practice
         clearScreen();
+        printProgressBar(2, 9);  // Show progress at top
         std::cout << std::endl;
         std::cout << "  Let's practice with a sample shop!" << std::endl;
         std::cout << std::endl;
@@ -301,33 +337,32 @@ bool Tutorial::lessonShop() {
 // Lesson 3: Units and Attributes
 // -----------------------------------------------------------------
 bool Tutorial::lessonUnits() {
-    printProgressBar(3, 9);  // 3 of 9 lessons
     
     const std::vector<std::string> content = {
-        "UNIT CLASSES & SPECIAL ABILITIES",
+        BOLD BR_CYAN "UNIT CLASSES & SPECIAL ABILITIES" RESET,
         "",
         "There are 5 unit classes in the game, each with unique",
-        "abilities and attributes: (ATK = Attack)",
+        "abilities and attributes: (" BOLD BR_BLUE "ATK" RESET " = Attack)",
         "",
-        "WARRIOR  - High HP, mid ATK",
-        "          Ability: Rage - +30% ATK when HP < 50%",
+        BOLD BR_GREEN "WARRIOR" RESET "  - High " BR_BLUE "HP" RESET ", mid " BR_BLUE "ATK" RESET,
+        "          Ability: " BR_CYAN "Rage" RESET " - Below " BR_YELLOW "50%" RESET " " BR_BLUE "HP" RESET ": " BR_YELLOW "+30% ATK" RESET " (once/combat)",
         "",
-        "MAGE     - Low HP, high ATK",
-        "          Ability: AOE - 30% chance to deal 50% splash dmg",
+        BOLD BR_GREEN "MAGE" RESET "     - Low " BR_BLUE "HP" RESET ", high " BR_BLUE "ATK" RESET,
+        "          Ability: " BR_CYAN "AOE" RESET " - " BR_YELLOW "30% chance" RESET " to deal " BR_YELLOW "50% splash" RESET " dmg",
         "",
-        "TANK     - Super high HP, low ATK",
-        "          Ability: Block - 25% chance to block 40% dmg",
+        BOLD BR_GREEN "TANK" RESET "     - Super high " BR_BLUE "HP" RESET ", low " BR_BLUE "ATK" RESET,
+        "          Ability: " BR_CYAN "Block" RESET " - " BR_YELLOW "25% chance" RESET " to block " BR_YELLOW "40%" RESET " dmg",
         "",
-        "ASSASSIN - Mid HP, high ATK, high crit.",
-        "          Ability: Backstab - 25% chance +50% extra dmg",
+        BOLD BR_GREEN "ASSASSIN" RESET " - Mid " BR_BLUE "HP" RESET ", high " BR_BLUE "ATK" RESET ", high " BR_BLUE "crit" RESET ".",
+        "          Ability: " BR_CYAN "Backstab" RESET " - " BR_YELLOW "25% chance" RESET " " BR_YELLOW "+50% extra dmg" RESET,
         "",
-        "ARCHER   - Mid HP, mid ATK, support",
-        "          Ability: Double Shot - 20% chance to attack twice",
+        BOLD BR_GREEN "ARCHER" RESET "   - Mid " BR_BLUE "HP" RESET ", mid " BR_BLUE "ATK" RESET ", support",
+        "          Ability: " BR_CYAN "Double Shot" RESET " - " BR_YELLOW "20% chance" RESET " to attack (can " BR_BLUE "crit" RESET ")",
         "",
-        "Each unit has: Name, Class, HP, ATK, Crit%, Level (star)"
+        "Each unit has: Name, Class, " BR_BLUE "HP" RESET ", " BR_BLUE "ATK" RESET ", " BR_BLUE "Crit%" RESET ", Level (star)"
     };
     
-    displayLesson("Units and Special Abilities", content);
+    displayLesson("Units and Special Abilities", content, 3, 9);
     
     std::string choice = getUserChoice();
     if (choice == "menu" || choice == "MENU") {
@@ -346,32 +381,41 @@ bool Tutorial::lessonUnits() {
 // Lesson 4: Board Placement (with interactive practice)
 // -----------------------------------------------------------------
 bool Tutorial::lessonPlacement() {
-    printProgressBar(4, 9);  // 4 of 9 lessons
     
     const std::vector<std::string> content = {
-        "BOARD PLACEMENT & FORMATION",
+        BOLD BR_YELLOW "BOARD PLACEMENT & FORMATION" RESET,
         "",
-        "Your bench can hold up to 8 units. You can place units",
-        "on the 5x8 battle grid (your side has 4 columns).",
+        "Your bench can hold up to " BR_YELLOW "8 units" RESET ". You can place units",
+        "on the " BR_YELLOW "5x8 battle grid" RESET " (your side has " BR_YELLOW "4 columns" RESET ").",
         "",
-        "PLACEMENT STRATEGIES:",
+        BOLD BR_YELLOW "PLACEMENT STRATEGIES:" RESET,
         "",
-        "FRONT LINE (Column 0-1):",
-        "  • Place TANKS and WARRIORS here",
-        "  • They take the most damage",
+        BOLD BR_YELLOW "FRONT LINE (Column 0-1):" RESET,
+        "  • Place " BR_GREEN "TANKS" RESET " and " BR_GREEN "WARRIORS" RESET " here",
+        "  • They " BR_RED "take the most damage" RESET,
         "",
-        "BACK LINE (Column 2-3):",
-        "  • Place MAGES, ARCHERS, and ASSASSINS",
-        "  • Stay safe from enemies while dealing damage",
+        BOLD BR_YELLOW "BACK LINE (Column 2-3):" RESET,
+        "  • Place " BR_GREEN "MAGES" RESET ", " BR_GREEN "ARCHERS" RESET ", and " BR_GREEN "ASSASSINS" RESET,
+        "  • Stay " BR_GREEN "safe from enemies" RESET " while dealing damage",
         "",
-        "FORMATION TIPS:",
-        "  • Have a balanced frontline and backline",
-        "  • Consider unit synergies (more on that later!)",
-        "  • Use 'place <idx> <row> <col>' command to position",
-        "  • Use 'auto' command for automatic smart placement"
+        BOLD BR_YELLOW "FORMATION TIPS:" RESET,
+        "  • Have a " BR_GREEN "balanced frontline and backline" RESET,
+        "  • Consider " BR_GREEN "unit synergies" RESET " (more on that later!)",
+        "  • Use " BR_YELLOW "'place <idx> <row> <col>'" RESET " command to position",
+        "  • Use " BR_YELLOW "'auto'" RESET " command for automatic smart placement",
+        "",
+        "Strategic Example:",
+        "  " WHITE "┌───────────────────┐" RESET,
+        "  " WHITE "│  BACK  │  FRONT  │" RESET,
+        "  " WHITE "│  0  1  │  2  3   │" RESET,
+        "  " WHITE "├───────────────────┤" RESET,
+        "  " WHITE "│ Ma .   │ Ta WA   │" RESET,
+        "  " WHITE "│ Ar .   │ . .    │" RESET,
+        "  " WHITE "└───────────────────┘" RESET,
+        "  (Ma=Mage, Ar=Archer, Ta=Tank, WA=Warrior)"
     };
     
-    displayLesson("Board Placement & Formation", content);
+    displayLesson("Board Placement & Formation", content, 4, 9);
     
     std::string choice = getUserChoice();
     if (choice == "menu" || choice == "MENU") {
@@ -387,6 +431,7 @@ bool Tutorial::lessonPlacement() {
     } else {
         // Interactive: Show practice placement
         clearScreen();
+        printProgressBar(4, 9);  // Show progress at top
         std::cout << std::endl;
         std::cout << "  Let's practice placing units on the battlefield!" << std::endl;
         std::cout << std::endl;
@@ -394,16 +439,28 @@ bool Tutorial::lessonPlacement() {
         std::cout << "  [1] Warrior" << std::endl;
         std::cout << "  [2] Archer" << std::endl;
         std::cout << std::endl;
-        std::cout << BOLD << CYAN << "  +---------------+" << RESET << std::endl;
-        std::cout << BOLD << CYAN << "  | YOUR FORMATION |" << RESET << std::endl;
-        std::cout << BOLD << CYAN << "  |    0 1 2 3     |" << RESET << std::endl;
-        std::cout << BOLD << CYAN << "  +---------------+" << RESET << std::endl;
-        std::cout << " 0 | . . . . |" << std::endl;
-        std::cout << " 1 | . . . . |" << std::endl;
-        std::cout << " 2 | . . . . |" << std::endl;
-        std::cout << " 3 | . . . . |" << std::endl;
-        std::cout << " 4 | . . . . |" << std::endl;
-        std::cout << BOLD << CYAN << "  +---------------+" << RESET << std::endl;
+        
+        // Your Formation board - where units are placed
+        const int FORM_W = 15;
+        std::cout << BOLD << WHITE << "  +" << std::string(FORM_W, '-') << "+" << RESET << std::endl;
+        std::cout << BOLD << WHITE << "  | YOUR FORMATION |" << RESET << std::endl;
+        std::cout << BOLD << WHITE << "  |    0 1 2 3     |" << RESET << std::endl;
+        std::cout << BOLD << WHITE << "  +" << std::string(FORM_W, '-') << "+" << RESET << std::endl;
+        
+        std::string formRows[] = {
+            " 0 | .  .  .  .  |",
+            " 1 | .  .  .  .  |",
+            " 2 | .  .  .  .  |",
+            " 3 | .  .  .  .  |",
+            " 4 | .  .  .  .  |"
+        };
+        
+        for (const auto& row : formRows) {
+            std::cout << BOLD << WHITE << row << RESET << std::endl;
+        }
+        std::cout << BOLD << WHITE << "  +" << std::string(FORM_W, '-') << "+" << RESET << std::endl;
+        std::cout << std::endl;
+        std::cout << "  No units deployed." << std::endl;
         std::cout << std::endl;
         std::cout << "  PLACEMENT COMMANDS:" << std::endl;
         std::cout << "  • place <idx> <row> <col>  - Place unit at position" << std::endl;
@@ -466,33 +523,32 @@ bool Tutorial::lessonPlacement() {
 // Lesson 5: Combat System
 // -----------------------------------------------------------------
 bool Tutorial::lessonCombat() {
-    printProgressBar(5, 9);  // 5 of 9 lessons
     
     const std::vector<std::string> content = {
-        "HOW COMBAT WORKS",
+        BOLD BR_YELLOW "HOW COMBAT WORKS" RESET,
         "",
-        "Once you've placed your units and clicked 'ready', the",
-        "battle begins! Combat is AUTOMATIC and fully visual.",
+        "Once you've placed your units and clicked " BR_YELLOW "'ready'" RESET ", the",
+        "battle begins! Combat is " BOLD BR_YELLOW "AUTOMATIC" RESET " and " BR_GREEN "fully visual" RESET ".",
         "",
-        "COMBAT FLOW:",
-        "  1. Your units and enemy units spawn on the grid",
-        "  2. Every tick (turn), each unit finds the nearest enemy",
-        "  3. If in range, units attack; otherwise, they move",
-        "  4. Each attack may trigger a critical hit (1.5x damage)",
-        "  5. Each attack may trigger class abilities",
-        "  6. Dead units are removed from the battlefield",
+        BOLD BR_YELLOW "COMBAT FLOW:" RESET,
+        "  1. Your units and enemy units " BR_GREEN "spawn on the grid" RESET,
+        "  2. Every " BR_YELLOW "tick (turn)" RESET ", each unit " BR_YELLOW "finds the nearest enemy" RESET,
+        "  3. If in range, " BR_YELLOW "units attack" RESET "; otherwise, they move",
+        "  4. Each attack may trigger " BR_YELLOW "critical hit" RESET " (" BR_YELLOW "1.5x damage" RESET ")",
+        "  5. Each attack may trigger " BR_YELLOW "class abilities" RESET,
+        "  6. " BR_RED "Dead units are removed" RESET " from the battlefield",
         "",
-        "COMBAT ENDS when:",
-        "  • All your units are defeated (you lose)",
-        "  • All enemy units are defeated (you win)",
-        "  • 200 ticks have passed (tie, you take minimal damage)",
+        BOLD BR_YELLOW "COMBAT ENDS when:" RESET,
+        "  • " BR_RED "All your units are defeated" RESET " (you " BR_RED "lose" RESET ")",
+        "  • " BR_GREEN "All enemy units are defeated" RESET " (you " BR_GREEN "win" RESET ")",
+        "  • " BR_YELLOW "200 ticks have passed" RESET " (tie, you take minimal damage)",
         "",
-        "LOSING DAMAGE: 5 + (num surviving enemies * 2)",
+        "⚠ " BOLD BR_RED "LOSING DAMAGE:" RESET " " BR_YELLOW "5 + (num surviving enemies * 2)" RESET,
         "",
-        "You can watch the combat and press [Enter] to skip"
+        "You can watch the combat and press " BR_YELLOW "[Enter]" RESET " to skip"
     };
     
-    displayLesson("Combat System", content);
+    displayLesson("Combat System", content, 5, 9);
     
     std::string choice = getUserChoice();
     if (choice == "menu" || choice == "MENU") {
@@ -511,33 +567,22 @@ bool Tutorial::lessonCombat() {
 // Lesson 6: Synergy Effects
 // -----------------------------------------------------------------
 bool Tutorial::lessonSynergy() {
-    printProgressBar(6, 9);  // 6 of 9 lessons
     
     const std::vector<std::string> content = {
-        "SYNERGY EFFECTS",
+        BOLD BR_YELLOW "SYNERGY EFFECTS" RESET " - Power Through Teamwork!",
         "",
-        "Units of the same class provide powerful bonuses!",
-        "When you have 2 or more units of the same class,",
-        "automatic synergy effects activate.",
+        "Same class units give automatic bonuses (stacking):",
         "",
-        "SYNERGY BONUSES:",
+        "⚔ " BOLD BR_GREEN "WARRIOR" RESET ":  " BR_CYAN "Lv1(2x)" RESET " " BR_YELLOW "+5 ATK" RESET "  |  " BR_CYAN "Lv2(3x)" RESET " " BR_YELLOW "+10 ATK" RESET,
+        "🔥 " BOLD BR_GREEN "MAGE" RESET ":     " BR_CYAN "Lv1(2x)" RESET " " BR_YELLOW "+15% crit" RESET "  |  " BR_CYAN "Lv2(3x)" RESET " " BR_YELLOW "+30% crit" RESET,
+        "🛡 " BOLD BR_GREEN "TANK" RESET ":     " BR_CYAN "Lv1(2x)" RESET " " BR_YELLOW "+20% HP" RESET "  |  " BR_CYAN "Lv2(3x)" RESET " More resilience",
+        "🗡 " BOLD BR_GREEN "ASSASSIN" RESET ": " BR_CYAN "Lv1(2x)" RESET " " BR_YELLOW "+10 ATK" RESET "  |  " BR_CYAN "Lv2(3x)" RESET " " BR_YELLOW "+20 ATK, +10% crit" RESET,
+        "🏹 " BOLD BR_GREEN "ARCHER" RESET ":   " BR_CYAN "Lv1(2x)" RESET " " BR_YELLOW "+3 ATK" RESET "  |  " BR_CYAN "Lv2(3x)" RESET " " BR_YELLOW "+5 ATK" RESET,
         "",
-        "WARRIOR Synergy:",
-        "  Lv1 (2x): +5 ATK to all",
-        "  Lv2 (3x): +10 ATK to all",
-        "",
-        "MAGE Synergy: Lv1: +15% crit  Lv2: +30% crit",
-        "",
-        "TANK Synergy: Lv1: +20% HP recovery  Lv2: to all",
-        "",
-        "ASSASSIN Synergy: Lv1: +10 ATK  Lv2: +20 ATK, +10% crit",
-        "",
-        "ARCHER Synergy: Lv1: +3 ATK  Lv2: +5 ATK",
-        "",
-        "STRATEGY: Build themed armies around synergies!"
+        "💡 " BOLD BR_YELLOW "STRATEGY" RESET ": Build themed armies for maximum power!"
     };
     
-    displayLesson("Synergy Effects", content);
+    displayLesson("Synergy Effects", content, 6, 9);
     
     std::string choice = getUserChoice();
     if (choice == "menu" || choice == "MENU") {
@@ -556,33 +601,32 @@ bool Tutorial::lessonSynergy() {
 // Lesson 7: Gold Management
 // -----------------------------------------------------------------
 bool Tutorial::lessonGoldManagement() {
-    printProgressBar(7, 9);  // 7 of 9 lessons
     
     const std::vector<std::string> content = {
-        "GOLD & RESOURCE MANAGEMENT",
+        BOLD BR_YELLOW "GOLD & RESOURCE MANAGEMENT" RESET,
         "",
-        "Gold is your most precious resource!",
+        "Gold is your " BOLD BR_YELLOW "most precious resource" RESET "!",
         "",
-        "GOLD SOURCES:",
-        "  • Battle rewards: Win streak = more gold",
-        "  • Loss penalty: Lose streak = reduced income",
-        "  • Interest: Every 10 gold = 1 bonus gold (max 5/turn)",
-        "  • Special events: May grant gold",
+        BOLD BR_YELLOW "GOLD SOURCES:" RESET,
+        "  • Battle rewards: " BR_YELLOW "Win streak = more gold" RESET,
+        "  • Loss penalty: " BR_RED "Lose streak = reduced income" RESET,
+        "  • Interest: " BR_YELLOW "Every 10 gold = 1 bonus gold" RESET " (max " BR_YELLOW "5/turn" RESET ")",
+        "  • Special events: " BR_GREEN "May grant gold" RESET,
         "",
-        "GOLD SPENDING:",
-        "  • Buy units from shop",
-        "  • Refresh shop (2 gold per refresh)",
-        "  • No other direct costs",
+        BOLD BR_YELLOW "GOLD SPENDING:" RESET,
+        "  • " BR_YELLOW "Buy units" RESET " from shop",
+        "  • " BR_YELLOW "Refresh shop" RESET " (" BR_YELLOW "2 gold" RESET " per refresh)",
+        "  • " BR_CYAN "No other direct costs" RESET,
         "",
-        "WINNING STRATEGY:",
-        "  • Early game (rounds 1-3): Buy aggressively",
-        "  • Mid game (rounds 4-7): Balance buying and saving",
-        "  • Late game: Save for interest bonuses and power units",
+        BOLD BR_YELLOW "WINNING STRATEGY:" RESET,
+        "  • Early game (rounds 1-3): " BR_YELLOW "Buy aggressively" RESET,
+        "  • Mid game (rounds 4-7): " BR_YELLOW "Balance buying and saving" RESET,
+        "  • Late game: " BR_YELLOW "Save for interest bonuses" RESET " and power units",
         "",
-        "PRO TIP: 50 gold generates 5 free gold per round!"
+        "💰 " BOLD BR_YELLOW "PRO TIP: " RESET "" BR_YELLOW "50 gold generates 5 free gold per round!" RESET
     };
     
-    displayLesson("Gold & Resource Management", content);
+    displayLesson("Gold & Resource Management", content, 7, 9);
     
     std::string choice = getUserChoice();
     if (choice == "menu" || choice == "MENU") {
@@ -601,33 +645,32 @@ bool Tutorial::lessonGoldManagement() {
 // Lesson 8: Leveling Up (Unit Merging)
 // -----------------------------------------------------------------
 bool Tutorial::lessonLevelUp() {
-    printProgressBar(8, 9);  // 8 of 9 lessons
     
     const std::vector<std::string> content = {
-        "UNIT LEVELING & MERGING",
+        BOLD BR_YELLOW "UNIT LEVELING & MERGING" RESET,
         "",
-        "Units can be leveled up to become more powerful!",
+        "Units can be " BR_GREEN "leveled up" RESET " to become " BOLD BR_YELLOW "more powerful" RESET "!",
         "",
-        "HOW MERGING WORKS:",
-        "  When you have 3 units of the SAME name at the SAME",
-        "  level, they automatically merge into 1 upgraded unit.",
+        BOLD BR_YELLOW "HOW MERGING WORKS:" RESET,
+        "  When you have " BR_YELLOW "3 units" RESET " of the " BR_YELLOW "SAME name" RESET " at the " BR_YELLOW "SAME" RESET,
+        "  level, they " BR_GREEN "automatically merge" RESET " into " BR_GREEN "1 upgraded unit" RESET ".",
         "",
-        "LEVEL PROGRESSION:",
-        "  Level 1 ★     -> Level 2 ★★",
-        "    • HP × 1.8        • ATK × 1.5",
+        BOLD BR_YELLOW "LEVEL PROGRESSION:" RESET,
+        "  Level 1 " BR_YELLOW "★" RESET "     -> Level 2 " BR_YELLOW "★★" RESET,
+        "    • " BR_RED "HP × 1.8" RESET "        • " BR_RED "ATK × 1.5" RESET,
         "",
-        "  Level 2 ★★    -> Level 3 ★★★ (Max Level)",
-        "    • HP × 3.0        • ATK × 2.5",
+        "  Level 2 " BR_YELLOW "★★" RESET "    -> Level 3 " BR_YELLOW "★★★" RESET " (" BR_RED "Max Level" RESET ")",
+        "    • " BR_GREEN "HP × 3.0" RESET "        • " BR_GREEN "ATK × 2.5" RESET,
         "",
-        "STRATEGY:",
-        "  • Focus on getting 3 copies of strong units",
-        "  • Leveled units are MUCH more powerful",
-        "  • A 3-star unit can carry an entire army!",
+        BOLD BR_YELLOW "STRATEGY:" RESET,
+        "  • Focus on getting " BR_YELLOW "3 copies of strong units" RESET,
+        "  • Leveled units are " BOLD BR_YELLOW "MUCH more powerful" RESET,
+        "  • A " BR_GREEN "3-star unit" RESET " can " BR_RED "carry an entire army!" RESET,
         "",
-        "NOTE: Merging is automatic - no action needed from you!"
+        "ℹ️  " BOLD BR_RED "NOTE:" RESET " Merging is " BR_GREEN "automatic" RESET " - no action needed from you!"
     };
     
-    displayLesson("Unit Leveling & Merging", content);
+    displayLesson("Unit Leveling & Merging", content, 8, 9);
     
     std::string choice = getUserChoice();
     if (choice == "menu" || choice == "MENU") {
@@ -672,37 +715,39 @@ void Tutorial::demonstrateFullGameplay() {
     std::cout << "  Total Cost: 5 + 7 + 4 = 16 gold" << std::endl;
     std::cout << "  Remaining Gold: 15 + 5 (interest) = 20 -> 4 gold after purchase" << std::endl;
     std::cout << std::endl;
+    std::cout << BOLD << BR_YELLOW << "  Press Enter to continue..." << RESET << std::endl;
     waitForInput();
     
     // PHASE 2: PLACEMENT
     clearScreen();
     std::cout << std::endl;
-    std::cout << BOLD << YELLOW << "  [PHASE 2: ARRANGING FORMATION]" << RESET << std::endl;
+    std::cout << BOLD << BR_YELLOW << "  [PHASE 2: ARRANGING FORMATION]" << RESET << std::endl;
     std::cout << std::endl;
     std::cout << "  Your Bench:" << std::endl;
     std::cout << "    [1] Warrior" << std::endl;
     std::cout << "    [2] Tank" << std::endl;
     std::cout << "    [3] Archer" << std::endl;
     std::cout << std::endl;
-    std::cout << BOLD << CYAN << "  +---------------+" << RESET << std::endl;
-    std::cout << BOLD << CYAN << "  | YOUR FORMATION |" << RESET << std::endl;
-    std::cout << BOLD << CYAN << "  |    0 1 2 3     |" << RESET << std::endl;
-    std::cout << BOLD << CYAN << "  +---------------+" << RESET << std::endl;
+    std::cout << BOLD << WHITE << "  +---------------+" << RESET << std::endl;
+    std::cout << BOLD << WHITE << "  | YOUR FORMATION |" << RESET << std::endl;
+    std::cout << BOLD << WHITE << "  |    0 1 2 3     |" << RESET << std::endl;
+    std::cout << BOLD << WHITE << "  +---------------+" << RESET << std::endl;
     std::cout << " 0 | Tn .  .  Ar |" << std::endl;
     std::cout << " 1 | .  .  .  .  |" << std::endl;
     std::cout << " 2 | Wa .  .  .  |" << std::endl;
     std::cout << " 3 | .  .  .  .  |" << std::endl;
     std::cout << " 4 | .  .  .  .  |" << std::endl;
-    std::cout << BOLD << CYAN << "  +---------------+" << RESET << std::endl;
+    std::cout << BOLD << WHITE << "  +---------------+" << RESET << std::endl;
     std::cout << std::endl;
     std::cout << "  Strategy: Tank in front + high-damage Warrior in middle + Archer for support" << std::endl;
     std::cout << std::endl;
+    std::cout << BOLD << BR_YELLOW << "  Press Enter to continue..." << RESET << std::endl;
     waitForInput();
     
     // PHASE 3: COMBAT
     clearScreen();
     std::cout << std::endl;
-    std::cout << BOLD << RED << "  [PHASE 3: BATTLE!]" << RESET << std::endl;
+    std::cout << BOLD << BR_RED << "  [PHASE 3: BATTLE!]" << RESET << std::endl;
     std::cout << std::endl;
     
     // Simulate a few combat ticks
@@ -723,11 +768,12 @@ void Tutorial::demonstrateFullGameplay() {
             std::cout << "  Your units are winning!" << std::endl;
             std::cout << "  Enemy ranks are falling..." << std::endl;
         } else if (tick == 5) {
-            std::cout << BOLD << GREEN << "  ✓ VICTORY! All enemy units defeated!" << RESET << std::endl;
+            std::cout << BOLD << BR_GREEN << "  ✓ VICTORY! All enemy units defeated!" << RESET << std::endl;
         }
         std::cout << std::endl;
     }
     
+    std::cout << BOLD << BR_YELLOW << "  Press Enter to see results..." << RESET << std::endl;
     waitForInput();
     
     // PHASE 4: RESULTS
@@ -735,7 +781,7 @@ void Tutorial::demonstrateFullGameplay() {
     std::cout << std::endl;
     std::cout << BOLD << BR_YELLOW << "  [ROUND RESULTS]" << RESET << std::endl;
     std::cout << std::endl;
-    std::cout << BOLD << GREEN << "  Battle Outcome: ✓ VICTORY!" << RESET << std::endl;
+    std::cout << BOLD << BR_GREEN << "  Battle Outcome: ✓ VICTORY!" << RESET << std::endl;
     std::cout << std::endl;
     std::cout << "  Combat Statistics:" << std::endl;
     std::cout << "    • Your Units Remaining: 3" << std::endl;
@@ -743,11 +789,11 @@ void Tutorial::demonstrateFullGameplay() {
     std::cout << BOLD << BR_RED << "    • Your Damage Taken: 5 HP" << RESET << std::endl;
     std::cout << "    • Battle Duration: 5 ticks" << std::endl;
     std::cout << std::endl;
-    std::cout << BOLD << BR_YELLOW << "  Gold Income:" << RESET << std::endl;
-    std::cout << BOLD << BR_YELLOW << "    • Base Income: 5 gold" << RESET << std::endl;
-    std::cout << BOLD << BR_YELLOW << "    • Victory Bonus: 3 gold" << RESET << std::endl;
-    std::cout << BOLD << BR_YELLOW << "    • Win Streak Bonus: 2 gold" << RESET << std::endl;
-    std::cout << BOLD << BR_YELLOW << "    • Total Gold This Round: 10 gold" << RESET << std::endl;
+    std::cout << "  " BOLD BR_YELLOW "Gold Income:" RESET << std::endl;
+    std::cout << "    • " BR_YELLOW "Base Income: 5 gold" RESET << std::endl;
+    std::cout << "    • " BR_YELLOW "Victory Bonus: 3 gold" RESET << std::endl;
+    std::cout << "    • " BR_YELLOW "Win Streak Bonus: 2 gold" RESET << std::endl;
+    std::cout << "    • " BOLD BR_YELLOW "Total Gold This Round: 10 gold" RESET << std::endl;
     std::cout << std::endl;
     std::cout << "  Your Status After Round:" << std::endl;
     std::cout << "    • HP: 95 (was 100)" << std::endl;
@@ -758,46 +804,56 @@ void Tutorial::demonstrateFullGameplay() {
     std::cout << std::endl;
     std::cout << "  Ready to jump into your first REAL battle and test your strategy?" << std::endl;
     std::cout << std::endl;
-    waitForInput();
+    std::cout << BOLD << BR_YELLOW << "  (Type 'ready' to proceed)" << RESET << std::endl;
+    
+    bool readyInput = false;
+    while (!readyInput) {
+        std::cout << BOLD << BR_YELLOW << "  > " << RESET;
+        std::string input;
+        if (!std::getline(std::cin, input)) break;
+        
+        if (input == "ready" || input == "READY") {
+            readyInput = true;
+        }
+    }
 }
 
 // -----------------------------------------------------------------
 bool Tutorial::lessonCompletion() {
-    printProgressBar(9, 9);  // 9 of 9 lessons
     
     // First, show a complete game demo
     demonstrateFullGameplay();
     
-    clearScreen();
-    printProgressBar(9, 9);
-    
     const std::vector<std::string> content = {
         "",
-        "CONGRATULATIONS, COMMANDER!",
+        BOLD BR_YELLOW "CONGRATULATIONS, COMMANDER!" RESET,
         "",
-        "You have completed the tutorial!",
+        "You have " BR_GREEN "completed the tutorial" RESET "!",
         "",
-        "You now understand:",
-        "  ✓ How to navigate the shop and buy units",
-        "  ✓ The 5 unit classes and their special abilities",
-        "  ✓ How to arrange your formation strategically",
-        "  ✓ How combat works automatically",
-        "  ✓ How synergies provide powerful bonuses",
-        "  ✓ How to manage gold wisely",
-        "  ✓ How to level up and merge your units",
-        "  ✓ How a complete game round flows",
+        BOLD BR_YELLOW "You now understand:" RESET,
+        "  ✓ How to " BR_YELLOW "navigate the shop and buy units" RESET,
+        "  ✓ The " BR_YELLOW "5 unit classes" RESET " and their " BR_YELLOW "special abilities" RESET,
+        "  ✓ How to " BR_YELLOW "arrange your formation strategically" RESET,
+        "  ✓ How " BR_YELLOW "combat works automatically" RESET,
+        "  ✓ How " BR_YELLOW "synergies provide powerful bonuses" RESET,
+        "  ✓ How to " BR_YELLOW "manage gold wisely" RESET,
+        "  ✓ How to " BR_YELLOW "level up and merge your units" RESET,
+        "  ✓ How a " BR_YELLOW "complete game round flows" RESET,
         "",
-        "You are ready to enter the battlefield!",
+        BOLD BR_GREEN "You are ready to enter the battlefield!" RESET,
         "",
-        "Remember: Every decision matters. Build wisely, fight",
-        "hard, and claim victory!",
+        "Remember: " BOLD BR_YELLOW "Every decision matters" RESET ". " BR_YELLOW "Build wisely" RESET ", " BR_YELLOW "fight",
+        "hard" RESET ", and " BR_YELLOW "claim victory" RESET "!",
         "",
-        "May fortune favor the bold, Commander!"
+        BOLD BR_YELLOW "May fortune favor the bold, Commander!" RESET
     };
     
-    displayLesson("Tutorial Complete!", content);
+    displayLesson("Tutorial Complete!", content, 9, 9);
     printEncouragement();
     std::cout << "\n  You will now return to the main menu..." << std::endl;
+    
+    // Auto-return to main menu after 0.5 seconds
+    usleep(500000);  // 0.5 seconds = 500000 microseconds
     waitForInput();
     return true;
 }
