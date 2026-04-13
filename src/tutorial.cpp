@@ -221,14 +221,27 @@ bool Tutorial::lessonShop() {
         std::cout << std::endl;
         std::cout << "  Let's practice with a sample shop!" << std::endl;
         std::cout << std::endl;
-        std::cout << "  +----- PRACTICE SHOP -----+" << std::endl;
-        std::cout << "  | 1. Warrior  (5 gold)    |" << std::endl;
-        std::cout << "  | 2. Mage     (6 gold)    |" << std::endl;
-        std::cout << "  | 3. Tank     (7 gold)    |" << std::endl;
-        std::cout << "  | 4. Assassin (6 gold)    |" << std::endl;
-        std::cout << "  | 5. Archer   (4 gold)    |" << std::endl;
-        std::cout << "  +----- YOUR GOLD: 15 -----+" << std::endl;
+        
+        // Display shop in format matching game.cpp
+        const int W = 58;
+        std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+        std::string shopTitle = "SHOP  (refresh: $2)";
+        int pad = (W - (int)shopTitle.size()) / 2;
+        std::cout << "  |" << std::string(pad, ' ') << shopTitle
+                  << std::string(W - pad - (int)shopTitle.size(), ' ') << "|" << std::endl;
+        std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+        
+        // Sample shop units
+        std::cout << "  |  [1] Warrior   WarriorHP:20  ATK:8  R:1 [Rage] $5        |" << std::endl;
+        std::cout << "  |  [2] Mage      MageHP:15  ATK:12 R:3 [AOE] $6            |" << std::endl;
+        std::cout << "  |  [3] Tank      TankHP:30  ATK:5  R:1 [Block] $7          |" << std::endl;
+        std::cout << "  |  [4] Assassin  AssassinHP:14  ATK:11 R:1 [Crit] $6       |" << std::endl;
+        std::cout << "  |  [5] Archer    ArcherHP:16  ATK:9  R:3 [DblShot] $4      |" << std::endl;
+        
+        std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+        std::cout << "  Your Gold: 15" << std::endl;
         std::cout << std::endl;
+        
         std::cout << "  SHOP COMMANDS:" << std::endl;
         std::cout << "  • buy <1-5>     - Buy a unit" << std::endl;
         std::cout << "  • info shop N   - See unit details" << std::endl;
@@ -643,12 +656,15 @@ void Tutorial::demonstrateFullGameplay() {
     std::cout << "    • HP: 100" << std::endl;
     std::cout << "    • Gold: 15" << std::endl;
     std::cout << std::endl;
-    std::cout << "  Shop Available:" << std::endl;
-    std::cout << "    [1] Warrior  - 5 gold    (ATK: 8, HP: 20)" << std::endl;
-    std::cout << "    [2] Mage     - 6 gold    (ATK: 12, HP: 15)" << std::endl;
-    std::cout << "    [3] Tank     - 7 gold    (ATK: 5, HP: 30)" << std::endl;
-    std::cout << "    [4] Archer   - 4 gold    (ATK: 9, HP: 16)" << std::endl;
-    std::cout << "    [5] Assassin - 6 gold    (ATK: 11, HP: 14)" << std::endl;
+    std::cout << "  +" << std::string(58, '-') << "+" << std::endl;
+    std::cout << "  |" << std::string(16, ' ') << "SHOP  (refresh: $1)" << std::string(17, ' ') << "|" << std::endl;
+    std::cout << "  +" << std::string(58, '-') << "+" << std::endl;
+    std::cout << "  |  [1] Warrior   WarriorHP:20  ATK:8  R:1 [Rage] $5        |" << std::endl;
+    std::cout << "  |  [2] Mage      MageHP:15  ATK:12 R:3 [AOE] $6            |" << std::endl;
+    std::cout << "  |  [3] Tank      TankHP:30  ATK:5  R:1 [Block] $7          |" << std::endl;
+    std::cout << "  |  [4] Archer    ArcherHP:16  ATK:9  R:3 [DblShot] $4      |" << std::endl;
+    std::cout << "  |  [5] Assassin  AssassinHP:14  ATK:11 R:1 [Crit] $6       |" << std::endl;
+    std::cout << "  +" << std::string(58, '-') << "+" << std::endl;
     std::cout << std::endl;
     std::cout << "  Buying: Warrior, Tank, Archer" << std::endl;
     std::cout << "  Total Cost: 5 + 7 + 4 = 16 gold" << std::endl;
@@ -666,13 +682,16 @@ void Tutorial::demonstrateFullGameplay() {
     std::cout << "    [2] Tank" << std::endl;
     std::cout << "    [3] Archer" << std::endl;
     std::cout << std::endl;
-    std::cout << "  Battle Grid (Your Side):" << std::endl;
-    std::cout << "    Col 0  Col 1  Col 2  Col 3" << std::endl;
-    std::cout << "  R0 [Tank][ ]   [ ]   [Archer]" << std::endl;
-    std::cout << "  R1 [ ]   [ ]   [ ]   [ ]" << std::endl;
-    std::cout << "  R2 [War] [ ]   [ ]   [ ]" << std::endl;
-    std::cout << "  R3 [ ]   [ ]   [ ]   [ ]" << std::endl;
-    std::cout << "  R4 [ ]   [ ]   [ ]   [ ]" << std::endl;
+    std::cout << "  +---------------+" << std::endl;
+    std::cout << "  | YOUR FORMATION |" << std::endl;
+    std::cout << "  |    0 1 2 3     |" << std::endl;
+    std::cout << "  +---------------+" << std::endl;
+    std::cout << " 0 | Tn .  .  Ar |" << std::endl;
+    std::cout << " 1 | .  .  .  .  |" << std::endl;
+    std::cout << " 2 | Wa .  .  .  |" << std::endl;
+    std::cout << " 3 | .  .  .  .  |" << std::endl;
+    std::cout << " 4 | .  .  .  .  |" << std::endl;
+    std::cout << "  +---------------+" << std::endl;
     std::cout << std::endl;
     std::cout << "  Strategy: Tank in front + high-damage Warrior in middle + Archer for support" << std::endl;
     std::cout << std::endl;
