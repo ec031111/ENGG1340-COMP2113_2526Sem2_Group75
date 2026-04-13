@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <cctype>
 #include <algorithm>
+#include <unistd.h>
 #include <thread>
 #include <chrono>
 //remove blank space
@@ -143,6 +144,99 @@ void Game::showIntro() const {
 }
 
 // =====================================================================
+// displayMilestoneAnimation - Show milestone achievement with animation
+// =====================================================================
+void Game::displayMilestoneAnimation(int round) const {
+    // Determine milestone message
+    std::string milestoneTitle, milestoneMsg, frameColor;
+    
+    if (round == 5) {
+        milestoneTitle = "R O U N D  5";
+        milestoneMsg = "The tide is turning! Your resistance inspires hope!";
+        frameColor = BR_YELLOW;
+    } else if (round == 10) {
+        milestoneTitle = "R O U N D  1 0";
+        milestoneMsg = "Extraordinary endurance! The Dark Lord takes notice!";
+        frameColor = BR_CYAN;
+    } else if (round == 15) {
+        milestoneTitle = "R O U N D  1 5";
+        milestoneMsg = "LEGENDARY! Surpassed all expectations!";
+        frameColor = BR_GREEN;
+    } else if (round == 20) {
+        milestoneTitle = "R O U N D  2 0";
+        milestoneMsg = "IMMORTAL! You are a FORCE OF NATURE!";
+        frameColor = BR_PURPLE;
+    } else {
+        return;
+    }
+
+    // Clear screen
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+
+    // 1. Pulsing frame animation (3 times)
+    for (int pulse = 0; pulse < 3; pulse++) {
+        std::cout << BOLD << "\033[" << frameColor << "m" 
+                  << "  ╔════════════════════════════════════╗" << RESET << std::endl;
+        std::cout << BOLD << "\033[" << frameColor << "m"
+                  << "  ║      🎉 MILESTONE ACHIEVED 🎉    ║" << RESET << std::endl;
+        std::cout << BOLD << "\033[" << frameColor << "m"
+                  << "  ╚════════════════════════════════════╝" << RESET << std::endl;
+        std::cout.flush();
+        usleep(100000);  // 0.1 seconds
+        
+        system("clear");
+    }
+
+    std::cout << std::endl;
+    
+    // 2. Typewriter effect for message
+    std::cout << BOLD << BR_CYAN << "  > ";
+    for (char c : milestoneMsg) {
+        std::cout << c;
+        std::cout.flush();
+        usleep(20000);  // 0.02 seconds per character
+    }
+    std::cout << RESET << "\n\n";
+
+    // 3. Ribbon animation effect - ultra cool (0.8 seconds total)
+    // Simulate flowing ribbon from left to right
+    std::string leftRibbon = "    ✨";
+    std::string centerStar = "⭐";
+    std::string rightRibbon = "✨";
+    
+    for (int frame = 0; frame < 16; frame++) {
+        // Create wave effect
+        int offset = (frame % 4);
+        std::string spacing = std::string(offset, ' ');
+        
+        std::cout << BOLD << BR_YELLOW 
+                  << leftRibbon << spacing << centerStar << spacing << rightRibbon 
+                  << RESET << "\r";
+        std::cout.flush();
+        usleep(50000);  // 0.05 seconds per frame
+    }
+    std::cout << "\n\n";
+
+    // 4. Final announcement box
+    std::cout << BOLD << "\033[" << frameColor << "m"
+              << "  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" << RESET << std::endl;
+    std::cout << BOLD << "\033[" << frameColor << "m"
+              << "    " << milestoneTitle << "  UNLOCKED  " << RESET << std::endl;
+    std::cout << BOLD << "\033[" << frameColor << "m"
+              << "  ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄" << RESET << std::endl;
+    std::cout << std::endl;
+
+    // Wait for player input to continue
+    std::cout << ITALIC << YELLOW << "  [Press Enter to continue...]" << RESET;
+    std::string dummy;
+    std::getline(std::cin, dummy);
+}
+
+// =====================================================================
 // run - Master game loop
 // =====================================================================
 int Game::run(bool show_intro) {
@@ -208,6 +302,14 @@ int Game::run(bool show_intro) {
                 std::cout << flavor[rand() % 4] << std::endl;
             }
             std::cout << std::endl;
+        }
+
+        // --- Check for milestones ---
+        {
+            int round = player_.getRoundsPlayed();
+            if (round == 5 || round == 10 || round == 15 || round == 20) {
+                displayMilestoneAnimation(round);
+            }
         }
 
         // --- Random event ---
