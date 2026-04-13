@@ -1,8 +1,10 @@
 #include "tutorial.h"
+#include "game.h"
 #include <iostream>
 #include <string>
 #include <vector>
 #include <sstream>
+#include <iomanip>
 
 // -----------------------------------------------------------------
 // Constructor
@@ -60,8 +62,8 @@ void Tutorial::printBox(const std::string& text, int width) {
 // -----------------------------------------------------------------
 std::string Tutorial::getUserChoice() {
     std::string input;
-    std::cout << "  (Type 'menu' to return to main menu, or press Enter)" << std::endl;
-    std::cout << "  > ";
+    std::cout << BOLD << YELLOW << "  (Type 'menu' to return to main menu, or press Enter)" << RESET << std::endl;
+    std::cout << BOLD << BR_YELLOW << "  > " << RESET;
     if (!std::getline(std::cin, input)) {
         return "";
     }
@@ -92,7 +94,7 @@ void Tutorial::printEncouragement() {
     };
     
     int idx = rand() % messages.size();
-    std::cout << "\n  [SUCCESS] " << messages[idx] << std::endl;
+    std::cout << BOLD << BR_GREEN << "\n  [SUCCESS] " << messages[idx] << RESET << std::endl;
 }
 
 // -----------------------------------------------------------------
@@ -101,7 +103,7 @@ void Tutorial::printEncouragement() {
 void Tutorial::printProgressBar(int current, int total) {
     // Progress visualization: 9 boxes, filled ones are completed
     std::cout << std::endl;
-    std::cout << "  Tutorial Progress: ";
+    std::cout << BOLD << BR_CYAN << "  Tutorial Progress: ";
     
     for (int i = 1; i <= total; i++) {
         if (i < current) {
@@ -113,7 +115,7 @@ void Tutorial::printProgressBar(int current, int total) {
         }
     }
     
-    std::cout << "  (Lesson " << current << " of " << total << ")" << std::endl;
+    std::cout << RESET << "  (Lesson " << current << " of " << total << ")" << std::endl;
     std::cout << std::endl;
 }
 
@@ -126,9 +128,9 @@ void Tutorial::displayLesson(const std::string& title,
     
     const int W = 70;
     std::cout << std::endl;
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
-    printBox("  TUTORIAL: " + title, W);
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  | TUTORIAL: " << std::left << std::setw(W - 14) << title << "|" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
     printBox("", W);
     
     for (const auto& line : content) {
@@ -136,7 +138,7 @@ void Tutorial::displayLesson(const std::string& title,
     }
     
     printBox("", W);
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
     std::cout << std::endl;
 }
 
@@ -224,12 +226,12 @@ bool Tutorial::lessonShop() {
         
         // Display shop in format matching game.cpp
         const int W = 58;
-        std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+        std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
         std::string shopTitle = "SHOP  (refresh: $2)";
         int pad = (W - (int)shopTitle.size()) / 2;
-        std::cout << "  |" << std::string(pad, ' ') << shopTitle
-                  << std::string(W - pad - (int)shopTitle.size(), ' ') << "|" << std::endl;
-        std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+        std::cout << BOLD << CYAN << "  |" << std::string(pad, ' ') << shopTitle
+                  << std::string(W - pad - (int)shopTitle.size(), ' ') << "|" << RESET << std::endl;
+        std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
         
         // Sample shop units
         std::cout << "  |  [1] Warrior   WarriorHP:20  ATK:8  R:1 [Rage] $5        |" << std::endl;
@@ -238,8 +240,8 @@ bool Tutorial::lessonShop() {
         std::cout << "  |  [4] Assassin  AssassinHP:14  ATK:11 R:1 [Crit] $6       |" << std::endl;
         std::cout << "  |  [5] Archer    ArcherHP:16  ATK:9  R:3 [DblShot] $4      |" << std::endl;
         
-        std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
-        std::cout << "  Your Gold: 15" << std::endl;
+        std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+        std::cout << BOLD << BR_YELLOW << "  Your Gold: 15" << RESET << std::endl;
         std::cout << std::endl;
         
         std::cout << "  SHOP COMMANDS:" << std::endl;
@@ -250,10 +252,10 @@ bool Tutorial::lessonShop() {
         
         bool validInput = false;
         while (!validInput) {
-            std::cout << "  Try buying a unit! Type: buy 1" << std::endl;
+            std::cout << BOLD << BR_YELLOW << "  Try buying a unit! Type: buy 1" << RESET << std::endl;
             std::cout << "  (Then press Enter)" << std::endl;
             std::cout << std::endl;
-            std::cout << "  > ";
+            std::cout << BOLD << BR_YELLOW << "  > " << RESET;
             
             std::string input;
             std::getline(std::cin, input);
@@ -392,16 +394,16 @@ bool Tutorial::lessonPlacement() {
         std::cout << "  [1] Warrior" << std::endl;
         std::cout << "  [2] Archer" << std::endl;
         std::cout << std::endl;
-        std::cout << "  +---------------+" << std::endl;
-        std::cout << "  | YOUR FORMATION |" << std::endl;
-        std::cout << "  |    0 1 2 3     |" << std::endl;
-        std::cout << "  +---------------+" << std::endl;
+        std::cout << BOLD << CYAN << "  +---------------+" << RESET << std::endl;
+        std::cout << BOLD << CYAN << "  | YOUR FORMATION |" << RESET << std::endl;
+        std::cout << BOLD << CYAN << "  |    0 1 2 3     |" << RESET << std::endl;
+        std::cout << BOLD << CYAN << "  +---------------+" << RESET << std::endl;
         std::cout << " 0 | . . . . |" << std::endl;
         std::cout << " 1 | . . . . |" << std::endl;
         std::cout << " 2 | . . . . |" << std::endl;
         std::cout << " 3 | . . . . |" << std::endl;
         std::cout << " 4 | . . . . |" << std::endl;
-        std::cout << "  +---------------+" << std::endl;
+        std::cout << BOLD << CYAN << "  +---------------+" << RESET << std::endl;
         std::cout << std::endl;
         std::cout << "  PLACEMENT COMMANDS:" << std::endl;
         std::cout << "  • place <idx> <row> <col>  - Place unit at position" << std::endl;
@@ -412,11 +414,11 @@ bool Tutorial::lessonPlacement() {
         
         bool validInput = false;
         while (!validInput) {
-            std::cout << "  Try placing the Warrior at Row 2, Column 0!" << std::endl;
+            std::cout << BOLD << BR_YELLOW << "  Try placing the Warrior at Row 2, Column 0!" << RESET << std::endl;
             std::cout << "  Type: place 1 2 0" << std::endl;
             std::cout << "  (Then press Enter)" << std::endl;
             std::cout << std::endl;
-            std::cout << "  > ";
+            std::cout << BOLD << BR_YELLOW << "  > " << RESET;
             
             std::string input;
             std::getline(std::cin, input);
@@ -650,21 +652,21 @@ void Tutorial::demonstrateFullGameplay() {
     std::cout << std::endl;
     
     // PHASE 1: SHOPPING
-    std::cout << "  [PHASE 1: SHOPPING]" << std::endl;
+    std::cout << BOLD << YELLOW << "  [PHASE 1: SHOPPING]" << RESET << std::endl;
     std::cout << std::endl;
     std::cout << "  Your Status:" << std::endl;
     std::cout << "    • HP: 100" << std::endl;
-    std::cout << "    • Gold: 15" << std::endl;
+    std::cout << BOLD << BR_YELLOW << "    • Gold: 15" << RESET << std::endl;
     std::cout << std::endl;
-    std::cout << "  +" << std::string(58, '-') << "+" << std::endl;
-    std::cout << "  |" << std::string(16, ' ') << "SHOP  (refresh: $1)" << std::string(17, ' ') << "|" << std::endl;
-    std::cout << "  +" << std::string(58, '-') << "+" << std::endl;
+    std::cout << BOLD << CYAN << "  +" << std::string(58, '-') << "+" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  |" << std::string(16, ' ') << "SHOP  (refresh: $1)" << std::string(17, ' ') << "|" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  +" << std::string(58, '-') << "+" << RESET << std::endl;
     std::cout << "  |  [1] Warrior   WarriorHP:20  ATK:8  R:1 [Rage] $5        |" << std::endl;
     std::cout << "  |  [2] Mage      MageHP:15  ATK:12 R:3 [AOE] $6            |" << std::endl;
     std::cout << "  |  [3] Tank      TankHP:30  ATK:5  R:1 [Block] $7          |" << std::endl;
     std::cout << "  |  [4] Archer    ArcherHP:16  ATK:9  R:3 [DblShot] $4      |" << std::endl;
     std::cout << "  |  [5] Assassin  AssassinHP:14  ATK:11 R:1 [Crit] $6       |" << std::endl;
-    std::cout << "  +" << std::string(58, '-') << "+" << std::endl;
+    std::cout << BOLD << CYAN << "  +" << std::string(58, '-') << "+" << RESET << std::endl;
     std::cout << std::endl;
     std::cout << "  Buying: Warrior, Tank, Archer" << std::endl;
     std::cout << "  Total Cost: 5 + 7 + 4 = 16 gold" << std::endl;
@@ -675,23 +677,23 @@ void Tutorial::demonstrateFullGameplay() {
     // PHASE 2: PLACEMENT
     clearScreen();
     std::cout << std::endl;
-    std::cout << "  [PHASE 2: ARRANGING FORMATION]" << std::endl;
+    std::cout << BOLD << YELLOW << "  [PHASE 2: ARRANGING FORMATION]" << RESET << std::endl;
     std::cout << std::endl;
     std::cout << "  Your Bench:" << std::endl;
     std::cout << "    [1] Warrior" << std::endl;
     std::cout << "    [2] Tank" << std::endl;
     std::cout << "    [3] Archer" << std::endl;
     std::cout << std::endl;
-    std::cout << "  +---------------+" << std::endl;
-    std::cout << "  | YOUR FORMATION |" << std::endl;
-    std::cout << "  |    0 1 2 3     |" << std::endl;
-    std::cout << "  +---------------+" << std::endl;
+    std::cout << BOLD << CYAN << "  +---------------+" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  | YOUR FORMATION |" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  |    0 1 2 3     |" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  +---------------+" << RESET << std::endl;
     std::cout << " 0 | Tn .  .  Ar |" << std::endl;
     std::cout << " 1 | .  .  .  .  |" << std::endl;
     std::cout << " 2 | Wa .  .  .  |" << std::endl;
     std::cout << " 3 | .  .  .  .  |" << std::endl;
     std::cout << " 4 | .  .  .  .  |" << std::endl;
-    std::cout << "  +---------------+" << std::endl;
+    std::cout << BOLD << CYAN << "  +---------------+" << RESET << std::endl;
     std::cout << std::endl;
     std::cout << "  Strategy: Tank in front + high-damage Warrior in middle + Archer for support" << std::endl;
     std::cout << std::endl;
@@ -700,7 +702,7 @@ void Tutorial::demonstrateFullGameplay() {
     // PHASE 3: COMBAT
     clearScreen();
     std::cout << std::endl;
-    std::cout << "  [PHASE 3: BATTLE!]" << std::endl;
+    std::cout << BOLD << RED << "  [PHASE 3: BATTLE!]" << RESET << std::endl;
     std::cout << std::endl;
     
     // Simulate a few combat ticks
@@ -721,7 +723,7 @@ void Tutorial::demonstrateFullGameplay() {
             std::cout << "  Your units are winning!" << std::endl;
             std::cout << "  Enemy ranks are falling..." << std::endl;
         } else if (tick == 5) {
-            std::cout << "  ✓ VICTORY! All enemy units defeated!" << std::endl;
+            std::cout << BOLD << GREEN << "  ✓ VICTORY! All enemy units defeated!" << RESET << std::endl;
         }
         std::cout << std::endl;
     }
@@ -731,21 +733,21 @@ void Tutorial::demonstrateFullGameplay() {
     // PHASE 4: RESULTS
     clearScreen();
     std::cout << std::endl;
-    std::cout << "  [ROUND RESULTS]" << std::endl;
+    std::cout << BOLD << BR_YELLOW << "  [ROUND RESULTS]" << RESET << std::endl;
     std::cout << std::endl;
-    std::cout << "  Battle Outcome: ✓ VICTORY!" << std::endl;
+    std::cout << BOLD << GREEN << "  Battle Outcome: ✓ VICTORY!" << RESET << std::endl;
     std::cout << std::endl;
     std::cout << "  Combat Statistics:" << std::endl;
     std::cout << "    • Your Units Remaining: 3" << std::endl;
     std::cout << "    • Enemy Units Eliminated: 5" << std::endl;
-    std::cout << "    • Your Damage Taken: 5 HP" << std::endl;
+    std::cout << BOLD << BR_RED << "    • Your Damage Taken: 5 HP" << RESET << std::endl;
     std::cout << "    • Battle Duration: 5 ticks" << std::endl;
     std::cout << std::endl;
-    std::cout << "  Gold Income:" << std::endl;
-    std::cout << "    • Base Income: 5 gold" << std::endl;
-    std::cout << "    • Victory Bonus: 3 gold" << std::endl;
-    std::cout << "    • Win Streak Bonus: 2 gold" << std::endl;
-    std::cout << "    • Total Gold This Round: 10 gold" << std::endl;
+    std::cout << BOLD << BR_YELLOW << "  Gold Income:" << RESET << std::endl;
+    std::cout << BOLD << BR_YELLOW << "    • Base Income: 5 gold" << RESET << std::endl;
+    std::cout << BOLD << BR_YELLOW << "    • Victory Bonus: 3 gold" << RESET << std::endl;
+    std::cout << BOLD << BR_YELLOW << "    • Win Streak Bonus: 2 gold" << RESET << std::endl;
+    std::cout << BOLD << BR_YELLOW << "    • Total Gold This Round: 10 gold" << RESET << std::endl;
     std::cout << std::endl;
     std::cout << "  Your Status After Round:" << std::endl;
     std::cout << "    • HP: 95 (was 100)" << std::endl;
