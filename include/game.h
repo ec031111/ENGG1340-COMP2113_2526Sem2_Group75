@@ -85,6 +85,7 @@ private:
     // --- Phase handlers ---
     void shopPhase();
     bool battlePhase();
+    void displayMilestoneAnimation(int round) const;
 
     // --- Combat ---
     bool resolveCombat(std::vector<Unit*>& deadUnits);
