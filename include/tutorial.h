@@ -47,6 +47,7 @@ public:
 
 private:
     std::vector<TutorialLesson> lessons_;
+    int currentLessonIndex_;  // Track current lesson for progress display
 
     // Helper methods
     void displayLesson(const std::string& title, const std::vector<std::string>& content);
@@ -55,6 +56,7 @@ private:
     std::string getUserChoice();
     void waitForInput();
     void printEncouragement();
+    void printProgressBar(int current, int total);  // Display tutorial progress
     void demonstrateFullGameplay();  // Demo a complete game round
 };
 

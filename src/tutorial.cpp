@@ -19,6 +19,7 @@ Tutorial::Tutorial() {
         TutorialLesson::LEVEL_UP,
         TutorialLesson::COMPLETED
     };
+    currentLessonIndex_ = 0;
 }
 
 // -----------------------------------------------------------------
@@ -95,6 +96,28 @@ void Tutorial::printEncouragement() {
 }
 
 // -----------------------------------------------------------------
+// Helper: Display tutorial progress bar (9 lessons)
+// -----------------------------------------------------------------
+void Tutorial::printProgressBar(int current, int total) {
+    // Progress visualization: 9 boxes, filled ones are completed
+    std::cout << std::endl;
+    std::cout << "  Tutorial Progress: ";
+    
+    for (int i = 1; i <= total; i++) {
+        if (i < current) {
+            std::cout << "[■]";  // Filled box for completed lessons
+        } else if (i == current) {
+            std::cout << "[◆]";  // Diamond for current lesson
+        } else {
+            std::cout << "[□]";  // Empty box for remaining lessons
+        }
+    }
+    
+    std::cout << "  (Lesson " << current << " of " << total << ")" << std::endl;
+    std::cout << std::endl;
+}
+
+// -----------------------------------------------------------------
 // Helper: Display a lesson with content
 // -----------------------------------------------------------------
 void Tutorial::displayLesson(const std::string& title, 
@@ -121,6 +144,8 @@ void Tutorial::displayLesson(const std::string& title,
 // Lesson 1: Introduction
 // -----------------------------------------------------------------
 bool Tutorial::lessonIntro() {
+    printProgressBar(1, 9);  // 1 of 9 lessons
+    
     const std::vector<std::string> content = {
         "Welcome, Commander!",
         "",
@@ -154,6 +179,8 @@ bool Tutorial::lessonIntro() {
 // Lesson 2: Shop System (with interactive practice)
 // -----------------------------------------------------------------
 bool Tutorial::lessonShop() {
+    printProgressBar(2, 9);  // 2 of 9 lessons
+    
     const std::vector<std::string> content = {
         "THE SHOP SYSTEM",
         "",
@@ -259,6 +286,8 @@ bool Tutorial::lessonShop() {
 // Lesson 3: Units and Attributes
 // -----------------------------------------------------------------
 bool Tutorial::lessonUnits() {
+    printProgressBar(3, 9);  // 3 of 9 lessons
+    
     const std::vector<std::string> content = {
         "UNIT CLASSES & SPECIAL ABILITIES",
         "",
@@ -302,6 +331,8 @@ bool Tutorial::lessonUnits() {
 // Lesson 4: Board Placement (with interactive practice)
 // -----------------------------------------------------------------
 bool Tutorial::lessonPlacement() {
+    printProgressBar(4, 9);  // 4 of 9 lessons
+    
     const std::vector<std::string> content = {
         "BOARD PLACEMENT & FORMATION",
         "",
@@ -420,6 +451,8 @@ bool Tutorial::lessonPlacement() {
 // Lesson 5: Combat System
 // -----------------------------------------------------------------
 bool Tutorial::lessonCombat() {
+    printProgressBar(5, 9);  // 5 of 9 lessons
+    
     const std::vector<std::string> content = {
         "HOW COMBAT WORKS",
         "",
@@ -463,6 +496,8 @@ bool Tutorial::lessonCombat() {
 // Lesson 6: Synergy Effects
 // -----------------------------------------------------------------
 bool Tutorial::lessonSynergy() {
+    printProgressBar(6, 9);  // 6 of 9 lessons
+    
     const std::vector<std::string> content = {
         "SYNERGY EFFECTS",
         "",
@@ -506,6 +541,8 @@ bool Tutorial::lessonSynergy() {
 // Lesson 7: Gold Management
 // -----------------------------------------------------------------
 bool Tutorial::lessonGoldManagement() {
+    printProgressBar(7, 9);  // 7 of 9 lessons
+    
     const std::vector<std::string> content = {
         "GOLD & RESOURCE MANAGEMENT",
         "",
@@ -549,6 +586,8 @@ bool Tutorial::lessonGoldManagement() {
 // Lesson 8: Leveling Up (Unit Merging)
 // -----------------------------------------------------------------
 bool Tutorial::lessonLevelUp() {
+    printProgressBar(8, 9);  // 8 of 9 lessons
+    
     const std::vector<std::string> content = {
         "UNIT LEVELING & MERGING",
         "",
@@ -703,10 +742,14 @@ void Tutorial::demonstrateFullGameplay() {
 
 // -----------------------------------------------------------------
 bool Tutorial::lessonCompletion() {
+    printProgressBar(9, 9);  // 9 of 9 lessons
+    
     // First, show a complete game demo
     demonstrateFullGameplay();
     
     clearScreen();
+    printProgressBar(9, 9);
+    
     const std::vector<std::string> content = {
         "",
         "CONGRATULATIONS, COMMANDER!",
