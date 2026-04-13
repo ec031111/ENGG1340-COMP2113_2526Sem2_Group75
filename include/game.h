@@ -33,8 +33,8 @@
 #define BR_WHITE    "\033[97m"
 
 // Damage dealt to the losing player after each battle round.
-const int LOSS_DAMAGE_BASE = 5;
-const int LOSS_DAMAGE_PER_SURVIVING = 2;
+const int LOSS_DAMAGE_BASE = 10;
+const int LOSS_DAMAGE_PER_SURVIVING = 3;
 
 // Maximum units player can deploy per round
 // Round 1: 3, Round 2: 4, Round 3: 5, Round 4+: 6
