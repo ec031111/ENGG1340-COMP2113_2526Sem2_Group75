@@ -5,3 +5,8 @@ Player 22 306 Hard
 Player 1 16 Easy
 Player 5 36 Easy
 Player 1 16 Easy
+Player 1 16 Easy
+Player 1 16 Easy
+Player 1 16 Easy
+Player 1 16 Easy
+Player 1 16 Easy

@@ -882,6 +882,21 @@ void Game::shopPhase() {
                          + "  |  Sell: $" + std::to_string(infoUnit->getSellPrice()), IW);
             std::cout << "  +" << std::string(IW, '-') << "+" << std::endl;
 
+        } else if (cmd == "pace") {
+            int pace;
+            if (!(iss >> pace)) {
+                std::cout << YELLOW << "  Usage: pace 0|1|2|3" << RESET << std::endl;
+                std::cout << "  0=SLOW (extra delay), 1=NORMAL, 2=FAST (600ms), 3=FASTEST (no display)" << RESET << std::endl;
+                continue;
+            }
+            if (pace < 0 || pace > 3) {
+                std::cout << RED << "  Invalid pace! Please input a pace number between 0-3." << RESET << std::endl;
+                std::cout << "  0=SLOW, 1=NORMAL, 2=FAST, 3=FASTEST" << RESET << std::endl;
+                continue;
+            }
+            setCombatPace(pace);
+            std::cout << GREEN << "  ✅ Combat pace set to " << pace << RESET << std::endl;
+
         } else if (cmd == "help") {
             printHelp();
 
@@ -1551,6 +1566,11 @@ void Game::printHelp() const {
     std::cout << RESET;
 
     printBoxLine("    ready          Start the battle!", W);
+    printBoxLine("    pace 0|1|2|3   Set battle speed", W);
+    printBoxLine("      0=SLOW (extra delay)", W);
+    printBoxLine("      1=NORMAL (press Enter)", W);
+    printBoxLine("      2=FAST (auto with 600ms)", W);
+    printBoxLine("      3=FASTEST (no display)", W);
     printBoxLine("    save           Save game to file", W);
     printBoxLine("    menu           Return to main menu", W);
     printBoxLine("    quit           Exit game completely", W);
