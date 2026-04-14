@@ -3,6 +3,16 @@
 #include <iomanip>
 #include <sstream>
 
+// Color codes for terminal output
+#define BOLD        "\033[1m"
+#define RESET       "\033[0m"
+#define CYAN        "\033[36m"
+#define YELLOW      "\033[33m"
+#define BR_YELLOW   "\033[93m"
+#define BR_CYAN     "\033[96m"
+#define BR_GREEN    "\033[92m"
+#define BR_RED      "\033[91m"
+
 // -----------------------------------------------------------------
 // Constructor
 // What it does : sets up the player with starting HP, gold, and
@@ -149,19 +159,19 @@ void Player::displayBench() const {
 
 // -----------------------------------------------------------------
 // displayStatus
-// What it does : prints the player's HP, gold, and streak info.
+// What it does : prints the player's HP, gold, and streak info with colored output.
 // Input  : none
 // Output : none (stdout)
 // -----------------------------------------------------------------
 void Player::displayStatus() const {
     const int W = 55;
     std::cout << std::endl;
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
 
     // Line 1: Player name and gold
     std::ostringstream line1;
-    line1 << "  " << std::left << std::setw(15) << name_
-          << "Gold: " << std::left << std::setw(6) << gold_;
+    line1 << BOLD << BR_YELLOW << "  " << std::left << std::setw(15) << name_
+          << "Gold: " << std::left << std::setw(6) << gold_ << RESET;
     std::string s1 = line1.str();
     if ((int)s1.size() < W) s1 += std::string(W - s1.size(), ' ');
     std::cout << "  |" << s1 << "|" << std::endl;
@@ -172,9 +182,24 @@ void Player::displayStatus() const {
     if (filled < 0) filled = 0;
     if (filled > HP_BAR_WIDTH) filled = HP_BAR_WIDTH;
     
-    std::string hpBar = "[" + std::string(filled, '=') + std::string(HP_BAR_WIDTH - filled, ' ') + "]";
+    std::string hpBar;
+    if (hp_ > STARTING_HP * 0.5) {
+        hpBar = "[" + std::string(BOLD) + std::string(BR_GREEN) 
+              + std::string(filled, '=') 
+              + std::string(RESET) 
+              + std::string(HP_BAR_WIDTH - filled, ' ') 
+              + "]";
+    } else {
+        hpBar = "[" + std::string(BOLD) + std::string(BR_RED) 
+              + std::string(filled, '=') 
+              + std::string(RESET) 
+              + std::string(HP_BAR_WIDTH - filled, ' ') 
+              + "]";
+    }
+    
     std::ostringstream line2;
-    line2 << "  HP: " << std::left << std::setw(3) << hp_ 
+    line2 << BOLD << BR_CYAN << "  HP: " << RESET
+          << std::left << std::setw(3) << hp_ 
           << "/" << STARTING_HP << " " << hpBar;
     std::string s2 = line2.str();
     if ((int)s2.size() < W) s2 += std::string(W - s2.size(), ' ');
@@ -182,13 +207,13 @@ void Player::displayStatus() const {
 
     // Line 3: Round and streaks
     std::ostringstream line3;
-    line3 << "  Round: " << std::left << std::setw(5) << roundsPlayed_
-          << "Win: " << winStreak_ << "  Loss: " << lossStreak_;
+    line3 << BOLD << BR_YELLOW << "  Round: " << std::left << std::setw(5) << roundsPlayed_
+          << "Win: " << winStreak_ << "  Loss: " << lossStreak_ << RESET;
     std::string s3 = line3.str();
     if ((int)s3.size() < W) s3 += std::string(W - s3.size(), ' ');
     std::cout << "  |" << s3 << "|" << std::endl;
 
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
 }
 
 // -----------------------------------------------------------------
@@ -206,6 +231,13 @@ void Player::startNewRound() {
     int interest = std::min(gold_ / 10, 5) * INTEREST_PER_10;
     int totalIncome = baseIncome + winStreakGold + lossStreakGold + interest;
     gold_ += totalIncome;
+    // Clear screen before starting new round
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+    
     std::cout << "\n  === Round " << roundsPlayed_ << " ===" << std::endl;
     std::cout << "  Income: " << totalIncome << " gold"
               << " (base:" << baseIncome;

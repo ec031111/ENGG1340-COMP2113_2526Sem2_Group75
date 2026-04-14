@@ -34,28 +34,31 @@ public:
     // Returns false if player quit
     bool run();
 
-    // Individual lesson methods
-    void lessonIntro();
-    void lessonShop();
-    void lessonUnits();
-    void lessonPlacement();
-    void lessonCombat();
-    void lessonSynergy();
-    void lessonGoldManagement();
-    void lessonLevelUp();
-    void lessonCompletion();
+    // Individual lesson methods (return false if user quits to menu)
+    bool lessonIntro();
+    bool lessonShop();
+    bool lessonUnits();
+    bool lessonPlacement();
+    bool lessonCombat();
+    bool lessonSynergy();
+    bool lessonGoldManagement();
+    bool lessonLevelUp();
+    bool lessonCompletion();
 
 private:
     std::vector<TutorialLesson> lessons_;
+    int currentLessonIndex_;  // Track current lesson for progress display
 
     // Helper methods
-    void displayLesson(const std::string& title, const std::vector<std::string>& content);
+    void displayLesson(const std::string& title, const std::vector<std::string>& content, int current = 0, int total = 9);
     void printBox(const std::string& text, int width = 60);
     void clearScreen() const;
     std::string getUserChoice();
     void waitForInput();
     void printEncouragement();
+    void printProgressBar(int current, int total);  // Display tutorial progress
     void demonstrateFullGameplay();  // Demo a complete game round
+    int getDisplayWidth(const std::string& str) const;  // Calculate display width excluding ANSI codes
 };
 
 #endif

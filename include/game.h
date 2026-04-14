@@ -1,3 +1,4 @@
+#pragma once
 #ifndef GAME_H
 #define GAME_H
 
@@ -9,6 +10,27 @@
 #include "event.h"
 #include <string>
 #include <vector>
+//---- word type ----
+#define BOLD        "\033[1m"
+#define ITALIC      "\033[3m"    
+#define UNDERLINE   "\033[4m"    
+//--- color define ---
+#define RESET       "\033[0m"
+#define RED         "\033[31m"
+#define GREEN       "\033[32m"
+#define YELLOW      "\033[33m"
+#define BLUE        "\033[34m"
+#define MAGENTA     "\033[35m"
+#define CYAN        "\033[36m"
+#define WHITE       "\033[37m"
+#define GRAY        "\033[90m"
+#define BR_RED      "\033[91m"
+#define BR_GREEN    "\033[92m"
+#define BR_YELLOW   "\033[93m"
+#define BR_BLUE     "\033[94m"
+#define BR_PURPLE   "\033[95m"
+#define BR_CYAN     "\033[96m"
+#define BR_WHITE    "\033[97m"
 
 // Damage dealt to the losing player after each battle round.
 const int LOSS_DAMAGE_BASE = 5;
@@ -63,6 +85,7 @@ private:
     // --- Phase handlers ---
     void shopPhase();
     bool battlePhase();
+    void displayMilestoneAnimation(int round) const;
 
     // --- Combat ---
     bool resolveCombat(std::vector<Unit*>& deadUnits);
