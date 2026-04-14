@@ -80,6 +80,7 @@ private:
     AI      ai_;
     bool    running_;
     bool    skipCombat_;
+    int     combatPace_;  // 0=slow, 1=normal, 2=fast, 3=fastest
     EventType currentEvent_;  // event active this round
 
     // --- Phase handlers ---
@@ -110,6 +111,8 @@ private:
     void printFormation() const;  // Show formation with HP bars
     void showIntro() const;
     int getMaxDeployUnits() const;  // Get max units for current round
+    void setCombatPace(int pace);   // Set battle pace (0-3)
+    int getCombatPace() const;      // Get current battle pace
 };
 
 #endif // GAME_H

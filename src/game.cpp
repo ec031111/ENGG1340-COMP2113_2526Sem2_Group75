@@ -1686,3 +1686,19 @@ void Game::printFormation() const {
     }
     std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
 }
+
+// =====================================================================
+// setCombatPace - Set battle speed (0=slow, 1=normal, 2=fast, 3=fastest)
+// =====================================================================
+void Game::setCombatPace(int pace) {
+    if (pace < 0) pace = 0;
+    if (pace > 3) pace = 3;
+    combatPace_ = pace;
+}
+
+// =====================================================================
+// getCombatPace - Get current battle speed
+// =====================================================================
+int Game::getCombatPace() const {
+    return combatPace_;
+}
