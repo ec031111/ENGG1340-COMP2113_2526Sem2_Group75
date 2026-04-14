@@ -261,7 +261,7 @@ make clean
 
 ### Battle Phase
 
-| Input | Action |
-|:------|:-------|
+| Input | Action               |
+|:------|:-------              |
 | Enter | Advance to next tick |
 | s | Skip to battle result |
