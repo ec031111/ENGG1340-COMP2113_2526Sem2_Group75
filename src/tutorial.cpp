@@ -4,6 +4,19 @@
 #include <vector>
 #include <sstream>
 
+// ============== ANSI COLOR CODES ==============
+const std::string ANSI_RED     = "\033[31m";
+const std::string ANSI_GREEN   = "\033[32m";
+const std::string ANSI_YELLOW  = "\033[33m";
+const std::string ANSI_BLUE    = "\033[34m";
+const std::string ANSI_MAGENTA = "\033[35m";
+const std::string ANSI_CYAN    = "\033[36m";
+const std::string ANSI_BRIGHT_RED     = "\033[91m";
+const std::string ANSI_BRIGHT_GREEN   = "\033[92m";
+const std::string ANSI_BRIGHT_YELLOW  = "\033[93m";
+const std::string ANSI_BRIGHT_CYAN    = "\033[96m";
+const std::string ANSI_RESET   = "\033[0m";
+
 // -----------------------------------------------------------------
 // Constructor
 // -----------------------------------------------------------------
@@ -75,18 +88,19 @@ void Tutorial::waitForInput() {
 // -----------------------------------------------------------------
 void Tutorial::printEncouragement() {
     const std::vector<std::string> messages = {
-        "Great job! You're learning fast!",
-        "Excellent! You're getting the hang of it!",
-        "Perfect! You're a quick learner!",
-        "Well done! Keep it up!",
-        "Fantastic! You're doing amazing!",
-        "Superb! You're ready for the battlefield!",
-        "Wonderful! You're progressing nicely!",
-        "Outstanding! You're becoming a true commander!"
+        "🌟 Great job! You're learning fast!",
+        "⭐ Excellent! You're getting the hang of it!",
+        "✨ Perfect! You're a quick learner!",
+        "🎯 Well done! Keep it up!",
+        "🚀 Fantastic! You're doing amazing!",
+        "👑 Superb! You're ready for the battlefield!",
+        "🏆 Wonderful! You're progressing nicely!",
+        "💪 Outstanding! You're becoming a true commander!"
     };
     
     int idx = rand() % messages.size();
-    std::cout << "\n  [SUCCESS] " << messages[idx] << std::endl;
+    std::cout << "\n  " << ANSI_BRIGHT_GREEN << "[SUCCESS] " << messages[idx] 
+              << ANSI_RESET << std::endl;
 }
 
 // -----------------------------------------------------------------
@@ -98,8 +112,11 @@ void Tutorial::displayLesson(const std::string& title,
     
     const int W = 70;
     std::cout << std::endl;
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
-    printBox("  TUTORIAL: " + title, W);
+    std::cout << "  +" << std::string(W, '=') << "+" << std::endl;
+    std::string titleLine = "  📚 TUTORIAL: " + title;
+    std::string s1 = titleLine;
+    if ((int)s1.size() < W) s1 += std::string(W - s1.size(), ' ');
+    std::cout << "  |" << ANSI_BRIGHT_CYAN << s1 << ANSI_RESET << "|" << std::endl;
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
     printBox("", W);
     
@@ -108,7 +125,7 @@ void Tutorial::displayLesson(const std::string& title,
     }
     
     printBox("", W);
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    std::cout << "  +" << std::string(W, '=') << "+" << std::endl;
     std::cout << std::endl;
 }
 
@@ -117,27 +134,27 @@ void Tutorial::displayLesson(const std::string& title,
 // -----------------------------------------------------------------
 void Tutorial::lessonIntro() {
     const std::vector<std::string> content = {
-        "Welcome, Commander!",
+        ANSI_BRIGHT_CYAN + "Welcome, Commander!" + ANSI_RESET,
         "",
-        "You are the last hope of the war-torn Kingdom of Aethelia.",
+        "⚔️  You are the last hope of the war-torn Kingdom of Aethelia.",
         "Dark forces threaten to consume your homeland. You must",
         "recruit heroes, build a powerful army, and defend the realm",
         "against the darkness.",
         "",
-        "Your objective is simple: survive as many rounds as possible!",
+        ANSI_YELLOW + "Your objective is simple: survive as many rounds as possible!" + ANSI_RESET,
         "",
-        "Each round consists of:",
-        "  1. SHOPPING - Buy units and arrange your formation",
-        "  2. COMBAT - Your army fights automatically",
+        "📋 Each round consists of:",
+        "  1. 🛒 SHOPPING - Buy units and arrange your formation",
+        "  2. ⚡ COMBAT - Your army fights automatically",
         "",
-        "Destroy all enemy units to win!"
+        ANSI_GREEN + "✓ Destroy all enemy units to win!" + ANSI_RESET
     };
     
-    displayLesson("Welcome, Commander!", content);
+    displayLesson("Welcome, Commander! 👑", content);
     
     std::string choice = getUserChoice();
     if (choice == "skip" || choice == "SKIP") {
-        std::cout << "  Skipping this lesson..." << std::endl;
+        std::cout << "  ⏭️  Skipping this lesson..." << std::endl;
     }
 }
 
@@ -146,32 +163,31 @@ void Tutorial::lessonIntro() {
 // -----------------------------------------------------------------
 void Tutorial::lessonShop() {
     const std::vector<std::string> content = {
-        "THE SHOP SYSTEM",
+        ANSI_YELLOW + "🏪 THE SHOP SYSTEM" + ANSI_RESET,
         "",
         "Each round, the shop offers 5 randomly generated units.",
         "",
         "KEY ACTIONS:",
-        "  • buy <1-5>      - Purchase a unit using gold",
-        "  • sell <1-8>     - Sell a unit from your bench",
-        "  • refresh <cost> - Refresh shop (costs 2 gold)",
+        "  • 🛒 buy <1-5>      - Purchase a unit using gold",
+        "  • 💸 sell <1-8>     - Sell a unit from your bench",
+        "  • 🔄 refresh <cost> - Refresh shop (costs 2 gold)",
         "",
         "GOLD MANAGEMENT:",
-        "  • Start with 15 gold per game",
-        "  • Earn 5 gold at the start of each new round",
-        "  • Interest: Every 10 gold gives 1 bonus gold",
-        "  • Winning/losing streaks give bonus gold",
+        "  • 💰 Start with 15 gold per game",
+        "  • 💵 Earn 5 gold at the start of each new round",
+        "  • 🏦 Interest: Every 10 gold gives 1 bonus gold",
+        "  • 🏅 Winning/losing streaks give bonus gold",
         "",
-        "STRATEGY TIP: Balance spending on units vs. saving for",
-        "interest bonuses!"
+        ANSI_GREEN + "STRATEGY TIP: Balance spending on units vs. saving for interest bonuses!" + ANSI_RESET
     };
     
-    displayLesson("The Shop System", content);
+    displayLesson("The Shop System 🏪", content);
     
     std::string choice = getUserChoice();
     std::cout << std::endl;
     
     if (choice == "skip" || choice == "SKIP") {
-        std::cout << "  Skipping this lesson..." << std::endl;
+        std::cout << "  ⏭️  Skipping this lesson..." << std::endl;
     } else {
         // Interactive: Show practice
         clearScreen();
@@ -179,11 +195,11 @@ void Tutorial::lessonShop() {
         std::cout << "  Let's practice with a sample shop!" << std::endl;
         std::cout << std::endl;
         std::cout << "  +----- PRACTICE SHOP -----+" << std::endl;
-        std::cout << "  | 1. Warrior  (5 gold)    |" << std::endl;
-        std::cout << "  | 2. Mage     (6 gold)    |" << std::endl;
-        std::cout << "  | 3. Tank     (7 gold)    |" << std::endl;
-        std::cout << "  | 4. Assassin (6 gold)    |" << std::endl;
-        std::cout << "  | 5. Archer   (4 gold)    |" << std::endl;
+        std::cout << "  | 1. ⚔️ Warrior  (5 gold)    |" << std::endl;
+        std::cout << "  | 2. 🔮 Mage     (6 gold)    |" << std::endl;
+        std::cout << "  | 3. 🛡️ Tank     (7 gold)    |" << std::endl;
+        std::cout << "  | 4. 🗡️ Assassin (6 gold)    |" << std::endl;
+        std::cout << "  | 5. 🏹 Archer   (4 gold)    |" << std::endl;
         std::cout << "  +----- YOUR GOLD: 15 -----+" << std::endl;
         std::cout << std::endl;
         std::cout << "  SHOP COMMANDS:" << std::endl;
@@ -223,34 +239,34 @@ void Tutorial::lessonShop() {
 // -----------------------------------------------------------------
 void Tutorial::lessonUnits() {
     const std::vector<std::string> content = {
-        "UNIT CLASSES & SPECIAL ABILITIES",
+        ANSI_YELLOW + "🧩 UNIT CLASSES & SPECIAL ABILITIES" + ANSI_RESET,
         "",
         "There are 5 unit classes in the game, each with unique",
         "abilities and attributes: (ATK = Attack)",
         "",
-        "WARRIOR  - High HP, mid ATK",
+        ANSI_RED + "⚔️ WARRIOR  - High HP, mid ATK" + ANSI_RESET,
         "          Ability: Rage - +30% ATK when HP < 50%",
         "",
-        "MAGE     - Low HP, high ATK",
+        ANSI_BLUE + "🔮 MAGE     - Low HP, high ATK" + ANSI_RESET,
         "          Ability: AOE - 30% chance to deal 50% splash dmg",
         "",
-        "TANK     - Super high HP, low ATK",
+        ANSI_GREEN + "🛡️ TANK     - Super high HP, low ATK" + ANSI_RESET,
         "          Ability: Block - 25% chance to block 40% dmg",
         "",
-        "ASSASSIN - Mid HP, high ATK, high crit.",
+        ANSI_MAGENTA + "🗡️ ASSASSIN - Mid HP, high ATK, high crit." + ANSI_RESET,
         "          Ability: Backstab - 25% chance +50% extra dmg",
         "",
-        "ARCHER   - Mid HP, mid ATK, support",
+        ANSI_YELLOW + "🏹 ARCHER   - Mid HP, mid ATK, support" + ANSI_RESET,
         "          Ability: Double Shot - 20% chance to attack twice",
         "",
         "Each unit has: Name, Class, HP, ATK, Crit%, Level (star)"
     };
     
-    displayLesson("Units and Special Abilities", content);
+    displayLesson("Units and Special Abilities 🧩", content);
     
     std::string choice = getUserChoice();
     if (choice == "skip" || choice == "SKIP") {
-        std::cout << "  Skipping this lesson..." << std::endl;
+        std::cout << "  ⏭️  Skipping this lesson..." << std::endl;
     }
 }
 
@@ -259,7 +275,7 @@ void Tutorial::lessonUnits() {
 // -----------------------------------------------------------------
 void Tutorial::lessonPlacement() {
     const std::vector<std::string> content = {
-        "BOARD PLACEMENT & FORMATION",
+        ANSI_YELLOW + "🗺️  BOARD PLACEMENT & FORMATION" + ANSI_RESET,
         "",
         "Your bench can hold up to 8 units. You can place units",
         "on the 5x8 battle grid (your side has 4 columns).",
@@ -267,11 +283,11 @@ void Tutorial::lessonPlacement() {
         "PLACEMENT STRATEGIES:",
         "",
         "FRONT LINE (Column 0-1):",
-        "  • Place TANKS and WARRIORS here",
+        "  • Place 🛡️ TANKS and ⚔️ WARRIORS here",
         "  • They take the most damage",
         "",
         "BACK LINE (Column 2-3):",
-        "  • Place MAGES, ARCHERS, and ASSASSINS",
+        "  • Place 🔮 MAGES, 🏹 ARCHERS, and 🗡️ ASSASSINS",
         "  • Stay safe from enemies while dealing damage",
         "",
         "FORMATION TIPS:",
@@ -281,13 +297,13 @@ void Tutorial::lessonPlacement() {
         "  • Use 'auto' command for automatic smart placement"
     };
     
-    displayLesson("Board Placement & Formation", content);
+    displayLesson("Board Placement & Formation 🗺️", content);
     
     std::string choice = getUserChoice();
     std::cout << std::endl;
     
     if (choice == "skip" || choice == "SKIP") {
-        std::cout << "  Skipping this lesson..." << std::endl;
+        std::cout << "  ⏭️  Skipping this lesson..." << std::endl;
     } else {
         // Interactive: Show practice placement
         clearScreen();
@@ -295,8 +311,8 @@ void Tutorial::lessonPlacement() {
         std::cout << "  Let's practice placing units on the battlefield!" << std::endl;
         std::cout << std::endl;
         std::cout << "  Your Bench:              Battle Grid (Your side):" << std::endl;
-        std::cout << "  [1] Warrior              [Row 0] [ ][ ][ ][ ]" << std::endl;
-        std::cout << "  [2] Archer               [Row 1] [ ][ ][ ][ ]" << std::endl;
+        std::cout << "  [1] ⚔️ Warrior              [Row 0] [ ][ ][ ][ ]" << std::endl;
+        std::cout << "  [2] 🏹 Archer               [Row 1] [ ][ ][ ][ ]" << std::endl;
         std::cout << "                           [Row 2] [ ][ ][ ][ ]" << std::endl;
         std::cout << "  Your gold: 5             [Row 3] [ ][ ][ ][ ]" << std::endl;
         std::cout << "                           [Row 4] [ ][ ][ ][ ]" << std::endl;
@@ -322,13 +338,12 @@ void Tutorial::lessonPlacement() {
             std::cout << std::endl;
             if (input.find("place") != std::string::npos) {
                 std::cout << "  ✓ Perfect! You've placed the Warrior on the grid!" << std::endl;
-                std::cout << "  ✓ Defensive units like Warriors belong in the front." << std::endl;
                 printEncouragement();
                 std::cout << "  Press Enter to continue" << std::endl;
                 validInput = true;
             } else {
                 std::cout << "  Oops! That's not quite right." << std::endl;
-                std::cout << "  Remember the command format: place <idx> <row> <col>" << std::endl;
+                std::cout << "  You can try commands like 'place 1 2 0'" << std::endl;
                 std::cout << std::endl;
             }
         }

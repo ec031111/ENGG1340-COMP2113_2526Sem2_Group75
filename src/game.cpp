@@ -8,6 +8,21 @@
 #include <vector>
 #include <iomanip>
 
+// ============== ANSI COLOR CODES ==============
+const std::string ANSI_RED     = "\033[31m";
+const std::string ANSI_GREEN   = "\033[32m";
+const std::string ANSI_YELLOW  = "\033[33m";
+const std::string ANSI_BLUE    = "\033[34m";
+const std::string ANSI_MAGENTA = "\033[35m";
+const std::string ANSI_CYAN    = "\033[36m";
+const std::string ANSI_BRIGHT_RED     = "\033[91m";
+const std::string ANSI_BRIGHT_GREEN   = "\033[92m";
+const std::string ANSI_BRIGHT_YELLOW  = "\033[93m";
+const std::string ANSI_BRIGHT_BLUE    = "\033[94m";
+const std::string ANSI_BRIGHT_MAGENTA = "\033[95m";
+const std::string ANSI_BRIGHT_CYAN    = "\033[96m";
+const std::string ANSI_RESET   = "\033[0m";
+
 // Helper: print a line padded to width W inside |...|
 static void printBoxLine(const std::string& text, int W) {
     std::string s = text;
@@ -100,25 +115,27 @@ Game::~Game() {}
 // showIntro - Story introduction for new games
 // =====================================================================
 void Game::showIntro() const {
-    const int W = 60;
+    const int W = 62;
     std::cout << std::endl;
     std::cout << "  +" << std::string(W, '=') << "+" << std::endl;
-    printBoxTitle("THE BATTLE FOR AETHORIA", W);
+    std::cout << "  |" << std::string((W - 24) / 2, ' ')
+              << ANSI_BRIGHT_RED << "⚔️  THE BATTLE FOR AETHORIA  ⚔️" << ANSI_RESET
+              << std::string(W - (W - 24) / 2 - 24, ' ') << "|" << std::endl;
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
     printBoxLine("", W);
     printBoxLine("  In the war-torn realm of Aethoria, the Dark Lord", W);
-    printBoxLine("  Malachar has raised an army of darkness. As the", W);
+    printBoxLine(ANSI_RED + "  Malachar" + ANSI_RESET + " has raised an army of darkness. As the", W);
     printBoxLine("  last surviving commander of the Allied Forces,", W);
     printBoxLine("  you must recruit heroes, form your formation,", W);
     printBoxLine("  and fight wave after wave of enemies to protect", W);
     printBoxLine("  what remains of civilization.", W);
     printBoxLine("", W);
-    printBoxLine("  Each round, Malachar's forces grow stronger.", W);
+    printBoxLine(ANSI_YELLOW + "  Each round, Malachar's forces grow stronger." + ANSI_RESET, W);
     printBoxLine("  Your task: survive as long as you can, and", W);
-    printBoxLine("  perhaps... turn the tide of war.", W);
+    printBoxLine(ANSI_GREEN + "  perhaps... turn the tide of war." + ANSI_RESET, W);
     printBoxLine("", W);
     std::cout << "  +" << std::string(W, '=') << "+" << std::endl;
-    std::cout << "\n  [Press Enter to begin your campaign...]";
+    std::cout << "\n  " << ANSI_BRIGHT_CYAN << "[Press Enter to begin your campaign...]" << ANSI_RESET << std::endl;
     std::string dummy;
     std::getline(std::cin, dummy);
 }
@@ -128,12 +145,13 @@ void Game::showIntro() const {
 // =====================================================================
 int Game::run(bool show_intro) {
     std::cout << std::endl;
-    std::cout << "  +======================================+" << std::endl;
-    std::cout << "  |       AUTO-BATTLER ARENA             |" << std::endl;
-    std::cout << "  |       Difficulty: " << std::left << std::setw(19)
-              << ai_.getDifficultyString() << "|" << std::endl;
-    std::cout << "  +======================================+" << std::endl;
-    std::cout << "\n  Type 'help' for commands. 'save' to save game.\n" << std::endl;
+    std::cout << "  +" << std::string(36, '=') << "+" << std::endl;
+    std::cout << "  |" << ANSI_BRIGHT_CYAN << "    ⚔️  AUTO-BATTLER ARENA  🏆     " << ANSI_RESET << "|" << std::endl;
+    std::cout << "  |       Difficulty: " << (ai_.getDifficultyString() == "HARD" ? 
+              ANSI_RED : ANSI_GREEN) << std::left << std::setw(15) << ai_.getDifficultyString() 
+              << ANSI_RESET << "|" << std::endl;
+    std::cout << "  +" << std::string(36, '=') << "+" << std::endl;
+    std::cout << "\n  📖 Type 'help' for commands. 💾 'save' to save game.\n" << std::endl;
 
     // Show story intro for new games only
     if (show_intro) {

@@ -3,6 +3,29 @@
 #include <iomanip>
 #include <climits>
 
+// ============== ANSI COLOR CODES ==============
+const std::string ANSI_RED     = "\033[31m";
+const std::string ANSI_GREEN   = "\033[32m";
+const std::string ANSI_YELLOW  = "\033[33m";
+const std::string ANSI_BLUE    = "\033[34m";
+const std::string ANSI_MAGENTA = "\033[35m";
+const std::string ANSI_CYAN    = "\033[36m";
+const std::string ANSI_BRIGHT_CYAN = "\033[96m";
+const std::string ANSI_BRIGHT_RED  = "\033[91m";
+const std::string ANSI_RESET   = "\033[0m";
+
+// Get color + emoji based on unit class
+static std::pair<std::string, std::string> getClassColorEmoji(UnitClass cls) {
+    switch (cls) {
+        case WARRIOR:  return {ANSI_RED,     "⚔️"};
+        case MAGE:     return {ANSI_BLUE,    "🔮"};
+        case TANK:     return {ANSI_GREEN,   "🛡️"};
+        case ASSASSIN: return {ANSI_MAGENTA, "🗡️"};
+        case ARCHER:   return {ANSI_YELLOW,  "🏹"};
+        default:       return {ANSI_RESET,   "?"};
+    }
+}
+
 // -----------------------------------------------------------------
 // Constructor
 // What it does : initialises a BOARD_ROWS x BOARD_COLS grid of nullptrs.
@@ -92,10 +115,11 @@ void Board::clear() {
 // -----------------------------------------------------------------
 void Board::display() const {
     std::cout << std::endl;
-    std::cout << "  +---------+---------+" << std::endl;
-    std::cout << "  | PLAYER  |   AI    |" << std::endl;
-    std::cout << "  | 0 1 2 3 | 4 5 6 7 |" << std::endl;
-    std::cout << "  +---------+---------+" << std::endl;
+    std::cout << "  +" << std::string(13, '=') << "+" << std::string(13, '=') << "+" << std::endl;
+    std::cout << "  |" << ANSI_BRIGHT_CYAN << "  YOUR ARMY  " << ANSI_RESET << "|" 
+              << ANSI_BRIGHT_RED << "  ENEMY ARMY  " << ANSI_RESET << "|" << std::endl;
+    std::cout << "  |  0 1 2 3   |  4 5 6 7   |" << std::endl;
+    std::cout << "  +" << std::string(13, '-') << "+" << std::string(13, '-') << "+" << std::endl;
 
     for (int r = 0; r < BOARD_ROWS; ++r) {
         std::cout << " " << r << "|";
@@ -103,14 +127,16 @@ void Board::display() const {
             if (c == AI_MIN_COL) std::cout << "|";
             std::cout << " ";
             if (grid_[r][c] != nullptr) {
-                std::cout << grid_[r][c]->getSymbolString();
+                Unit* u = grid_[r][c];
+                auto [color, emoji] = getClassColorEmoji(u->getClass());
+                std::cout << color << emoji << ANSI_RESET;
             } else {
                 std::cout << ". ";
             }
         }
         std::cout << "|" << std::endl;
     }
-    std::cout << "  +---------+---------+" << std::endl;
+    std::cout << "  +" << std::string(13, '-') << "+" << std::string(13, '-') << "+" << std::endl;
     std::cout << std::endl;
 }
 
@@ -123,24 +149,26 @@ void Board::display() const {
 // -----------------------------------------------------------------
 void Board::displayPlayerSide() const {
     std::cout << std::endl;
-    std::cout << "  +---------------+" << std::endl;
-    std::cout << "  | YOUR FORMATION |" << std::endl;
-    std::cout << "  |    0 1 2 3     |" << std::endl;
-    std::cout << "  +---------------+" << std::endl;
+    std::cout << "  +" << std::string(17, '=') << "+" << std::endl;
+    std::cout << "  |" << ANSI_BRIGHT_CYAN << "  YOUR FORMATION  " << ANSI_RESET << "|" << std::endl;
+    std::cout << "  |    0 1 2 3    |" << std::endl;
+    std::cout << "  +" << std::string(17, '-') << "+" << std::endl;
 
     for (int r = 0; r < BOARD_ROWS; ++r) {
         std::cout << " " << r << " |";
         for (int c = 0; c <= PLAYER_MAX_COL; ++c) {
             std::cout << " ";
             if (grid_[r][c] != nullptr) {
-                std::cout << grid_[r][c]->getSymbolString();
+                Unit* u = grid_[r][c];
+                auto [color, emoji] = getClassColorEmoji(u->getClass());
+                std::cout << color << emoji << ANSI_RESET;
             } else {
                 std::cout << ". ";
             }
         }
         std::cout << " |" << std::endl;
     }
-    std::cout << "  +---------------+" << std::endl;
+    std::cout << "  +" << std::string(17, '-') << "+" << std::endl;
     std::cout << std::endl;
 }
 

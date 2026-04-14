@@ -7,6 +7,14 @@
 #include <string>
 #include <sstream>
 
+// ============== ANSI COLOR CODES ==============
+const std::string ANSI_RED     = "\033[31m";
+const std::string ANSI_GREEN   = "\033[32m";
+const std::string ANSI_YELLOW  = "\033[33m";
+const std::string ANSI_BLUE    = "\033[34m";
+const std::string ANSI_BRIGHT_CYAN    = "\033[96m";
+const std::string ANSI_RESET   = "\033[0m";
+
 // Helper: print a padded line inside |...|
 static void boxLine(const std::string& text, int W) {
     std::string s = text;
@@ -21,21 +29,21 @@ static void boxLine(const std::string& text, int W) {
 // Output : none (prints to stdout)
 // -----------------------------------------------------------------
 void displayMainMenu() {
-    const int W = 37;
+    const int W = 42;
     std::cout << std::endl;
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    std::cout << "  +" << std::string(W, '=') << "+" << std::endl;
     boxLine("", W);
-    boxLine("      AUTO-BATTLER ARENA", W);
-    boxLine("", W);
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
-    boxLine("", W);
-    boxLine("  1.  New Game", W);
-    boxLine("  2.  Tutorial", W);
-    boxLine("  3.  Leaderboard", W);
-    boxLine("  4.  Load Game", W);
-    boxLine("  5.  Quit", W);
+    boxLine(ANSI_BRIGHT_CYAN + "   ⚔️  AUTO-BATTLER ARENA  🏆" + ANSI_RESET, W);
     boxLine("", W);
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    boxLine("", W);
+    boxLine(ANSI_GREEN + "  🎮 1.  New Game" + ANSI_RESET, W);
+    boxLine(ANSI_BLUE + "  📚 2.  Tutorial" + ANSI_RESET, W);
+    boxLine(ANSI_YELLOW + "  🏅 3.  Leaderboard" + ANSI_RESET, W);
+    boxLine(ANSI_RED + "  💾 4.  Load Game" + ANSI_RESET, W);
+    boxLine(ANSI_RED + "  🚪 5.  Quit" + ANSI_RESET, W);
+    boxLine("", W);
+    std::cout << "  +" << std::string(W, '=') << "+" << std::endl;
     std::cout << std::endl;
     std::cout << "  Select > ";
 }
@@ -47,28 +55,34 @@ void displayMainMenu() {
 // Output : the chosen Difficulty enum value
 // -----------------------------------------------------------------
 Difficulty selectDifficulty() {
-    const int W = 37;
+    const int W = 40;
     std::cout << std::endl;
+    std::cout << "  +" << std::string(W, '=') << "+" << std::endl;
+    std::string title = "⚙️  SELECT DIFFICULTY  ⚙️";
+    int pad = (W - (int)title.size()) / 2;
+    std::cout << "  |" << std::string(pad, ' ') << title 
+              << std::string(W - pad - (int)title.size(), ' ') << "|" << std::endl;
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
-    boxLine("  Select Difficulty", W);
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
-    boxLine("  1. Easy", W);
-    boxLine("     - AI buys cheap units", W);
-    boxLine("     - Random placement", W);
-    boxLine("  2. Hard", W);
-    boxLine("     - AI uses smart strategy", W);
-    boxLine("     - Optimised formation", W);
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    boxLine("", W);
+    boxLine(ANSI_GREEN + "  😊 1. EASY" + ANSI_RESET, W);
+    boxLine("     • AI buys cheap units", W);
+    boxLine("     • Random placement", W);
+    boxLine("", W);
+    boxLine(ANSI_RED + "  😈 2. HARD" + ANSI_RESET, W);
+    boxLine("     • AI uses smart strategy", W);
+    boxLine("     • Optimised formation", W);
+    boxLine("", W);
+    std::cout << "  +" << std::string(W, '=') << "+" << std::endl;
     std::cout << "  Select > ";
 
     std::string input;
     std::getline(std::cin, input);
 
     if (input == "2") {
-        std::cout << "  Difficulty set to HARD. Good luck!" << std::endl;
+        std::cout << ANSI_RED << "  😈 Difficulty set to HARD. Good luck warrior!" << ANSI_RESET << std::endl;
         return HARD;
     }
-    std::cout << "  Difficulty set to EASY." << std::endl;
+    std::cout << ANSI_GREEN << "  😊 Difficulty set to EASY." << ANSI_RESET << std::endl;
     return EASY;
 }
 
