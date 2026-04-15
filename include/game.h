@@ -314,8 +314,32 @@ private:
     // -----------------------------------------------------------------
     std::vector<Unit*> createPveMonsters(int round);
 
+    // -----------------------------------------------------------------
+    // initializeLog - Initialize battle log file for this game session
+    // Creates a new log file with timestamp
+    // -----------------------------------------------------------------
+    void initializeLog();
+
+    // -----------------------------------------------------------------
+    // writeToLog - Write round information to the battle log file
+    // Parameters:
+    //   round - current round number
+    //   won - whether the player won this round
+    //   gold - current player gold amount
+    //   winStreak - current win streak count
+    //   eventTriggered - whether an event was triggered this round
+    // -----------------------------------------------------------------
+    void writeToLog(int round, bool won, int gold, int winStreak, bool eventTriggered);
+
+    // -----------------------------------------------------------------
+    // displayLogWithBattleReport - Show battle report and log side by side
+    // Displays both stats in parallel columns for better visualization
+    // -----------------------------------------------------------------
+    void displayLogWithBattleReport();
+
 private:
     RoundType currentRoundType_;  // Type of current round
+    std::string logFilename_;     // Path to the battle log file
 };
 
 #endif // GAME_H

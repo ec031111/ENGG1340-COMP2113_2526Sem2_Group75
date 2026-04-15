@@ -13,7 +13,13 @@
 #include <unistd.h>
 #include <thread>
 #include <chrono>
-//remove blank space
+
+// -----------------------------------------------------------------
+// trim - Remove leading and trailing whitespace from string
+// What it does : strips spaces, tabs, newlines from string edges
+// Input  : s - string to trim
+// Output : trimmed string without leading/trailing whitespace
+// -----------------------------------------------------------------
 std::string trim(const std::string& s) {
     size_t start = s.find_first_not_of(" \t\n\r");
     size_t end = s.find_last_not_of(" \t\n\r");
@@ -21,7 +27,12 @@ std::string trim(const std::string& s) {
     return s.substr(start, end - start + 1);
 }
 
-// return to lowercase
+// -----------------------------------------------------------------
+// toLower - Convert string to lowercase
+// What it does : converts all uppercase letters to lowercase
+// Input  : s - string to convert
+// Output : string with all letters in lowercase
+// -----------------------------------------------------------------
 std::string toLower(std::string s) {
     std::transform(s.begin(), s.end(), s.begin(),
         [](unsigned char c) { return std::tolower(c); });
@@ -132,7 +143,7 @@ static std::string abilityDesc(UnitClass cls) {
 Game::Game(Difficulty difficulty)
     : ai_(difficulty), running_(true), skipCombat_(false),
       currentEvent_(EVENT_NONE), combatPace_(1), currentPhase_(PHASE_ROUND_START),
-      shouldResumeShopPhase_(false), currentRoundType_(ROUND_TYPE_PVP) {}
+      shouldResumeShopPhase_(false), currentRoundType_(ROUND_TYPE_PVP), logFilename_("") {}
 
 Game::~Game() {}
 
@@ -332,6 +343,9 @@ int Game::run(bool show_intro) {
         }
     }
 
+    // Initialize battle log for this game session
+    initializeLog();
+
     while (running_ && player_.isAlive()) {
         // Handle resuming from saved game
         if (!shouldResumeShopPhase_) {
@@ -454,6 +468,11 @@ int Game::run(bool show_intro) {
                       << " You take " << damage << " damage." << std::endl;
         }
 
+        // Write to log after battle
+        writeToLog(player_.getRoundsPlayed(), playerWon, player_.getGold(), 
+                   playerWon ? player_.getWinStreak() : player_.getLossStreak(), 
+                   currentEvent_ != EVENT_NONE);
+
         // Note: Unit cleanup is handled in battlePhase() for unit persistence
         currentEvent_ = EVENT_NONE;
         currentPhase_ = PHASE_ROUND_START;  // Ready for next round
@@ -495,6 +514,9 @@ int Game::run(bool show_intro) {
             
             std::cout << "  +" << std::string(GW, '=') << "+" << std::endl;
         } else {
+            // Display log for this round
+            displayLogWithBattleReport();
+            
             std::cout << "\n  [Press Enter to continue to next round...]";
             std::string dummy;
             std::getline(std::cin, dummy);
@@ -1894,4 +1916,117 @@ void Game::setCombatPace(int pace) {
 // =====================================================================
 int Game::getCombatPace() const {
     return combatPace_;
+}
+
+// =====================================================================
+// initializeLog - Create and initialize battle log file for this game session
+// What it does: Creates a new log file with timestamp in docs/ folder
+// Returns: void
+// =====================================================================
+void Game::initializeLog() {
+    std::time_t now = std::time(nullptr);
+    std::tm* timeinfo = std::localtime(&now);
+    
+    char timestamp[100];
+    std::strftime(timestamp, sizeof(timestamp), "%Y%m%d_%H%M%S", timeinfo);
+    
+    logFilename_ = std::string("docs/battle_log_") + timestamp + ".txt";
+    
+    // Create/open file and write header
+    std::ofstream file(logFilename_);
+    if (file.is_open()) {
+        file << "========================================" << std::endl;
+        file << "AUTO-BATTLER ARENA - BATTLE LOG" << std::endl;
+        file << "Session Start: " << std::asctime(timeinfo);
+        file << "========================================" << std::endl << std::endl;
+        file.close();
+    }
+}
+
+// =====================================================================
+// writeToLog - Write round result information to the battle log file
+// Parameters:
+//   round - Current round number
+//   won - Whether the player won this round
+//   gold - Current player gold amount
+//   winStreak - Current win streak count
+//   eventTriggered - Whether an event was triggered
+// Returns: void
+// =====================================================================
+void Game::writeToLog(int round, bool won, int gold, int winStreak, bool eventTriggered) {
+    if (logFilename_.empty()) return;
+    
+    std::ofstream file(logFilename_, std::ios::app);
+    if (!file.is_open()) return;
+    
+    file << "--- Round " << round << " ---" << std::endl;
+    file << "Result: " << (won ? "WIN" : "LOSS") << std::endl;
+    file << "Gold: " << gold << std::endl;
+    file << "Win Streak: " << winStreak << std::endl;
+    file << "Event Triggered: " << (eventTriggered ? "YES" : "NO") << std::endl;
+    file << std::endl;
+    
+    file.close();
+}
+
+// =====================================================================
+// displayLogWithBattleReport - Show battle log for current round in terminal
+// What it does: Displays a formatted log of the current round's results
+// Includes: Round number, result (WIN/LOSS), player stats, event info
+// Returns: void
+// =====================================================================
+void Game::displayLogWithBattleReport() {
+    const int LW = 39;  // Log width
+    
+    int round = player_.getRoundsPlayed();
+    int gold = player_.getGold();
+    int hp = player_.getHp();
+    int maxHp = STARTING_HP;
+    int winStreak = player_.getWinStreak();
+    int lossStreak = player_.getLossStreak();
+    
+    std::cout << std::endl;
+    std::cout << "  +" << std::string(LW, '=') << "+" << std::endl;
+    printBoxTitle("ROUND LOG", LW);
+    std::cout << "  +" << std::string(LW, '-') << "+" << std::endl;
+    
+    // Round info
+    printBoxLine("  Round: " + std::to_string(round), LW);
+    printBoxLine("  Gold: " + std::to_string(gold) + " " + BOLD BR_YELLOW "💰" RESET, LW);
+    
+    // HP display
+    std::ostringstream hpLine;
+    hpLine << "  HP: " << hp << "/" << maxHp;
+    int barLength = 15;
+    int filledBars = (hp * barLength) / maxHp;
+    hpLine << " [";
+    for (int i = 0; i < barLength; ++i) {
+        if (i < filledBars) {
+            if (hp > maxHp * 0.6) hpLine << BR_GREEN "█" RESET;
+            else if (hp > maxHp * 0.3) hpLine << BR_YELLOW "█" RESET;
+            else hpLine << BR_RED "█" RESET;
+        } else {
+            hpLine << "░";
+        }
+    }
+    hpLine << "]";
+    printBoxLine(hpLine.str(), LW);
+    
+    // Streak info
+    if (winStreak > 0) {
+        std::string streakLine = std::string("  ") + BOLD BR_GREEN "Win Streak: " + std::to_string(winStreak) + RESET;
+        printBoxLine(streakLine, LW);
+    }
+    if (lossStreak > 0) {
+        std::string streakLine = std::string("  ") + BOLD BR_RED "Loss Streak: " + std::to_string(lossStreak) + RESET;
+        printBoxLine(streakLine, LW);
+    }
+    
+    // Event info
+    if (currentEvent_ != EVENT_NONE) {
+        std::string eventLine = std::string("  ") + BOLD MAGENTA "EVENT TRIGGERED! 🎁" RESET;
+        printBoxLine(eventLine, LW);
+    }
+    
+    std::cout << "  +" << std::string(LW, '=') << "+" << std::endl;
 }
