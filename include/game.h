@@ -1,3 +1,14 @@
+// ====================================================================
+// Project: Auto-Battler Arena
+// Group: Group 75
+// File Type: Header File
+// Description:
+//   Main game controller class that manages the overall game flow,
+//   including turn phases (shop, deploy, battle), player progression,
+//   game state tracking, and battle logging. Orchestrates interactions
+//   between Board, Shop, Player, AI, and other game systems.
+// ====================================================================
+
 #pragma once
 #ifndef GAME_H
 #define GAME_H

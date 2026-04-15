@@ -1,3 +1,15 @@
+// ====================================================================
+// Project: Auto-Battler Arena
+// Group: Group 75
+// File Type: Implementation File
+// Description:
+//   Implementation of the Game class. Handles game initialization,
+//   phase management (shop, deploy, battle), player interactions,
+//   round progression, battle resolution with colored HP bars,
+//   income/reward system, streak bonuses, battle logging, and
+//   special round types (PVE, events, and PVP).
+// ====================================================================
+
 #include "game.h"
 #include "record.h"
 #include <iostream>
