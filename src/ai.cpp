@@ -266,7 +266,10 @@ void AI::placeHard(Board& board) {
 // -----------------------------------------------------------------
 void AI::clearArmy() {
     for (size_t i = 0; i < army_.size(); ++i) {
-        delete army_[i];
+        if (army_[i] != nullptr) {
+            delete army_[i];
+            army_[i] = nullptr;
+        }
     }
     army_.clear();
 }
