@@ -1,3 +1,21 @@
+/*
+ * =====================================================================
+ * Project Name: AUTO-BATTLER ARENA
+ * ENGG1340 / COMP2113 - 2025-2026 Semester 2
+ * Group Number: Group 75
+ * 
+ * File Type: Header File
+ * File Name: synergy.h
+ * 
+ * Description:
+ *   Synergy system header file that defines the synergy bonus structure
+ *   and the Synergy class. Handles unit class grouping, tier calculation,
+ *   and attribute bonuses when units of the same class are deployed together.
+ *   Synergies provide strategic depth by rewarding players for building
+ *   themed armies with matching unit classes.
+ * =====================================================================
+ */
+
 #ifndef SYNERGY_H
 #define SYNERGY_H
 

@@ -1,3 +1,21 @@
+/*
+ * =====================================================================
+ * Project Name: AUTO-BATTLER ARENA
+ * ENGG1340 / COMP2113 - 2025-2026 Semester 2
+ * Group Number: Group 75
+ * 
+ * File Type: Implementation File
+ * File Name: synergy.cpp
+ * 
+ * Description:
+ *   Implementation of the Synergy class and related functions.
+ *   Calculates active synergies based on deployed units, determines
+ *   synergy tier (0-3), and applies corresponding attribute bonuses
+ *   (ATK, DEF, HP) to units. Provides text descriptions of active
+ *   synergies for UI display. Supports unit class grouping strategies.
+ * =====================================================================
+ */
+
 #include "synergy.h"
 #include <iostream>
 #include <sstream>
