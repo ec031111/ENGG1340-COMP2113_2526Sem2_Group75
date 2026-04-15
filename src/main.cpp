@@ -1,3 +1,12 @@
+/*
+ * Project: Auto-Battler Arena
+ * Group: ENGG1340-COMP2113_2526Sem2_Group75
+ * File Type: Source File (main entry point)
+ * Description: Main program entry point. Initializes the game, handles the main menu,
+ *              and manages game flow including new games, tutorials, leaderboard,
+ *              and game loading/saving functionality.
+ */
+
 #include "game.h"
 #include "record.h"
 #include "tutorial.h"

@@ -1,3 +1,11 @@
+/*
+ * Project: Auto-Battler Arena
+ * Group: ENGG1340-COMP2113_2526Sem2_Group75
+ * File Type: Source File
+ * Description: Record class implementation. Handles game record management, leaderboard
+ *              display, game state serialization/deserialization, and player record tracking.
+ */
+
 #include "record.h"
 #include "game.h"
 #include <fstream>

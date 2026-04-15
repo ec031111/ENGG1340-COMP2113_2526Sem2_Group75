@@ -1,3 +1,11 @@
+/*
+ * Project: Auto-Battler Arena
+ * Group: ENGG1340-COMP2113_2526Sem2_Group75
+ * File Type: Header File
+ * Description: Record class declaration for managing game record data, leaderboard,
+ *              game saving/loading functionality, and player statistics tracking.
+ */
+
 #pragma once
 #ifndef RECORD_H
 #define RECORD_H
