@@ -60,17 +60,54 @@ const std::string RECORD_FILE = "docs/records.txt";
 // ---------------------------------------------------------------------
 class Game {
 public:
+    // -----------------------------------------------------------------
+    // Constructor - Initialize game with specified difficulty
+    // Parameters: difficulty - EASY or HARD (affects AI strategy)
+    // -----------------------------------------------------------------
     Game(Difficulty difficulty);
+
+    // -----------------------------------------------------------------
+    // Destructor - Clean up game resources and dynamically allocated memory
+    // -----------------------------------------------------------------
     ~Game();
 
-    // Main game loop. Returns final score (rounds survived).
-    // showIntro: if true, prints the story introduction (new games only).
+    // -----------------------------------------------------------------
+    // run - Main game loop orchestrating all phases until player loses
+    // Game Flow: SHOP -> EVENT -> BATTLE -> RESULT -> REPEAT until HP=0
+    // Description: Coordinates all gameplay phases in sequence:
+    //              1. SHOP: Player buys/sells/places units
+    //              2. EVENT: Random event effects (gold, healing, etc.)
+    //              3. BATTLE: Auto-combat between armies
+    //              4. RESULT: Process outcome, damage, rewards, merging
+    // Parameters: showIntro - Display story intro (true for new games)
+    // Returns: Final score = number of rounds survived before defeat
+    // Purpose: Core game engine loop managing entire game progression
+    // -----------------------------------------------------------------
     int run(bool showIntro = true);
 
-    // File I/O
+    // -----------------------------------------------------------------
+    // File I/O methods
+    // -----------------------------------------------------------------
+    // saveRecord - Save final score and game stats to leaderboard
+    // -----------------------------------------------------------------
     void saveRecord() const;
+
+    // -----------------------------------------------------------------
+    // saveGame - Save complete game state for later resumption
+    // Saves: player HP/gold/round, bench units, board state
+    // -----------------------------------------------------------------
     void saveGame() const;
+
+    // -----------------------------------------------------------------
+    // loadGame - Load previously saved game state
+    // Returns: true if save file exists and loads successfully
+    // -----------------------------------------------------------------
     bool loadGame();
+
+    // -----------------------------------------------------------------
+    // displayLeaderboard - Static method to show all saved game records
+    // Displays ranked list of scores and player performance
+    // -----------------------------------------------------------------
     static void displayLeaderboard();
 
 private:
@@ -80,39 +117,135 @@ private:
     AI      ai_;
     bool    running_;
     bool    skipCombat_;
-    int     combatPace_;  // 0=slow, 1=normal, 2=fast, 3=fastest
     EventType currentEvent_;  // event active this round
+    int     combatPace_;      // battle display pace (0-3)
 
     // --- Phase handlers ---
+    // -----------------------------------------------------------------
+    // shopPhase - Player shopping and formation setup phase
+    // Main loop where players buy/sell units, arrange formation,
+    // manage resources, and prepare for battles
+    // -----------------------------------------------------------------
     void shopPhase();
+
+    // -----------------------------------------------------------------
+    // battlePhase - Initialize combat between player and AI armies
+    // Sets up board, positions units, and initiates combat resolution
+    // Returns: false if combat should be skipped
+    // -----------------------------------------------------------------
     bool battlePhase();
+
+    // -----------------------------------------------------------------
+    // displayMilestoneAnimation - Show celebratory animation at rounds 5/10/15/20
+    // Shows milestone achievement with visual effects and messages
+    // -----------------------------------------------------------------
     void displayMilestoneAnimation(int round) const;
 
     // --- Combat ---
+    // -----------------------------------------------------------------
+    // resolveCombat - Execute tick-by-tick combat simulation
+    // Processes attack rounds until one army is eliminated
+    // Parameters: deadUnits - Vector to collect defeated units
+    // Returns: true if player won this round
+    // -----------------------------------------------------------------
     bool resolveCombat(std::vector<Unit*>& deadUnits);
+
+    // -----------------------------------------------------------------
+    // performAttack - Execute single unit attack with damage calculation
+    // Includes damage roll, critical hit chance, and damage application
+    // Returns: Actual damage dealt to defender
+    // -----------------------------------------------------------------
     int  performAttack(Unit* attacker, Unit* defender);
+
+    // -----------------------------------------------------------------
+    // performAbility - Trigger unit-class special ability
+    // Warrior: Rage mode (double turn), Mage: AOE, Tank: Block, etc.
+    // Parameters: allUnits - All units on board for AOE/multi-target effects
+    // -----------------------------------------------------------------
     void performAbility(Unit* attacker, Unit* defender, std::vector<Unit*>& allUnits);
+
+    // -----------------------------------------------------------------
+    // cleanupDeadUnits - Remove defeated units from board and track them
+    // Collects killed units in deadUnits vector for later processing
+    // -----------------------------------------------------------------
     void cleanupDeadUnits(std::vector<Unit*>& deadUnits);
 
     // --- Unit merging (3 -> 1 upgrade) ---
+    // -----------------------------------------------------------------
+    // checkAndMerge - Auto-merge: 3 identical star-N units → 1 star-(N+1)
+    // Automatically upgrades units when merge conditions are met
+    // -----------------------------------------------------------------
     void checkAndMerge();
 
     // --- Events ---
+    // -----------------------------------------------------------------
+    // handleEvent - Process and apply event effects for current round
+    // Applies random event (gold bonus, healing, etc.) and displays result
+    // -----------------------------------------------------------------
     void handleEvent();
 
     // --- Free unit for EVENT_RANDOM_FREE_UNIT ---
+    // -----------------------------------------------------------------
+    // giveRandomFreeUnit - Grant player free unit from random event
+    // Creates temporary shop, picks random unit, adds to player bench
+    // -----------------------------------------------------------------
     void giveRandomFreeUnit();
 
     // --- UI ---
+    // -----------------------------------------------------------------
+    // printHelp - Display command reference and game help information
+    // Shows all available commands and their descriptions
+    // -----------------------------------------------------------------
     void printHelp() const;
+
+    // -----------------------------------------------------------------
+    // printCommandTips - Display quick command tips during gameplay
+    // Short reference for common commands (buy, sell, place, etc.)
+    // -----------------------------------------------------------------
     void printCommandTips() const;
-    void printStatusBar() const;  // Compact status display
-    void printDeployLimit() const;  // Show deploy limit for current round
-    void printFormation() const;  // Show formation with HP bars
+
+    // -----------------------------------------------------------------
+    // printStatusBar - Show compact player stats (HP, Gold, Round, Streaks)
+    // One-line status summary for during gameplay
+    // -----------------------------------------------------------------
+    void printStatusBar() const;
+
+    // -----------------------------------------------------------------
+    // printDeployLimit - Show current/max unit deployment count
+    // Displays "Units deployed: X/Y" for current round
+    // -----------------------------------------------------------------
+    void printDeployLimit() const;
+
+    // -----------------------------------------------------------------
+    // printFormation - Display player unit formation with HP bars
+    // Visual confirmation of army composition before battle
+    // -----------------------------------------------------------------
+    void printFormation() const;
+
+    // -----------------------------------------------------------------
+    // showIntro - Display narrative story introduction for new game sessions
+    // Shows opening story about realm, characters, and player mission
+    // -----------------------------------------------------------------
     void showIntro() const;
-    int getMaxDeployUnits() const;  // Get max units for current round
-    void setCombatPace(int pace);   // Set battle pace (0-3)
-    int getCombatPace() const;      // Get current battle pace
+
+    // -----------------------------------------------------------------
+    // setCombatPace - Set battle display pace (0-3 levels)
+    // Levels: 0=SLOW (extra delay), 1=NORMAL (wait input), 2=FAST (600ms), 3=FASTEST (instant)
+    // -----------------------------------------------------------------
+    void setCombatPace(int pace);
+
+    // -----------------------------------------------------------------
+    // getCombatPace - Get current battle display pace setting
+    // Returns: Current pace level (0-3)
+    // -----------------------------------------------------------------
+    int getCombatPace() const;
+
+    // -----------------------------------------------------------------
+    // getMaxDeployUnits - Get deployment limit for current round
+    // Scaling: Round 1-3: 3-5 units, Round 4+: 6 units (capped at round 20)
+    // Returns: Maximum units allowed this round
+    // -----------------------------------------------------------------
+    int getMaxDeployUnits() const;
 };
 
 #endif // GAME_H

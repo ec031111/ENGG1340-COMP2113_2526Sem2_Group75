@@ -27,12 +27,12 @@ Shop::~Shop() {
 }
 
 // -----------------------------------------------------------------
-// initTemplatePool
-// What it does : defines all available unit types and their stats.
-//                These templates are used by refresh() to randomly
-//                generate purchasable units.
-// Input  : none
-// Output : none (fills templatePool_)
+// -----------------------------------------------------------------
+// initTemplatePool - Load all available unit templates and their base stats
+// Description: Populates the template pool with 15 pre-defined unit templates.
+//              Each template specifies: name, class, HP, ATK, cost, crit, range
+//              Templates are used as blueprints for random shop generation.
+// Purpose: Initialize the master list of recruitable unit types
 // -----------------------------------------------------------------
 void Shop::initTemplatePool() {
     //                         name        class     HP  ATK cost crit range
@@ -54,11 +54,10 @@ void Shop::initTemplatePool() {
 }
 
 // -----------------------------------------------------------------
-// clearSlots
-// What it does : deletes every unit still sitting in the shop and
-//                empties the slots vector.
-// Input  : none
-// Output : none (frees dynamic memory)
+// clearSlots - Delete all unsold units in shop and reset inventory
+// Description: Safely deletes all Unit pointers in slots and clears vector.
+//              Prevents memory leaks before regenerating shop inventory.
+// Purpose: Clean up shop inventory and free memory before refresh
 // -----------------------------------------------------------------
 void Shop::clearSlots() {
     for (size_t i = 0; i < slots_.size(); ++i) {
@@ -71,11 +70,13 @@ void Shop::clearSlots() {
 }
 
 // -----------------------------------------------------------------
-// refresh
-// What it does : clears current slots and randomly picks SHOP_SIZE
-//                units from the template pool, creating each with `new`.
-// Input  : none
-// Output : none (fills slots_ with new Unit objects)
+// refresh - Generate new random shop inventory from template pool
+// Description: Clears old slots and populates 5 new random units.
+//              Each unit is randomly selected from template pool and
+//              instantiated with stats unchanged from template.
+// Process: 1. Clear current slots (free memory)
+//          2. For each slot, pick random template and create Unit
+// Purpose: Provide fresh unit choices each round
 // -----------------------------------------------------------------
 void Shop::refresh() {
     clearSlots();
@@ -105,11 +106,11 @@ Unit* Shop::buyUnit(int slotIndex) {
 }
 
 // -----------------------------------------------------------------
-// display
-// What it does : prints a formatted table of the current shop offerings.
-//                Units the player cannot afford are dimmed with (X).
-// Input  : none
-// Output : none (stdout)
+// display - Print formatted shop table with unit stats and affordability
+// Description: Shows all 5 shop slots with unit details and pricing.
+//              Marks units player cannot afford with "X" indicator.
+//              Shows sold-out slots as "-- SOLD --".
+// Purpose: Visual shop interface for player browsing and purchasing
 // -----------------------------------------------------------------
 void Shop::display() const {
     const int W = 58;  // inner width between the two '|'
@@ -163,21 +164,21 @@ Unit* Shop::getUnit(int slotIndex) const {
 }
 
 // -----------------------------------------------------------------
-// getRefreshCost
-// What it does : returns the gold needed to re-roll the shop.
-// Input  : none
-// Output : REFRESH_COST constant
+// getRefreshCost - Return cost to reroll shop inventory
+// Description: Returns the fixed gold cost for shop refresh action.
+// Returns: Integer gold amount (REFRESH_COST constant)
+// Purpose: Allow callers to check refresh affordability
 // -----------------------------------------------------------------
 int Shop::getRefreshCost() const {
     return REFRESH_COST;
 }
 
 // -----------------------------------------------------------------
-// setPlayerGold
-// What it does : updates the gold reference so display() can show
-//                affordability.
-// Input  : gold amount
-// Output : none
+// setPlayerGold - Update player's gold reference for shop affordability display
+// Description: Stores player's current gold amount for use in display().
+//              Allows marking unaffordable units with "X" in shop view.
+// Parameters: gold - Current player gold amount
+// Purpose: Enable dynamic shop UI based on player resources
 // -----------------------------------------------------------------
 void Shop::setPlayerGold(int gold) {
     playerGoldRef_ = gold;

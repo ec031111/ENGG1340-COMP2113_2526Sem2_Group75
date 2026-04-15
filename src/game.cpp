@@ -52,6 +52,24 @@ static std::string hpBar(int hp, int maxHp, int width) {
     return std::string(filled, '=') + std::string(width - filled, ' ');
 }
 
+// Helper: build a colored HP bar - Green if > 60%, Red if <= 60%
+// e.g. hpBarColored(current, max, 10) => "[GREEN]===       [RESET]" or "[RED]===       [RESET]"
+static std::string hpBarColored(int hp, int maxHp, int width) {
+    if (maxHp <= 0) return std::string(width, ' ');
+    int filled = (hp * width) / maxHp;
+    if (filled < 0) filled = 0;
+    if (filled > width) filled = width;
+    
+    // Calculate HP percentage
+    int hpPercent = (hp * 100) / maxHp;
+    
+    // Choose color: Green if > 60%, Red otherwise
+    std::string color = (hpPercent > 60) ? GREEN : RED;
+    std::string bar = std::string(filled, '=') + std::string(width - filled, ' ');
+    
+    return BOLD + color + "[" + bar + "]" + RESET;
+}
+
 // Helper: preferred column for smart placement by class
 static int smartPlaceCol(UnitClass cls) {
     switch (cls) {
@@ -112,12 +130,20 @@ static std::string abilityDesc(UnitClass cls) {
 // =====================================================================
 Game::Game(Difficulty difficulty)
     : ai_(difficulty), running_(true), skipCombat_(false),
-      currentEvent_(EVENT_NONE) {}
+      currentEvent_(EVENT_NONE), combatPace_(1) {}
 
 Game::~Game() {}
 
 // =====================================================================
-// showIntro - Story introduction for new games
+// showIntro - Display narrative story introduction for new game sessions
+// Description: Shows the opening story of the war-torn realm of Aethoria,
+//              with formatted box display, narrative text, and prompts player
+//              to press Enter to begin their campaign.
+// Process: 1. Draw decorative box header with game title
+//          2. Display narrative text about the Dark Lord Malachar's invasion
+//          3. Explain player's mission: recruit heroes and survive waves
+//          4. Wait for player input (Enter key) to dismiss intro
+// Purpose: Set game atmosphere, explain story context, and confirm player readiness
 // =====================================================================
 void Game::showIntro() const {
     const int W = 60;
@@ -144,7 +170,11 @@ void Game::showIntro() const {
 }
 
 // =====================================================================
-// displayMilestoneAnimation - Show milestone achievement with animation
+// displayMilestoneAnimation - Show visual milestone celebration at round 5,10,15,20
+// Description: Displays animated celebration with pulsing frame, typewriter text,
+//              ribbon animation, and achievement message at milestone rounds.
+// Parameters: round - Current round number (checked against 5, 10, 15, 20)
+// Purpose: Provides visual feedback and encouragement at significant round milestones
 // =====================================================================
 void Game::displayMilestoneAnimation(int round) const {
     // Determine milestone message
@@ -237,7 +267,17 @@ void Game::displayMilestoneAnimation(int round) const {
 }
 
 // =====================================================================
-// run - Master game loop
+// run - Main game loop orchestrating all phases until player loses
+// Game Flow: SHOP PHASE -> EVENT PHASE -> BATTLE PHASE -> RESULT PHASE -> REPEAT
+// Description: Main game loop that coordinates all gameplay phases:
+//              1. SHOP: Player buys/sells/places units, arranges formation
+//              2. EVENT: Random event effects (gold, discount, blessing, free unit)
+//              3. BATTLE: Auto-combat between player and AI armies
+//              4. RESULT: Process battle outcome, damage dealt, rewards earned
+//              5. REPEAT until player HP drops to 0 (game over)
+// Parameters: show_intro - Whether to display story intro (true for new games)
+// Returns: Final score = number of rounds survived before defeat
+// Purpose: Core game engine that manages game progression and win/lose conditions
 // =====================================================================
 int Game::run(bool show_intro) {
     std::cout << std::endl;
@@ -431,7 +471,15 @@ int Game::run(bool show_intro) {
 }
 
 // =====================================================================
-// handleEvent - Apply random event at start of round
+// handleEvent - Process and apply event effects for current round
+// Description: Applies the effects of the current round's event (if any).
+//              Event types include: GOLD_RUSH (extra gold), SHOP_DISCOUNT
+//              (reduced prices), DIVINE_BLESSING (heal units), and
+//              RANDOM_FREE_UNIT (receive a free unit).
+// Process: 1. Apply event effect via Event::applyEvent()
+//          2. Display event banner to player
+//          3. If EVENT_RANDOM_FREE_UNIT, grant free unit via giveRandomFreeUnit()
+// Purpose: Provides dynamic random rewards/effects each round for gameplay variety
 // =====================================================================
 void Game::handleEvent() {
     if (currentEvent_ == EVENT_NONE) return;
@@ -450,7 +498,10 @@ void Game::handleEvent() {
 }
 
 // =====================================================================
-// giveRandomFreeUnit
+// giveRandomFreeUnit - Grant player a free random unit from event
+// Description: Creates a temporary shop, purchases one random unit,
+//              and adds it to player's bench. If bench is full, unit is lost.
+// Purpose: Reward random event (EVENT_RANDOM_FREE_UNIT)
 // =====================================================================
 void Game::giveRandomFreeUnit() {
     // Create a temporary shop and grab one unit for free
@@ -468,9 +519,17 @@ void Game::giveRandomFreeUnit() {
 }
 
 // =====================================================================
-// shopPhase - Buy, sell, place, merge, status, gold, then ready
+// shopPhase - Player shopping and formation setup phase
+// Description: Main loop where players buy/sell units, arrange formation,
+//              manage resources, and prepare for battle.
+// Key Commands:
+//   - buy/sell: Purchase or sell units
+//   - place/remove: Position units on board
+//   - refresh: Re-roll shop items
+//   - pace: Set battle speed (0-3)
+//   - ready: Confirm and start battle
+// Purpose: Game phase between battles where player makes strategic decisions
 // =====================================================================
-
 void Game::shopPhase() {
     std::string line;
     bool ready = false;
@@ -923,7 +982,11 @@ void Game::shopPhase() {
 }
 
 // =====================================================================
-// checkAndMerge - 3 same-name same-star units merge into star+1
+// checkAndMerge - Auto-merge: merge 3 same-unit same-star into 1 star-level-up
+// Algorithm: Loops through bench searching for 3 identical units.
+//            When found: upgrade first unit, remove other two, recursively check.
+// Result: Repeated merges possible if chain reactions occur
+// Purpose: Core progression mechanic - units evolve through collection
 // =====================================================================
 void Game::checkAndMerge() {
     bool merged = true;
@@ -967,7 +1030,17 @@ void Game::checkAndMerge() {
 }
 
 // =====================================================================
-// battlePhase
+// battlePhase - Automated turn-based combat simulation
+// Process:
+//   1. Clear previous battle board
+//   2. Generate and place AI army (difficulty-scaled)
+//   3. Apply player synergy bonuses
+//   4. Show formations and let player preview (or skip)
+//   5. Execute combat ticks until one side eliminated
+//   6. Return surviving player units to bench (healed to full HP)
+//   7. Permanently delete dead units
+// Return: true=player victory, false=player defeat
+// Purpose: Core game mechanic - automatic battles with units' abilities
 // =====================================================================
 bool Game::battlePhase() {
     // Clear AI side
@@ -1062,7 +1135,17 @@ bool Game::battlePhase() {
 }
 
 // =====================================================================
-// resolveCombat - tick-by-tick with abilities
+// resolveCombat - Execute tick-by-tick combat resolution
+// Algorithm:
+//   For each tick (max 200):
+//   1. Check if either side has units alive
+//   2. Each alive unit acts in turn: attack or move closer
+//   3. Perform special ability (Warrior rage, Mage AOE, etc.)
+//   4. Clean up dead units
+//   5. Handle display based on combatPace_ setting
+// Parameters: deadUnits - vector to collect permanently dead units
+// Return: true=player won, false=player lost
+// Purpose: Core combat AI - handles all attack logic, abilities, and battlefield state
 // =====================================================================
 bool Game::resolveCombat(std::vector<Unit*>& deadUnits) {
     int totalPlayerKills = 0, totalAIKills = 0;
@@ -1108,13 +1191,13 @@ bool Game::resolveCombat(std::vector<Unit*>& deadUnits) {
             std::cout << "  ALLIED: ";
             for (size_t i = 0; i < p.size(); ++i) {
                 std::cout << p[i]->getSymbolString()
-                          << "[" << hpBar(p[i]->getHp(), p[i]->getMaxHp(), 10) << "]";
+                          << hpBarColored(p[i]->getHp(), p[i]->getMaxHp(), 10);
                 if (i + 1 < p.size()) std::cout << " ";
             }
             std::cout << "  vs  DARK ARMY: ";
             for (size_t i = 0; i < a.size(); ++i) {
                 std::cout << a[i]->getSymbolString()
-                          << "[" << hpBar(a[i]->getHp(), a[i]->getMaxHp(), 10) << "]";
+                          << hpBarColored(a[i]->getHp(), a[i]->getMaxHp(), 10);
                 if (i + 1 < a.size()) std::cout << " ";
             }
             std::cout << std::endl << std::endl;
@@ -1197,7 +1280,16 @@ bool Game::resolveCombat(std::vector<Unit*>& deadUnits) {
 }
 
 // =====================================================================
-// performAttack - basic attack with crit
+// performAttack - Execute single attack with critical hit calculation
+// Logic:
+//   1. Calculate base damage from attacker's ATK stat
+//   2. Roll critical hit (BASE_CRIT_CHANCE + bonuses)
+//   3. If crit: damage *= 1.5x
+//   4. Check defender's ability (Tank blocks 40% of damage)
+//   5. Apply damage to defender
+//   6. Display combat message (if not skipping)
+// Return: Final damage dealt after all calculations
+// Purpose: Fundamental combat mechanic - resolves individual attacks
 // =====================================================================
 int Game::performAttack(Unit* attacker, Unit* defender) {
     int damage = attacker->getAtk();
@@ -1238,7 +1330,14 @@ int Game::performAttack(Unit* attacker, Unit* defender) {
 }
 
 // =====================================================================
-// performAbility - class-specific abilities trigger after attack
+// performAbility - Trigger class-specific special abilities
+// Abilities by class:
+//   - WARRIOR: Rage - +30% ATK when HP < 50% (once per combat)
+//   - MAGE: AOE - 30% chance to splash 50% damage to nearby enemies
+//   - TANK: Block - 25% chance to reduce damage by 40%
+//   - ASSASSIN: Backstab - 25% chance for +50% extra damage
+//   - ARCHER: Double Shot - 20% chance to attack twice (can crit both)
+// Purpose: Class differentiation - special mechanics that define unit roles
 // =====================================================================
 void Game::performAbility(Unit* attacker, Unit* defender, std::vector<Unit*>& allUnits) {
     UnitClass cls = attacker->getClass();
@@ -1327,7 +1426,9 @@ void Game::performAbility(Unit* attacker, Unit* defender, std::vector<Unit*>& al
 }
 
 // =====================================================================
-// cleanupDeadUnits
+// cleanupDeadUnits - Collect dead units from board for deletion
+// Purpose: Remove dead units from board and collect them for final deletion.
+//          Prevents double-deletion and memory leaks.
 // =====================================================================
 void Game::cleanupDeadUnits(std::vector<Unit*>& deadUnits) {
     for (int r = 0; r < BOARD_ROWS; ++r)
@@ -1341,7 +1442,10 @@ void Game::cleanupDeadUnits(std::vector<Unit*>& deadUnits) {
 }
 
 // =====================================================================
-// saveRecord - append to records.txt
+// saveRecord - Append game result to gameplay records
+// Format: PlayerName RoundsCompleted FinalGold DifficultyLevel
+// File: docs/records.txt (append mode)
+// Purpose: Build leaderboard history, track player performance statistics
 // =====================================================================
 void Game::saveRecord() const {
     std::ofstream file(RECORD_FILE, std::ios::app);
@@ -1358,7 +1462,11 @@ void Game::saveRecord() const {
 }
 
 // =====================================================================
-// saveGame - write full game state to savegame.dat
+// saveGame - Serialize complete game state to binary file
+// Saves: Player HP/gold/round/streaks + all bench units with stats + difficulty
+// File: docs/savegame.dat (overwrite mode)
+// Serialization: Each unit stores base stats + star level (no re-scaling on load)
+// Purpose: Enable mid-game suspend/resume functionality
 // =====================================================================
 void Game::saveGame() const {
     std::ofstream file(SAVE_FILE);
@@ -1391,7 +1499,12 @@ void Game::saveGame() const {
 }
 
 // =====================================================================
-// loadGame - read full game state from savegame.dat
+// loadGame - Deserialize complete game state from file
+// Loads: Player state + bench units (exact stats preserved) + difficulty
+// File: docs/savegame.dat
+// Unit Reconstruction: Uses forceSetStarLevel to avoid re-scaling original stats
+// Return: true=success, false=file not found or corruption
+// Purpose: Resume interrupted games without loss of progression
 // =====================================================================
 bool Game::loadGame() {
     std::ifstream file(SAVE_FILE);
@@ -1453,7 +1566,11 @@ bool Game::loadGame() {
 }
 
 // =====================================================================
-// displayLeaderboard
+// displayLeaderboard - Display sorted top 10 players by rounds survived
+// Sorting: Descending order by rounds completed
+// Format: Rank, Name, Rounds, Final Gold, Difficulty
+// Source: docs/records.txt
+// Purpose: Show player achievements and top performers
 // =====================================================================
 void Game::displayLeaderboard() {
     std::ifstream file(RECORD_FILE);
@@ -1518,7 +1635,9 @@ void Game::displayLeaderboard() {
 }
 
 // =====================================================================
-// printHelp
+// printHelp - Display comprehensive command reference
+// Sections: Shopping, Bags, Formation, Game, Class Abilities, Tips
+// Purpose: Educate new players on available commands and game mechanics
 // =====================================================================
 void Game::printHelp() const {
     const int W = 55;
@@ -1596,9 +1715,10 @@ void Game::printHelp() const {
 }
 
 // =====================================================================
-// printCommandTips - Compact command menu for reference during gameplay
+// printCommandTips - Display compact quick reference during gameplay
+// Contents: Essential commands only (buy, sell, place, ready, etc.)
+// Purpose: Quick reminder of available commands without full help screen
 // =====================================================================
-
 void Game::printCommandTips() const {
     const int W = 55;
     std::cout << std::endl;
@@ -1612,7 +1732,10 @@ void Game::printCommandTips() const {
 }
 
 // =====================================================================
-// printStatusBar - Compact player status (Gold + HP bar)
+// printStatusBar - Display compact player status with HP bar
+// Shows: Gold amount and Current HP with color-coded bar visualization
+// Colors: HP bar green (>50%), red (<=50%)
+// Purpose: At-a-glance player resource display
 // =====================================================================
 
 void Game::printStatusBar() const {
@@ -1662,7 +1785,9 @@ void Game::printStatusBar() const {
 }
 
 // =====================================================================
-// getMaxDeployUnits - Get maximum deployable units for current round
+// getMaxDeployUnits - Get deployment limit for current round
+// Scaling: Round 1-3: 3-5 units, Round 4+: 6 units (capped at round 20)
+// Purpose: Progressive difficulty - more units available as game advances
 // =====================================================================
 int Game::getMaxDeployUnits() const {
     int round = player_.getRoundsPlayed();
@@ -1672,7 +1797,9 @@ int Game::getMaxDeployUnits() const {
 }
 
 // =====================================================================
-// printDeployLimit - Show deploy limit for current round
+// printDeployLimit - Show current/max unit deployment count
+// Display: "Units deployed: X/Y" where X=current, Y=maximum this round
+// Purpose: Inform player of army size constraints
 // =====================================================================
 void Game::printDeployLimit() const {
     int maxUnits = getMaxDeployUnits();
@@ -1681,7 +1808,9 @@ void Game::printDeployLimit() const {
 }
 
 // =====================================================================
-// printFormation - Show player formation with HP bars
+// printFormation - Display current player unit formation with HP bars
+// Shows: Each deployed unit with name, HP bar, and HP values
+// Purpose: Visual confirmation of army composition before battle
 // =====================================================================
 void Game::printFormation() const {
     std::vector<Unit*> units = board_.getPlayerUnits();
@@ -1708,7 +1837,13 @@ void Game::printFormation() const {
 }
 
 // =====================================================================
-// setCombatPace - Set battle speed (0=slow, 1=normal, 2=fast, 3=fastest)
+// setCombatPace - Set battle display speed (0-3 valid range)
+// Speeds:
+//   0 = SLOW: Extra pause between ticks
+//   1 = NORMAL: Wait for user input (default)
+//   2 = FAST: Auto-advance with 600ms delay
+//   3 = FASTEST: No display, instant resolution
+// Purpose: Accommodate different player preferences for pacing
 // =====================================================================
 void Game::setCombatPace(int pace) {
     if (pace < 0) pace = 0;
@@ -1717,7 +1852,9 @@ void Game::setCombatPace(int pace) {
 }
 
 // =====================================================================
-// getCombatPace - Get current battle speed
+// getCombatPace - Retrieve current battle display speed setting
+// Return: int 0-3 representing current pace setting
+// Purpose: Query pace for conditional display logic in battle resolution
 // =====================================================================
 int Game::getCombatPace() const {
     return combatPace_;

@@ -28,28 +28,32 @@ enum EventType {
 class Event {
 public:
     // -----------------------------------------------------------------
-    // rollEvent
-    // What it does : randomly decides if an event occurs (40% chance)
-    //                and which event it is.
-    // Input  : round - current round number
-    // Output : EventType enum value
+    // rollEvent - Randomly determine if an event occurs and which one
+    // Probability: 40% chance of event, then random type selection
+    // Parameters: round - Current round number (affects event types)
+    // Returns: EventType (EVENT_NONE if no event, otherwise specific type)
+    // Purpose: Generate random events for game variety and unpredictability
     // -----------------------------------------------------------------
     static EventType rollEvent(int round);
 
     // -----------------------------------------------------------------
-    // applyEvent
-    // What it does : applies the given event to the player/game state
-    //                and prints a description.
-    // Inputs : event, player, board
-    // Output : string description of what happened
+    // applyEvent - Execute event effect and return description
+    // Processes random event occurrence (GOLD_BONUS, HEAL_ALL, etc.)
+    // Modifies player state (gold, units) based on event type
+    // Parameters: event - EventType enum (GOLD_BONUS, HEAL_ALL, etc.)
+    //             player - Player object to modify with event effect
+    // Returns: String describing event result for display to player
+    // Purpose: Implement random event system for game variety
     // -----------------------------------------------------------------
     static std::string applyEvent(EventType event, Player& player);
 
     // -----------------------------------------------------------------
-    // getEventName
-    // What it does : returns a short display name for an event.
-    // Input  : event type
-    // Output : string name
+    // getEventName - Return human-readable name for event type
+    // Converts EventType enum to user-friendly display name
+    // Used in UI, logs, and player notifications
+    // Parameters: event - EventType enum value
+    // Returns: String name like "Gold Rush", "Divine Blessing", etc.
+    // Purpose: Display event information in human-readable format
     // -----------------------------------------------------------------
     static std::string getEventName(EventType event);
 };

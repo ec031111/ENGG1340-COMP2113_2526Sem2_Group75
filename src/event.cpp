@@ -20,11 +20,14 @@ EventType Event::rollEvent(int round) {
 }
 
 // -----------------------------------------------------------------
-// applyEvent
-// What it does : modifies game state based on event type, returns
-//                a description of what happened.
-// Inputs : event, player
-// Output : description string
+// applyEvent - Execute event effect and return description to player
+// Description: Processes random event occurrence (gold bonus, heal, etc).
+//              Modifies player state (gold, units) based on event type.
+//              Returns user-facing description of what happened.
+// Parameters: event - EventType enum (GOLD_BONUS, HEAL_ALL, SHOP_DISCOUNT, etc)
+//             player - Player object to modify
+// Returns: String describing event result for display
+// Purpose: Implement random event system for game variety and surprises
 // -----------------------------------------------------------------
 std::string Event::applyEvent(EventType event, Player& player) {
     switch (event) {
@@ -68,7 +71,12 @@ std::string Event::applyEvent(EventType event, Player& player) {
 }
 
 // -----------------------------------------------------------------
-// getEventName
+// getEventName - Return human-readable name for event type
+// Description: Converts EventType enum to user-friendly display name.
+//              Used in UI, logs, and player notifications.
+// Parameters: event - EventType enum value
+// Returns: String name like "Gold Rush", "Divine Blessing", etc
+// Purpose: Display event information in human-readable format
 // -----------------------------------------------------------------
 std::string Event::getEventName(EventType event) {
     switch (event) {

@@ -126,8 +126,11 @@ std::vector<SynergyBonus> Synergy::calculateSynergies(std::vector<Unit*>& units)
 }
 
 // -----------------------------------------------------------------
-// clearSynergies
-// What it does : removes all synergy bonuses from units.
+// clearSynergies - Remove all temporary synergy bonuses from unit roster
+// Description: Resets each unit's stat bonuses (ATK, crit) to base.
+//              Called before recalculating synergies each round.
+// Parameters: units - Vector of units to reset
+// Purpose: Clean slate for synergy recalculation each round
 // -----------------------------------------------------------------
 void Synergy::clearSynergies(std::vector<Unit*>& units) {
     for (size_t i = 0; i < units.size(); ++i) {
@@ -136,8 +139,11 @@ void Synergy::clearSynergies(std::vector<Unit*>& units) {
 }
 
 // -----------------------------------------------------------------
-// displaySynergies
-// What it does : prints active synergies to stdout.
+// displaySynergies - Print active synergies to console for player feedback
+// Description: Lists all currently active synergy bonuses with descriptions.
+//              Provides visual confirmation of team composition benefits.
+// Parameters: bonuses - Vector of active SynergyBonus objects to display
+// Purpose: Inform player of active team synergies and their effects
 // -----------------------------------------------------------------
 void Synergy::displaySynergies(const std::vector<SynergyBonus>& bonuses) {
     if (bonuses.empty()) return;

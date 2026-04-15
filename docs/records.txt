@@ -10,3 +10,5 @@ Player 1 16 Easy
 Player 1 16 Easy
 Player 1 16 Easy
 Player 1 16 Easy
+Player 1 16 Hard
+Player 2 7 Easy
