@@ -1,3 +1,16 @@
+// =====================================================================
+// PROJECT: AUTO-BATTLER ARENA
+// GROUP: Group 75
+// FILE TYPE: Header File
+// FILE NAME: ai.h
+// DESCRIPTION:
+//   This file defines the AI class that controls computer opponents.
+//   The AI generates an army each round based on difficulty level (EASY/HARD),
+//   manages gold budget, and places units using difficulty-specific strategies.
+//   - EASY: Buys cheapest units and places them randomly
+//   - HARD: Prioritizes high-value units and uses tactical positioning
+// =====================================================================
+
 #ifndef AI_H
 #define AI_H
 

@@ -1,3 +1,15 @@
+// =====================================================================
+// PROJECT: AUTO-BATTLER ARENA
+// GROUP: Group 75
+// FILE TYPE: Source File
+// FILE NAME: ai.cpp
+// DESCRIPTION:
+//   This file implements the AI class that controls computer opponents.
+//   Contains methods for generating AI armies with difficulty-specific strategies,
+//   buying units based on difficulty levels, placing units tactically,
+//   and managing the AI's unit roster and resources.
+// =====================================================================
+
 #include "ai.h"
 #include <iostream>
 #include <algorithm>
