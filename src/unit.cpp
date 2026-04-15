@@ -1,3 +1,16 @@
+/*
+ * ============================================================================
+ * Project: ENGG1340/COMP2113 - Auto-Battler Arena
+ * Group: 75
+ * File Type: Implementation File (.cpp)
+ * File Description:
+ *   Implements the Unit class for individual game pieces.
+ *   Provides constructors, getters/setters for unit attributes,
+ *   combat mechanics (damage calculation, critical hits, special abilities),
+ *   unit merging/leveling system, and position management on the game board.
+ * ============================================================================
+ */
+
 #include "unit.h"
 #include <cmath>
 

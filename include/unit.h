@@ -1,3 +1,17 @@
+/*
+ * ============================================================================
+ * Project: ENGG1340/COMP2113 - Auto-Battler Arena
+ * Group: 75
+ * File Type: Header File (.h)
+ * File Description:
+ *   Defines the Unit class representing individual game pieces (characters).
+ *   Each unit has attributes including class type (Warrior, Mage, Tank, etc.),
+ *   health, attack power, star level, and special abilities.
+ *   Supports unit merging, position tracking on board, stat modifications,
+ *   and combat mechanics including critical strikes and special abilities.
+ * ============================================================================
+ */
+
 #ifndef UNIT_H
 #define UNIT_H
 
