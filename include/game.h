@@ -1,7 +1,7 @@
 // ====================================================================
 // Project: Auto-Battler Arena
 // Group: Group 75
-// File Type: Header File
+// File Type: game.h
 // Description:
 //   Main game controller class that manages the overall game flow,
 //   including turn phases (shop, deploy, battle), player progression,

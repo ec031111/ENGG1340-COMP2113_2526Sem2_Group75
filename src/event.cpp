@@ -1,15 +1,14 @@
-/*
-================================================================================
-Project:        ENGG1340/COMP2113 - Auto-Battler Arena Game
-Group:          Group 75
-File Type:      Implementation File (.cpp)
-File Name:      event.cpp
-Description:    Implements the Event class for managing random in-game events.
-                Handles event probability calculations, event application,
-                and impacts on player gold, units, and game state between
-                rounds.
-================================================================================
-*/
+//================================================================================
+//Project:        ENGG1340/COMP2113 - Auto-Battler Arena Game
+//Group:          Group 75
+//File Type:      Implementation File (.cpp)
+//File Name:      event.cpp
+//Description:    Implements the Event class for managing random in-game events.
+//                Handles event probability calculations, event application,
+//                and impacts on player gold, units, and game state between
+//                rounds.
+//================================================================================
+
 
 #include "event.h"
 #include "shop.h"

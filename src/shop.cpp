@@ -1,8 +1,9 @@
 // =====================================================================
-// PROJECT: ENGG1340/COMP2113 Auto-Battler Arena
-// GROUP: Group 75
-// FILE TYPE: Implementation File
-// DESCRIPTION: Shop system implementation for unit purchasing and management
+// Project: ENGG1340/COMP2113 Auto-Battler Arena
+// Group: Group 75
+// File Type: Implementation File
+// File Name: shop.cpp
+// Description: Shop system implementation for unit purchasing and management
 //              Implements shop mechanics including unit refresh, purchase,
 //              selling, and unit template pool initialization.
 // =====================================================================

@@ -2,6 +2,7 @@
 // PROJECT: ENGG1340/COMP2113 Auto-Battler Arena
 // GROUP: Group 75
 // FILE TYPE: Header File
+// FILE NAME: shop.h
 // DESCRIPTION: Shop system for purchasing and managing units
 //              Maintains a pool of available units for each round,
 //              handles unit purchase logic, shop refreshing, and

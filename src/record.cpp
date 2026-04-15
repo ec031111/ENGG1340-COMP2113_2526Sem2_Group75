@@ -347,3 +347,41 @@ bool Record::hasSaveFile() {
     file.close();
     return true;
 }
+
+// =====================================================================
+// Record::showSavePreview - Display save file preview without loading
+// Reads and displays: Round, HP, and Gold from save.dat
+// Returns: true if successfully displayed preview, false if file error
+// =====================================================================
+bool Record::showSavePreview() {
+    std::ifstream file(SAVE_FILE);
+    if (!file.is_open()) {
+        std::cout << "\n  " << BOLD << BR_RED << "ERROR" << RESET 
+                  << ": Could not open save file." << std::endl;
+        return false;
+    }
+
+    try {
+        // Skip game phase (line 1)
+        int phase;
+        file >> phase;
+
+        // Read player state: HP, Gold, RoundsPlayed, WinStreak, LossStreak
+        int hp, gold, rounds, winStreak, lossStreak;
+        file >> hp >> gold >> rounds >> winStreak >> lossStreak;
+
+        file.close();
+
+        // Display preview
+        std::cout << "\n  " << BOLD << BR_CYAN << "Save Info: " << RESET
+                  << BR_YELLOW << "Round " << rounds << RESET << " | "
+                  << BR_GREEN << "HP: " << hp << RESET << " | "
+                  << BR_YELLOW << "Gold: " << gold << RESET << std::endl;
+
+        return true;
+    } catch (...) {
+        std::cout << "\n  " << BOLD << BR_RED << "ERROR" << RESET 
+                  << ": Failed to read save file." << std::endl;
+        return false;
+    }
+}

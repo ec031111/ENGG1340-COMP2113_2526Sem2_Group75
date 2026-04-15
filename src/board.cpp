@@ -1,15 +1,14 @@
-/*
-================================================================================
-Project:        Auto-Battler Arena (ENGG1340-COMP2113, 2024-2025 Semester 2)
-Group:          Group 75
-File Type:      Source File
-File Name:      board.cpp
-Description:    Implementation of the Board class. Provides functionality for
-                managing unit placement on a 5x8 grid, checking valid positions,
-                rendering the board state, and performing spatial queries to
-                retrieve units by position or ownership (player/AI).
-================================================================================
-*/
+//================================================================================
+//Project:        Auto-Battler Arena (ENGG1340-COMP2113, 2024-2025 Semester 2)
+//Group:          Group 75
+//File Type:      Source File
+//File Name:      board.cpp
+//Description:    Implementation of the Board class. Provides functionality for
+//                managing unit placement on a 5x8 grid, checking valid positions,
+//                rendering the board state, and performing spatial queries to
+//                retrieve units by position or ownership (player/AI).
+//================================================================================
+
 
 #include "board.h"
 #include <iostream>

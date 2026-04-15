@@ -1,9 +1,12 @@
 /*
- * Project: Auto-Battler Arena
- * Group: ENGG1340-COMP2113_2526Sem2_Group75
- * File Type: Header File
- * Description: Record class declaration for managing game record data, leaderboard,
- *              game saving/loading functionality, and player statistics tracking.
+=======================================================================================
+ Project: Auto-Battler Arena
+ Group: ENGG1340-COMP2113_2526Sem2_Group75
+ File Type: Header File
+ File Name: record.h
+ Description: Record class declaration for managing game record data, leaderboard,
+              game saving/loading functionality, and player statistics tracking.
+=======================================================================================
  */
 
 #pragma once
@@ -63,6 +66,13 @@ public:
     // hasSaveFile - check if save file exists
     // -----------------------------------------------------------------
     static bool hasSaveFile();
+
+    // -----------------------------------------------------------------
+    // showSavePreview - Display save file preview without loading
+    // Reads Round, HP, and Gold from save.dat and displays summary
+    // Returns: true if preview displayed successfully
+    // -----------------------------------------------------------------
+    static bool showSavePreview();
 
 private:
     // Helper structures for serialization

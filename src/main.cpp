@@ -1,11 +1,13 @@
-/*
- * Project: Auto-Battler Arena
- * Group: ENGG1340-COMP2113_2526Sem2_Group75
- * File Type: Source File (main entry point)
- * Description: Main program entry point. Initializes the game, handles the main menu,
- *              and manages game flow including new games, tutorials, leaderboard,
- *              and game loading/saving functionality.
- */
+ //==========================================================================================
+ // Project: Auto-Battler Arena
+ // Group: ENGG1340-COMP2113_2526Sem2_Group75
+ // File Type: Source File (main entry point)
+ // File Name: main.cpp
+ // Description: Main program entry point. Initializes the game, handles the main menu,
+ //              and manages game flow including new games, tutorials, leaderboard,
+ //              and game loading/saving functionality.
+ //==========================================================================================
+ 
 
 #include "game.h"
 #include "record.h"
@@ -121,6 +123,9 @@ int main() {
             if (!Record::hasSaveFile()) {
                 std::cout << "  No save file found." << std::endl;
             } else {
+                // Show save preview before loading
+                Record::showSavePreview();
+                
                 // Default to EASY, loadGame will handle the rest
                 Difficulty diff = EASY;
                 Game game(diff);
