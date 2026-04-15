@@ -1,10 +1,13 @@
-/*
- * Project: Auto-Battler Arena
- * Group: ENGG1340-COMP2113_2526Sem2_Group75
- * File Type: Source File
- * Description: Record class implementation. Handles game record management, leaderboard
- *              display, game state serialization/deserialization, and player record tracking.
- */
+//=============================================================================================
+//Project: Auto-Battler Arena
+//Group: ENGG1340-COMP2113_2526Sem2_Group75
+//File Type: Source File
+//File Name: record.cpp
+//Description: Record class implementation. Handles game record management, leaderboard
+//            display, game state serialization/deserialization, and player record tracking.
+//==============================================================================================
+
+ 
 
 #include "record.h"
 #include "game.h"
@@ -127,8 +130,22 @@ bool Record::loadGame(Player& player,
                       GamePhase& currentPhase,
                       EventType& currentEvent,
                       bool& shouldResumeShopPhase) {
+    // Check if save file exists before attempting to load
+    std::ifstream checkFile(SAVE_FILE);
+    if (!checkFile.is_open()) {
+        std::cout << "\n  " << BOLD << BR_RED << "ERROR" << RESET << ": Save file not found at " << SAVE_FILE << std::endl;
+        std::cout << "  Please check that a previous game was saved." << std::endl;
+        std::cout << "  Returning to main menu..." << std::endl;
+        return false;
+    }
+    checkFile.close();
+
+    // Now open the file for actual loading
     std::ifstream file(SAVE_FILE);
-    if (!file.is_open()) return false;
+    if (!file.is_open()) {
+        std::cout << "\n  " << BOLD << BR_RED << "ERROR" << RESET << ": Unable to open save file for reading." << std::endl;
+        return false;
+    }
 
     // Read game phase
     int phaseInt;
@@ -320,8 +337,13 @@ void Record::displayLeaderboard() {
 
 // =====================================================================
 // Record::hasSaveFile - check if save file exists
+// Returns: true if save.dat exists and is readable, false otherwise
 // =====================================================================
 bool Record::hasSaveFile() {
     std::ifstream file(SAVE_FILE);
-    return file.is_open();
+    if (!file.is_open()) {
+        return false;
+    }
+    file.close();
+    return true;
 }
