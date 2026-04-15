@@ -223,14 +223,6 @@ bool Record::loadGame(Player& player,
         Unit* u = std::get<2>(boardUnits[i]);
         board.placeUnit(u, r, c);
     }
-
-    std::cout << BLUE << "  Game loaded! Round " << rounds
-              << ", HP: " << hp << ", Gold: " << gold
-              << ", Bench: " << benchCount << " units, Board: " << boardUnitCount << " units" << RESET << std::endl;
-    
-    if (shouldResumeShopPhase) {
-        std::cout << YELLOW << "  Returning to shop phase..." << RESET << std::endl;
-    }
     
     return true;
 }

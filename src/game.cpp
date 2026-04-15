@@ -274,7 +274,22 @@ int Game::run(bool show_intro) {
             system("clear");
         #endif
     } else {
+        // Loading saved game
         printCommandTips();  // Show quick commands if loading saved game
+        
+        // If resuming from shop phase, brief pause then transition
+        if (shouldResumeShopPhase_) {
+            std::cout << std::endl;
+            // 0.5 second delay
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            
+            // Clear screen for smooth transition
+            #ifdef _WIN32
+                system("cls");
+            #else
+                system("clear");
+            #endif
+        }
     }
 
     while (running_ && player_.isAlive()) {
