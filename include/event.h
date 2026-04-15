@@ -1,3 +1,16 @@
+/*
+================================================================================
+Project:        ENGG1340/COMP2113 - Auto-Battler Arena Game
+Group:          Group 75
+File Type:      Header File (.h)
+File Name:      event.h
+Description:    Declares the Event class for managing random in-game events
+                that occur between rounds. Events add unpredictability and
+                strategic variance, affecting gold, units, healing, and enemy
+                buffs throughout gameplay.
+================================================================================
+*/
+
 #ifndef EVENT_H
 #define EVENT_H
 
