@@ -1,3 +1,16 @@
+/*
+================================================================================
+Project:        Auto-Battler Arena (ENGG1340-COMP2113, 2024-2025 Semester 2)
+Group:          Group 75
+File Type:      Header File
+File Name:      board.h
+Description:    Manages the 5x8 battle grid. Handles unit placement, removal,
+                rendering, and spatial queries. The board stores Unit pointers
+                but does not own them; memory management is handled by Player
+                and Game classes.
+================================================================================
+*/
+
 #ifndef BOARD_H
 #define BOARD_H
 
