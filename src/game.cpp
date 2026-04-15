@@ -132,7 +132,7 @@ static std::string abilityDesc(UnitClass cls) {
 Game::Game(Difficulty difficulty)
     : ai_(difficulty), running_(true), skipCombat_(false),
       currentEvent_(EVENT_NONE), combatPace_(1), currentPhase_(PHASE_ROUND_START),
-      shouldResumeShopPhase_(false) {}
+      shouldResumeShopPhase_(false), currentRoundType_(ROUND_TYPE_PVP) {}
 
 Game::~Game() {}
 

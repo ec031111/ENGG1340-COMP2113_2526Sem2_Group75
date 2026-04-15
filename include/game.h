@@ -55,6 +55,20 @@ enum GamePhase {
     PHASE_BATTLE
 };
 
+// Round type enum - determines what type of round this is
+enum RoundType {
+    ROUND_TYPE_PVE,      // Round 1,2,3,5 - Fight weak monsters
+    ROUND_TYPE_EVENT,    // Round 7 - Special event with rewards, no combat
+    ROUND_TYPE_PVP       // Normal rounds - Fight AI opponent
+};
+
+// PVE Round constants
+const int PVE_ROUNDS[] = {1, 2, 3, 5};
+const int EVENT_ROUNDS[] = {7};
+const int PVE_DAMAGE_ON_LOSS = 3;      // Damage taken if lose PVE round
+const int PVE_GOLD_REWARD = 20;        // Gold gained if win PVE round
+const int PVE_EQUIPMENT_REWARD = 1;    // Number of random units given as reward
+
 // ---------------------------------------------------------------------
 // Game
 // ---------------------------------------------------------------------
@@ -265,6 +279,43 @@ private:
     // Returns: Maximum units allowed this round
     // -----------------------------------------------------------------
     int getMaxDeployUnits() const;
+
+    // -----------------------------------------------------------------
+    // showBattleRewards - Display colored rewards information after battle
+    // Shows win/loss streak bonuses, interest earned, and total new gold
+    // Parameters: playerWon - whether player won the battle
+    // -----------------------------------------------------------------
+    void showBattleRewards(bool playerWon);
+
+    // -----------------------------------------------------------------
+    // getRoundType - Determine the type of round (PVE/EVENT/PVP)
+    // Parameters: round - the round number (1-indexed)
+    // Returns: RoundType enum indicating the round type
+    // -----------------------------------------------------------------
+    RoundType getRoundType(int round) const;
+
+    // -----------------------------------------------------------------
+    // pvePhase - Handle PVE battle against weak monsters
+    // Creates simple monsters based on round difficulty
+    // Returns: true if player won the PVE battle
+    // -----------------------------------------------------------------
+    bool pvePhase();
+
+    // -----------------------------------------------------------------
+    // eventPhase - Handle special event round with direct rewards
+    // Gives players immediate rewards without combat
+    // -----------------------------------------------------------------
+    void eventPhase();
+
+    // -----------------------------------------------------------------
+    // createPveMonsters - Create array of weak monsters for PVE round
+    // Parameters: round - the current round number (affects scale)
+    // Returns: Vector of monster units to fight
+    // -----------------------------------------------------------------
+    std::vector<Unit*> createPveMonsters(int round);
+
+private:
+    RoundType currentRoundType_;  // Type of current round
 };
 
 #endif // GAME_H

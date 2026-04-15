@@ -226,8 +226,11 @@ void Player::displayStatus() const {
 void Player::startNewRound() {
     roundsPlayed_++;
     int baseIncome = GOLD_PER_ROUND;
-    int winStreakGold = winStreak_ * WIN_STREAK_BONUS;
-    int lossStreakGold = lossStreak_ * LOSS_STREAK_BONUS;
+    // Win streak bonus: 3 gold per win, only if streak >= 3
+    int winStreakGold = (winStreak_ >= 3) ? WIN_STREAK_BONUS : 0;
+    // Loss streak bonus: 2 gold per loss, only if streak >= 3
+    int lossStreakGold = (lossStreak_ >= 3) ? LOSS_STREAK_BONUS : 0;
+    // Interest: 1 gold per 10 saved, max 5 gold (25 gold earned, only at start of round)
     int interest = std::min(gold_ / 10, 5) * INTEREST_PER_10;
     int totalIncome = baseIncome + winStreakGold + lossStreakGold + interest;
     gold_ += totalIncome;
@@ -241,11 +244,11 @@ void Player::startNewRound() {
     std::cout << "\n  === Round " << roundsPlayed_ << " ===" << std::endl;
     std::cout << "  Income: " << totalIncome << " gold"
               << " (base:" << baseIncome;
-    if (winStreak_ > 0) {
-        std::cout << " +win streak:" << winStreakGold;
+    if (winStreak_ >= 3) {
+        std::cout << " +win streak(" << winStreak_ << "):" << winStreakGold;
     }
-    if (lossStreak_ > 0) {
-        std::cout << " +loss streak:" << lossStreakGold;
+    if (lossStreak_ >= 3) {
+        std::cout << " +loss streak(" << lossStreak_ << "):" << lossStreakGold;
     }
     if (interest > 0) {
         std::cout << " +interest:" << interest;
