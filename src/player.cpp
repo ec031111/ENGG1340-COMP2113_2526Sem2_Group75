@@ -1,3 +1,18 @@
+/*
+ * =====================================================================
+ * Project Name: Auto-Battler Arena
+ * Group Number: ENGG1340-COMP2113_2526Sem2_Group75
+ * File Type: Implementation File (.cpp)
+ * File Description:
+ *   Implementation of the Player class. Provides methods for:
+ *   - Managing player resources (HP, gold, units)
+ *   - Recording battle results and updating win/loss streaks
+ *   - Calculating income with streak bonuses and interest
+ *   - Unit acquisition, selling, and bench management
+ *   - Display and tracking of player statistics
+ * =====================================================================
+ */
+
 #include "player.h"
 #include <iostream>
 #include <iomanip>

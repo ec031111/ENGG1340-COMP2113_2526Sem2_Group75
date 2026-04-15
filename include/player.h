@@ -1,3 +1,18 @@
+/*
+ * =====================================================================
+ * Project Name: Auto-Battler Arena
+ * Group Number: ENGG1340-COMP2113_2526Sem2_Group75
+ * File Type: Header File (.h)
+ * File Description:
+ *   Player class manages the human player's game state including:
+ *   - Health points (HP) and gold currency
+ *   - Unit bench (squad) for deploying units in battle
+ *   - Win/loss streaks for bonus gold calculation
+ *   - Round progression tracking
+ *   Implements resource management and streak-based reward system.
+ * =====================================================================
+ */
+
 #ifndef PLAYER_H
 #define PLAYER_H
 
