@@ -48,15 +48,19 @@ const double CRIT_MULTIPLIER = 1.5;
 // Maximum combat iterations to prevent infinite loops.
 const int MAX_COMBAT_TICKS = 200;
 
-// Save file name
-const std::string SAVE_FILE = "docs/savegame.dat";
-const std::string RECORD_FILE = "docs/records.txt";
+// Game phase enum to track where in the round we saved
+enum GamePhase {
+    PHASE_ROUND_START,
+    PHASE_SHOP,
+    PHASE_BATTLE
+};
 
 // ---------------------------------------------------------------------
 // Game
 // ---------------------------------------------------------------------
 // The master class that orchestrates all game systems: shop, combat,
-// synergies, events, unit merging, class abilities, and file I/O.
+// synergies, events, unit merging, class abilities, and game flow.
+// Note: File I/O operations are handled by the Record class.
 // ---------------------------------------------------------------------
 class Game {
 public:
@@ -67,11 +71,18 @@ public:
     // showIntro: if true, prints the story introduction (new games only).
     int run(bool showIntro = true);
 
-    // File I/O
-    void saveRecord() const;
-    void saveGame() const;
-    bool loadGame();
-    static void displayLeaderboard();
+    // Accessors for persistence layer
+    Board& getBoard() { return board_; }
+    Shop& getShop() { return shop_; }
+    Player& getPlayer() { return player_; }
+    const Player& getPlayer() const { return player_; }
+    const AI& getAI() const { return ai_; }
+    GamePhase getCurrentPhase() const { return currentPhase_; }
+    void setCurrentPhase(GamePhase phase) { currentPhase_ = phase; }
+    EventType getCurrentEvent() const { return currentEvent_; }
+    void setCurrentEvent(EventType event) { currentEvent_ = event; }
+    bool shouldResumeShop() const { return shouldResumeShopPhase_; }
+    void setShouldResumeShop(bool resume) { shouldResumeShopPhase_ = resume; }
 
 private:
     Board   board_;
@@ -82,6 +93,8 @@ private:
     bool    skipCombat_;
     int     combatPace_;  // 0=slow, 1=normal, 2=fast, 3=fastest
     EventType currentEvent_;  // event active this round
+    GamePhase currentPhase_;  // current phase in the round
+    bool shouldResumeShopPhase_;  // flag to resume shop phase from saved game
 
     // --- Phase handlers ---
     void shopPhase();

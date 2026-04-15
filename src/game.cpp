@@ -1,4 +1,5 @@
 #include "game.h"
+#include "record.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -112,7 +113,8 @@ static std::string abilityDesc(UnitClass cls) {
 // =====================================================================
 Game::Game(Difficulty difficulty)
     : ai_(difficulty), running_(true), skipCombat_(false),
-      currentEvent_(EVENT_NONE) {}
+      currentEvent_(EVENT_NONE), currentPhase_(PHASE_ROUND_START),
+      shouldResumeShopPhase_(false) {}
 
 Game::~Game() {}
 
@@ -276,84 +278,101 @@ int Game::run(bool show_intro) {
     }
 
     while (running_ && player_.isAlive()) {
-        player_.startNewRound();
+        // Handle resuming from saved game
+        if (!shouldResumeShopPhase_) {
+            player_.startNewRound();
 
-        // --- Round flavor text ---
-        {
-            int round = player_.getRoundsPlayed();
-            std::cout << std::endl;
-            if (round == 1) {
-                std::cout << "  ~ The first wave approaches... ~" << std::endl;
-            } else if (round == 5) {
-                std::cout << "  ~ The enemy grows restless... ~" << std::endl;
-            } else if (round == 10) {
-                std::cout << "  ~ A formidable army approaches! ~" << std::endl;
-            } else if (round == 15) {
-                std::cout << "  ~ The Dark Lord himself sends his elite guard! ~" << std::endl;
-            } else if (round >= 20) {
-                std::cout << "  ~ The final battle rages on... ~" << std::endl;
-            } else {
-                const std::string flavor[] = {
-                    "  ~ The winds of war howl across the battlefield. ~",
-                    "  ~ Malachar's minions march ever onward. ~",
-                    "  ~ The scent of battle fills the air. ~",
-                    "  ~ Your soldiers steady themselves for the coming fight. ~"
-                };
-                std::cout << flavor[rand() % 4] << std::endl;
+            // --- Round flavor text ---
+            {
+                int round = player_.getRoundsPlayed();
+                std::cout << std::endl;
+                if (round == 1) {
+                    std::cout << "  ~ The first wave approaches... ~" << std::endl;
+                } else if (round == 5) {
+                    std::cout << "  ~ The enemy grows restless... ~" << std::endl;
+                } else if (round == 10) {
+                    std::cout << "  ~ A formidable army approaches! ~" << std::endl;
+                } else if (round == 15) {
+                    std::cout << "  ~ The Dark Lord himself sends his elite guard! ~" << std::endl;
+                } else if (round >= 20) {
+                    std::cout << "  ~ The final battle rages on... ~" << std::endl;
+                } else {
+                    const std::string flavor[] = {
+                        "  ~ The winds of war howl across the battlefield. ~",
+                        "  ~ Malachar's minions march ever onward. ~",
+                        "  ~ The scent of battle fills the air. ~",
+                        "  ~ Your soldiers steady themselves for the coming fight. ~"
+                    };
+                    std::cout << flavor[rand() % 4] << std::endl;
+                }
+                std::cout << std::endl;
             }
-            std::cout << std::endl;
-        }
 
-        // --- Check for milestones ---
-        {
-            int round = player_.getRoundsPlayed();
-            if (round == 5 || round == 10 || round == 15 || round == 20) {
-                displayMilestoneAnimation(round);
+            // --- Check for milestones ---
+            {
+                int round = player_.getRoundsPlayed();
+                if (round == 5 || round == 10 || round == 15 || round == 20) {
+                    displayMilestoneAnimation(round);
+                }
             }
-        }
 
-        // --- Random event ---
-        currentEvent_ = Event::rollEvent(player_.getRoundsPlayed());
-        handleEvent();
+            // --- Random event ---
+            currentEvent_ = Event::rollEvent(player_.getRoundsPlayed());
+            handleEvent();
 
-        //--- Ask Quit when Gold is insufficient (ROUND 2 ONLY) ---
-        
-        if (player_.getRoundsPlayed() >= 2) {
-            int min_cost = 999;
-            for (int i = 0; i < SHOP_SIZE; i++) {
-                Unit* u = shop_.getUnit(i);
-                if (u != nullptr) {
-                    int cost = u->getCost();
-                    if (cost < min_cost) {
-                        min_cost = cost;
+            //--- Ask Quit when Gold is insufficient (ROUND 2 ONLY) ---
+            
+            if (player_.getRoundsPlayed() >= 2) {
+                int min_cost = 999;
+                for (int i = 0; i < SHOP_SIZE; i++) {
+                    Unit* u = shop_.getUnit(i);
+                    if (u != nullptr) {
+                        int cost = u->getCost();
+                        if (cost < min_cost) {
+                            min_cost = cost;
+                        }
+                    }
+                }
+
+                int my_gold = player_.getGold();
+                if (my_gold < min_cost) {
+                    std::cout << BOLD << RED << "\n======================================" << RESET << std::endl;
+                    std::cout << BOLD << RED << " Your gold CANNOT buy any hero in shop!" << RESET << std::endl;
+                    std::cout << BOLD << YELLOW << " Do you want to quit? (yes/no) > " << RESET;
+                    std::string answer;
+                    std::getline(std::cin, answer);
+                    std::string clean_an = toLower(trim(answer));
+                    if (clean_an == "yes" || clean_an == "y") {
+                        running_ = false;
+                        break;
                     }
                 }
             }
 
-            int my_gold = player_.getGold();
-            if (my_gold < min_cost) {
-                std::cout << BOLD << RED << "\n======================================" << RESET << std::endl;
-                std::cout << BOLD << RED << " Your gold CANNOT buy any hero in shop!" << RESET << std::endl;
-                std::cout << BOLD << YELLOW << " Do you want to quit? (yes/no) > " << RESET;
-                std::string answer;
-                std::getline(std::cin, answer);
-                std::string clean_an = toLower(trim(answer));
-                if (clean_an == "yes" || clean_an == "y") {
-                    running_ = false;
-                    break;
-                }
+        } else {
+            // Resuming from saved shop phase
+            std::cout << BLUE << "\n  === Resuming Round " << player_.getRoundsPlayed() << " (Shop Phase) ===" << RESET << std::endl;
+            shouldResumeShopPhase_ = false;  // Only do this once
+            
+            // Refresh shop for this round if not already set
+            if (currentPhase_ == PHASE_SHOP) {
+                // Shop states were saved, don't refresh
+                std::cout << CYAN << "  (Shop state restored from save)" << RESET << std::endl;
             }
         }
 
-
-        
 // ==============================================
         // --- Shop Phase ---
-        shop_.refresh();
-        shopPhase();
-        if (!running_) break;
+        if (currentPhase_ != PHASE_BATTLE) {
+            // Refresh shop - whether starting new round or resuming from save
+            shop_.refresh();
+            currentPhase_ = PHASE_SHOP;
+            shopPhase();
+            if (!running_) break;
+        }
 
         // --- Battle Phase ---
+        currentPhase_ = PHASE_BATTLE;
         std::cout << BOLD << RED << "\n  ⚔️ ========== BATTLE PHASE ========== ⚔️" << RESET << std::endl;
         skipCombat_ = false;
         bool playerWon = battlePhase();
@@ -382,6 +401,7 @@ int Game::run(bool show_intro) {
 
         // Note: Unit cleanup is handled in battlePhase() for unit persistence
         currentEvent_ = EVENT_NONE;
+        currentPhase_ = PHASE_ROUND_START;  // Ready for next round
 
         if (!player_.isAlive()) {
             const int GW = 50;
@@ -426,7 +446,7 @@ int Game::run(bool show_intro) {
         }
     }
 
-    saveRecord();
+    Record::saveRecord(player_, ai_);
     return player_.getRoundsPlayed();
 }
 
@@ -735,8 +755,7 @@ void Game::shopPhase() {
 
 
         } else if (cmd == "save") {
-            saveGame();
-            std::cout << GREEN << "  ✅ Game saved!" << RESET << std::endl;
+            Record::saveGame(player_, board_, shop_, ai_, currentPhase_, currentEvent_);
 
         } else if (cmd == "ready") {
             // No champion on the board
@@ -910,8 +929,7 @@ void Game::shopPhase() {
             std::getline(std::cin, ans);
             std::string c = toLower(trim(ans));
             if (c == "y" || c == "yes") {
-                saveGame();
-                std::cout << GREEN << "  ✅ Game saved!" << RESET << std::endl;
+                Record::saveGame(player_, board_, shop_, ai_, currentPhase_, currentEvent_);
             }
             std::cout << BLUE << " 👋 Game exiting..." << RESET << std::endl;
             running_ = false;
@@ -1338,183 +1356,6 @@ void Game::cleanupDeadUnits(std::vector<Unit*>& deadUnits) {
                 deadUnits.push_back(u);
             }
         }
-}
-
-// =====================================================================
-// saveRecord - append to records.txt
-// =====================================================================
-void Game::saveRecord() const {
-    std::ofstream file(RECORD_FILE, std::ios::app);
-    if (!file.is_open()) {
-        std::cerr << "  Warning: could not write to " << RECORD_FILE << std::endl;
-        return;
-    }
-    file << player_.getName() << " "
-         << player_.getRoundsPlayed() << " "
-         << player_.getGold() << " "
-         << ai_.getDifficultyString() << std::endl;
-    file.close();
-    std::cout << "\n  Record saved." << std::endl;
-}
-
-// =====================================================================
-// saveGame - write full game state to savegame.dat
-// =====================================================================
-void Game::saveGame() const {
-    std::ofstream file(SAVE_FILE);
-    if (!file.is_open()) {
-        std::cerr << "  Could not save game." << std::endl;
-        return;
-    }
-    // Save player state
-    file << player_.getHp() << " " << player_.getGold() << " "
-         << player_.getRoundsPlayed() << " " << player_.getWinStreak() << " "
-         << player_.getLossStreak() << std::endl;
-
-    // Save bench units
-    const std::vector<Unit*>& bench = player_.getBench();
-    file << bench.size() << std::endl;
-    for (size_t i = 0; i < bench.size(); ++i) {
-        file << bench[i]->getBaseName() << " "
-             << bench[i]->getClass() << " "
-             << bench[i]->getMaxHp() << " "
-             << bench[i]->getAtk() << " "
-             << bench[i]->getCost() << " "
-             << bench[i]->getCritBonus() << " "
-             << bench[i]->getAttackRange() << " "
-             << bench[i]->getStarLevel() << std::endl;
-    }
-
-    // Save difficulty
-    file << ai_.getDifficultyString() << std::endl;
-    file.close();
-}
-
-// =====================================================================
-// loadGame - read full game state from savegame.dat
-// =====================================================================
-bool Game::loadGame() {
-    std::ifstream file(SAVE_FILE);
-    if (!file.is_open()) return false;
-
-    // Read player state
-    int hp, gold, rounds, winStreak, lossStreak;
-    if (!(file >> hp >> gold >> rounds >> winStreak >> lossStreak)) {
-        file.close();
-        return false;
-    }
-
-    // Read bench units
-    int benchCount;
-    if (!(file >> benchCount)) {
-        file.close();
-        return false;
-    }
-
-    std::vector<Unit*> loadedUnits;
-    for (int i = 0; i < benchCount; ++i) {
-        std::string name;
-        int cls, maxHp, atk, cost, critBonus, range, starLevel;
-        if (!(file >> name >> cls >> maxHp >> atk >> cost >> critBonus >> range >> starLevel)) {
-            // Cleanup on error
-            for (size_t j = 0; j < loadedUnits.size(); ++j) delete loadedUnits[j];
-            file.close();
-            return false;
-        }
-        // Create unit with saved post-upgrade stats directly.
-        // Do NOT call upgrade() again — the stats are already scaled.
-        Unit* u = new Unit(name, (UnitClass)cls, maxHp, atk, cost, critBonus, range);
-        // Manually set star level without re-scaling stats
-        for (int s = 1; s < starLevel; ++s) {
-            u->forceSetStarLevel(s + 1);
-        }
-        loadedUnits.push_back(u);
-    }
-
-    // Read difficulty
-    std::string diff;
-    file >> diff;
-    file.close();
-
-    // Apply loaded state to player
-    player_.loadState(hp, gold, rounds, winStreak, lossStreak);
-
-    // Add loaded units to bench
-    for (size_t i = 0; i < loadedUnits.size(); ++i) {
-        if (!player_.addToBench(loadedUnits[i])) {
-            delete loadedUnits[i];  // bench full, shouldn't happen
-        }
-    }
-
-    std::cout << "  Game loaded! Round " << rounds
-              << ", HP: " << hp << ", Gold: " << gold
-              << ", Bench: " << benchCount << " units" << std::endl;
-    return true;
-}
-
-// =====================================================================
-// displayLeaderboard
-// =====================================================================
-void Game::displayLeaderboard() {
-    std::ifstream file(RECORD_FILE);
-    if (!file.is_open()) {
-        std::cout << BOLD << YELLOW << "\n  No records found. Play a game first!" << std::endl;
-        return;
-    }
-
-    struct Record {
-        std::string name;
-        int rounds, gold;
-        std::string difficulty;
-    };
-
-    std::vector<Record> records;
-    std::string line;
-    while (std::getline(file, line)) {
-        std::istringstream iss(line);
-        Record rec;
-        if (iss >> rec.name >> rec.rounds >> rec.gold >> rec.difficulty)
-            records.push_back(rec);
-    }
-    file.close();
-
-    if (records.empty()) {
-        std::cout << "\n  No records found." << std::endl;
-        return;
-    }
-
-    for (size_t i = 0; i < records.size(); ++i)
-        for (size_t j = i + 1; j < records.size(); ++j)
-            if (records[j].rounds > records[i].rounds) {
-                Record t = records[i]; records[i] = records[j]; records[j] = t;
-            }
-
-    const int W = 43;
-    std::cout << std::endl;
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
-    printBoxTitle("LEADERBOARD", W);
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
-
-    {
-        std::ostringstream h;
-        h << "  " << std::left << std::setw(6) << "Rank"
-          << std::setw(12) << "Name" << std::setw(8) << "Rounds"
-          << std::setw(7) << "Gold" << std::setw(6) << "Diff";
-        printBoxLine(h.str(), W);
-    }
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
-
-    int show = std::min((int)records.size(), 10);
-    for (int i = 0; i < show; ++i) {
-        std::ostringstream row;
-        row << "  " << std::left << std::setw(6) << (i + 1)
-            << std::setw(12) << records[i].name
-            << std::setw(8) << records[i].rounds
-            << std::setw(7) << records[i].gold
-            << std::setw(6) << records[i].difficulty;
-        printBoxLine(row.str(), W);
-    }
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
 }
 
 // =====================================================================

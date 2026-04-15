@@ -1,4 +1,5 @@
 #include "game.h"
+#include "record.h"
 #include "tutorial.h"
 #include <iostream>
 #include <fstream>
@@ -104,21 +105,26 @@ int main() {
             tutorial.run();
 
         } else if (choice == "3") {
-            Game::displayLeaderboard();
+            Record::displayLeaderboard();
 
         } else if (choice == "4") {
             // Load game - try to read save file and resume
-            // Need to read difficulty from save file first
-            std::ifstream checkFile("docs/savegame.dat");
-            if (!checkFile.is_open()) {
+            if (!Record::hasSaveFile()) {
                 std::cout << "  No save file found." << std::endl;
             } else {
-                // Peek at difficulty (last line of save)
                 // Default to EASY, loadGame will handle the rest
-                checkFile.close();
                 Difficulty diff = EASY;
                 Game game(diff);
-                if (game.loadGame()) {
+                
+                GamePhase phase = PHASE_ROUND_START;
+                EventType event = EVENT_NONE;
+                bool shouldResumeShop = false;
+                
+                if (Record::loadGame(game.getPlayer(), game.getBoard(), game.getShop(), 
+                                     const_cast<AI&>(game.getAI()), phase, event, shouldResumeShop)) {
+                    game.setCurrentPhase(phase);
+                    game.setCurrentEvent(event);
+                    game.setShouldResumeShop(shouldResumeShop);
                     game.run(false);
                 } else {
                     std::cout << "  Save file is corrupted." << std::endl;
