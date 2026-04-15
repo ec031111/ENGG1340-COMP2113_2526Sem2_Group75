@@ -1,3 +1,17 @@
+/*
+ * ============================================================================
+ * Project: ENGG1340/COMP2113 - Auto-Battler Arena
+ * Group: 75
+ * File Type: Header File (.h)
+ * File Description:
+ *   Defines the Tutorial class for interactive gameplay tutorials.
+ *   Provides structured lessons covering game mechanics:
+ *   shop system, units, board placement, combat, synergies, resource
+ *   management, and unit leveling/merging. Tracks progression through
+ *   lessons and handles content delivery for new players.
+ * ============================================================================
+ */
+
 #ifndef TUTORIAL_H
 #define TUTORIAL_H
 

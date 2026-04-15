@@ -1,3 +1,16 @@
+/*
+ * ============================================================================
+ * Project: ENGG1340/COMP2113 - Auto-Battler Arena
+ * Group: 75
+ * File Type: Implementation File (.cpp)
+ * File Description:
+ *   Implements the Tutorial class providing interactive gameplay tutorials.
+ *   Contains lesson content, progression tracking, and display logic for
+ *   teaching new players the game mechanics through structured lessons.
+ *   Manages tutorial state, lesson navigation, and completion tracking.
+ * ============================================================================
+ */
+
 #include "tutorial.h"
 #include "game.h"
 #include <iostream>
