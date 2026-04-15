@@ -1,7 +1,7 @@
 // ====================================================================
 // Project: Auto-Battler Arena
 // Group: Group 75
-// File Type: Implementation File
+// File Type: game.cpp (Implementation File)
 // Description:
 //   Implementation of the Game class. Handles game initialization,
 //   phase management (shop, deploy, battle), player interactions,
@@ -555,6 +555,9 @@ void Game::handleEvent() {
 
     std::string desc = Event::applyEvent(currentEvent_, player_);
     if (!desc.empty()) {
+        // Display random flashy animation when event is triggered
+        Event::randomEventAnimation(Event::getEventName(currentEvent_));
+        
         std::cout << BOLD << BLUE << "\n  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << RESET << std::endl;
         std::cout << BOLD << BLUE << "  !  EVENT 🫢: " << desc << RESET << std::endl;
         std::cout << BOLD << BLUE << "  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << RESET << std::endl;

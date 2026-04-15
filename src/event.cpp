@@ -15,6 +15,7 @@ Description:    Implements the Event class for managing random in-game events.
 #include "shop.h"
 #include <iostream>
 #include <cstdlib>
+#include <unistd.h>
 
 // -----------------------------------------------------------------
 // rollEvent
@@ -100,5 +101,139 @@ std::string Event::getEventName(EventType event) {
         case EVENT_RANDOM_FREE_UNIT: return "Lucky Find";
         case EVENT_GOLD_TAX:         return "Tax Collector";
         default:                     return "None";
+    }
+}
+
+// ===== ANIMATION SYSTEM =====
+
+// Static member variable initialization
+int Event::lastAnimationUsed_ = -1;
+int Event::secondLastAnimation_ = -1;
+int Event::thirdLastAnimation_ = -1;
+
+// -----------------------------------------------------------------
+// animationLoadingBar - Display a filling progress bar animation
+// Shows bar filling from 0% to 100% with yellow color
+// Parameters: text - Event name/description to display above bar
+// Returns: void (displays animation)
+// -----------------------------------------------------------------
+void Event::animationLoadingBar(const std::string& text) {
+    std::cout << "\n" << "\033[33m"; // YELLOW
+    std::cout << "  ⚡ " << text << "\n\n";
+    
+    for (int i = 0; i <= 100; i += 5) {
+        std::cout << "  [";
+        for (int j = 0; j < 20; j++) {
+            if (j < (i / 5)) std::cout << "█";
+            else std::cout << "░";
+        }
+        std::cout << "] " << i << "%\r";
+        std::cout.flush();
+        usleep(40000); // 40ms delay
+    }
+    std::cout << "\n  EVENT TRIGGERED!" << "\033[0m" << std::endl;
+    usleep(200000); // 200ms delay before continuing
+}
+
+// -----------------------------------------------------------------
+// animationSpinningWheel - Display a spinning wheel animation
+// Shows rotating symbols: /, -, \, | in cyan color
+// Parameters: text - Event name/description to display
+// Returns: void (displays animation)
+// -----------------------------------------------------------------
+void Event::animationSpinningWheel(const std::string& text) {
+    std::cout << "\n" << "\033[36m"; // CYAN
+    std::cout << "  ✨ " << text << "\n\n";
+    
+    const char spinners[] = {'/', '-', '\\', '|'};
+    for (int i = 0; i < 12; i++) {
+        std::cout << "  " << spinners[i % 4] << " Processing...\r";
+        std::cout.flush();
+        usleep(80000); // 80ms delay
+    }
+    std::cout << "  ✓ EVENT ACTIVATED!" << "\033[0m" << std::endl;
+    usleep(200000); // 200ms delay
+}
+
+// -----------------------------------------------------------------
+// animationBlinkingText - Display blinking event text
+// Text blinks on and off in green color for dramatic effect
+// Parameters: text - Event name/description to blink
+// Returns: void (displays animation)
+// -----------------------------------------------------------------
+void Event::animationBlinkingText(const std::string& text) {
+    std::cout << "\n" << "\033[32m"; // GREEN
+    
+    for (int i = 0; i < 6; i++) {
+        if (i % 2 == 0) {
+            std::cout << "  ► " << text << " ◄\n";
+        } else {
+            std::cout << "                                        \r";
+        }
+        std::cout.flush();
+        usleep(150000); // 150ms delay
+    }
+    std::cout << "  ▶ " << text << " ◀" << "\033[0m" << std::endl;
+    usleep(200000); // 200ms delay
+}
+
+// -----------------------------------------------------------------
+// animationSlidingTitle - Display text sliding across screen
+// Title slides from right to left in bright red
+// Parameters: text - Event name/description to slide
+// Returns: void (displays animation)
+// -----------------------------------------------------------------
+void Event::animationSlidingTitle(const std::string& text) {
+    std::cout << "\n" << "\033[91m"; // BRIGHT RED
+    
+    int screenWidth = 60;
+    for (int pos = screenWidth; pos >= 0; pos--) {
+        std::cout << "  " << std::string(pos, ' ') << ">>> " << text << " <<<\r";
+        std::cout.flush();
+        usleep(30000); // 30ms delay
+    }
+    std::cout << "\n  >>> EVENT TRIGGERED! <<<" << "\033[0m" << std::endl;
+    usleep(200000); // 200ms delay
+}
+
+// -----------------------------------------------------------------
+// randomEventAnimation - Play random animation (no immediate repeats)
+// Selects from 4 different animation styles
+// Ensures the same animation doesn't play 3 times in a row
+// Parameters: eventName - Name of the event to announce
+// Returns: void (displays random animation)
+// -----------------------------------------------------------------
+void Event::randomEventAnimation(const std::string& eventName) {
+    // Pick a random animation (0-3)
+    int selectedAnimation = rand() % 4;
+    
+    // Keep picking if we got the same animation too recently
+    int attempts = 0;
+    while ((selectedAnimation == lastAnimationUsed_ || 
+            selectedAnimation == secondLastAnimation_ ||
+            selectedAnimation == thirdLastAnimation_) && attempts < 10) {
+        selectedAnimation = rand() % 4;
+        attempts++;
+    }
+    
+    // Update animation history
+    thirdLastAnimation_ = secondLastAnimation_;
+    secondLastAnimation_ = lastAnimationUsed_;
+    lastAnimationUsed_ = selectedAnimation;
+    
+    // Call the appropriate animation
+    switch (selectedAnimation) {
+        case 0:
+            animationLoadingBar(eventName);
+            break;
+        case 1:
+            animationSpinningWheel(eventName);
+            break;
+        case 2:
+            animationBlinkingText(eventName);
+            break;
+        case 3:
+            animationSlidingTitle(eventName);
+            break;
     }
 }

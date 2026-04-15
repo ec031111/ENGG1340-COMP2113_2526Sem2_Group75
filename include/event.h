@@ -69,6 +69,31 @@ public:
     // Purpose: Display event information in human-readable format
     // -----------------------------------------------------------------
     static std::string getEventName(EventType event);
+
+    // ===== ANIMATION FUNCTIONS FOR EVENT TRIGGERS =====
+
+    // -----------------------------------------------------------------
+    // randomEventAnimation - Play random flashy animation for event trigger
+    // Automatically selects one of 4 different animation styles
+    // Ensures no same animation repeats within 3 consecutive calls
+    // Animations: Loading bar, spinning wheel, blinking text, sliding title
+    // Parameters: eventName - Name/description of the event to announce
+    // Returns: void (displays animation to terminal)
+    // Purpose: Create exciting visual feedback when random events trigger
+    // -----------------------------------------------------------------
+    static void randomEventAnimation(const std::string& eventName);
+
+private:
+    // Track last used animations to prevent immediate repeats
+    static int lastAnimationUsed_;
+    static int secondLastAnimation_;
+    static int thirdLastAnimation_;
+
+    // Animation helper functions (called by randomEventAnimation)
+    static void animationLoadingBar(const std::string& text);
+    static void animationSpinningWheel(const std::string& text);
+    static void animationBlinkingText(const std::string& text);
+    static void animationSlidingTitle(const std::string& text);
 };
 
 #endif // EVENT_H
