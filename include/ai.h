@@ -38,66 +38,44 @@ enum Difficulty {
 // ---------------------------------------------------------------------
 class AI {
 public:
-    // -----------------------------------------------------------------
-    // Constructor
-    // What it does : creates an AI opponent at the given difficulty.
-    // Input  : difficulty – EASY or HARD
-    // Output : an initialised AI
-    // -----------------------------------------------------------------
+    // Purpose: Create AI opponent at given difficulty level
+    // Input: difficulty (enum) - EASY or HARD
+    // Output: Initialized AI object
     AI(Difficulty difficulty);
 
-    // -----------------------------------------------------------------
-    // Destructor
-    // What it does : frees all dynamically allocated AI units.
-    // Input  : none
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Free all dynamically allocated AI units
+    // Input: none
+    // Output: none
     ~AI();
 
-    // -----------------------------------------------------------------
-    // generateArmy - Build AI army for current round based on difficulty
-    // Calculates AI gold budget (scales with round), creates temporary
-    // shop, and uses difficulty-specific buying strategy
-    // Parameters: round - Current game round (affects AI gold budget)
-    // Purpose: Generate opponent army for this combat round
-    // -----------------------------------------------------------------
+    // Purpose: Generate AI army for current round based on difficulty
+    // Input: round (int) - current game round (affects AI gold budget)
+    // Output: none
     void generateArmy(int round);
 
-    // -----------------------------------------------------------------
-    // placeUnits - Position AI army on board according to difficulty
-    // Delegates to difficulty-specific placement logic for formation
-    // Parameters: board - Game board to place units on
-    // Purpose: Arrange AI army in strategic formation
-    // -----------------------------------------------------------------
+    // Purpose: Position AI army on board in difficulty-specific formation
+    // Input: board (Board reference) - game board to place units on
+    // Output: none
     void placeUnits(Board& board);
 
-    // -----------------------------------------------------------------
-    // clearArmy - Delete all units in AI army and reset inventory
-    // Safely deletes each Unit pointer and clears army_ vector
-    // Purpose: Clean up AI army before next round generation
-    // -----------------------------------------------------------------
+    // Purpose: Delete all units in AI army and reset inventory
+    // Input: none
+    // Output: none
     void clearArmy();
 
-    // -----------------------------------------------------------------
-    // releaseArmy - Clear AI army vector without deleting units
-    // Clears vector without freeing memory (ownership transferred)
-    // Used when units have been transferred to board/combat
-    // Purpose: Reset army list after units placed on board
-    // -----------------------------------------------------------------
+    // Purpose: Clear AI army list without deleting units (ownership transferred)
+    // Input: none
+    // Output: none
     void releaseArmy();
 
-    // -----------------------------------------------------------------
-    // getArmySize - Return number of units in AI army
-    // Returns: Integer count of current army units
-    // Purpose: Query AI army size for game logic and display
-    // -----------------------------------------------------------------
+    // Purpose: Get count of units in AI army
+    // Input: none
+    // Output: int - number of units in army
     int getArmySize() const;
 
-    // -----------------------------------------------------------------
-    // getDifficultyString - Get human-readable difficulty level
-    // Returns: "Easy" or "Hard" string
-    // Purpose: Display current difficulty setting to player
-    // -----------------------------------------------------------------
+    // Purpose: Get human-readable difficulty level string
+    // Input: none
+    // Output: string - "Easy" or "Hard"
     std::string getDifficultyString() const;
 
 private:
@@ -105,40 +83,24 @@ private:
     std::vector<Unit*> army_;  // dynamically allocated units
     int gold_;
 
-    // -----------------------------------------------------------------
-    // buyEasyStrategy - Purchase units using simple cheapest-first approach
-    // Repeatedly refreshes shop and buys cheapest affordable units until
-    // gold runs out or max army size reached
-    // Parameters: shop - Temporary shop to purchase from
-    // Purpose: Implement EASY difficulty AI purchasing behavior
-    // -----------------------------------------------------------------
+    // Purpose: Purchase units using cheapest-first strategy
+    // Input: shop (Shop reference) - temporary shop to purchase from
+    // Output: none
     void buyEasyStrategy(Shop& shop);
 
-    // -----------------------------------------------------------------
-    // buyHardStrategy - Purchase units using score-based optimization
-    // Evaluates each unit with formula: ATK*2 + HP/5
-    // Buys highest-scoring affordable units each iteration
-    // Parameters: shop - Temporary shop to purchase from
-    // Purpose: Implement HARD difficulty AI purchasing behavior
-    // -----------------------------------------------------------------
+    // Purpose: Purchase units using score-based optimization strategy
+    // Input: shop (Shop reference) - temporary shop to purchase from
+    // Output: none
     void buyHardStrategy(Shop& shop);
 
-    // -----------------------------------------------------------------
-    // placeEasy - Place units in front column sequentially
-    // Places all units in front column (AI_MIN_COL), spreading across rows
-    // No strategic positioning = easier for player
-    // Parameters: board - Game board to place units on
-    // Purpose: Implement EASY difficulty unit placement
-    // -----------------------------------------------------------------
+    // Purpose: Place units in front column formation (easy difficulty)
+    // Input: board (Board reference) - game board to place units on
+    // Output: none
     void placeEasy(Board& board);
 
-    // -----------------------------------------------------------------
-    // placeHard - Place units in optimized formation
-    // Separates units by class: tanks/warriors in front, damage in back
-    // Maximizes defensive and offensive positioning for harder challenge
-    // Parameters: board - Game board to place units on
-    // Purpose: Implement HARD difficulty unit placement
-    // -----------------------------------------------------------------
+    // Purpose: Place units in strategic formation (hard difficulty)
+    // Input: board (Board reference) - game board to place units on
+    // Output: none
     void placeHard(Board& board);
 };
 

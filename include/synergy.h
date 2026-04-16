@@ -51,33 +51,19 @@ struct SynergyBonus {
 // -----------------------------------------------------------------
 class Synergy {
 public:
-    // -----------------------------------------------------------------
-    // calculateSynergies
-    // What it does : counts units of each class and applies bonuses.
-    //   Warrior 2+: all units get +5 ATK. 3+: +10 ATK.
-    //   Mage 2+: all Mages get +15% crit. 3+: +30% crit.
-    //   Tank 2+: all Tanks get +20% HP (via heal). 3+: all units +10% HP.
-    //   Assassin 2+: all Assassins get +10 ATK. 3+: +20 ATK, +10% crit.
-    //   Archer 2+: all Archers get +1 range. 3+: +1 range, +5 ATK.
-    // Inputs : units - vector of unit pointers on the board
-    // Output : vector of active SynergyBonus for display
-    // -----------------------------------------------------------------
+    // Purpose: Count units by class and apply stat bonuses (Tier 1/2/3)
+    // Input: units (vector of Unit* references) - units on board
+    // Output: vector of SynergyBonus - active synergies for display
     static std::vector<SynergyBonus> calculateSynergies(std::vector<Unit*>& units);
 
-    // -----------------------------------------------------------------
-    // clearSynergies
-    // What it does : resets all synergy bonuses on the given units.
-    // Input  : units
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Reset all synergy bonuses on given units
+    // Input: units (vector of Unit*) - units to reset
+    // Output: none
     static void clearSynergies(std::vector<Unit*>& units);
 
-    // -----------------------------------------------------------------
-    // displaySynergies
-    // What it does : prints active synergy bonuses to stdout.
-    // Input  : bonuses - vector from calculateSynergies
-    // Output : none (stdout)
-    // -----------------------------------------------------------------
+    // Purpose: Display active synergy bonuses
+    // Input: bonuses (const vector of SynergyBonus) - active synergies
+    // Output: none (prints to stdout)
     static void displaySynergies(const std::vector<SynergyBonus>& bonuses);
 };
 

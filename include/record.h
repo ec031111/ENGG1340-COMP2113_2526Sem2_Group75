@@ -40,10 +40,9 @@ inline std::string getSaveFilePath(int slot) {
 // =====================================================================
 class Record {
 public:
-    // -----------------------------------------------------------------
-    // saveGame - save complete game state including board, shop, phases
-    // Parameters: slot - save slot number (1, 2, or 3)
-    // -----------------------------------------------------------------
+    // Purpose: Save complete game state to file
+    // Input: player, board, shop, ai, currentPhase, currentEvent (references), slot (int)
+    // Output: none
     static void saveGame(const Player& player,
                         const Board& board,
                         const Shop& shop,
@@ -52,11 +51,9 @@ public:
                         EventType currentEvent,
                         int slot = 1);
 
-    // -----------------------------------------------------------------
-    // loadGame - load game state and restore board/shop
-    // Parameters: slot - save slot number (1, 2, or 3)
-    // Returns: true if load successful
-    // -----------------------------------------------------------------
+    // Purpose: Load game state from file and restore board/shop
+    // Input: player, board, shop, ai, currentPhase, currentEvent, shouldResumeShopPhase (references), slot (int)
+    // Output: bool - true if load successful
     static bool loadGame(Player& player,
                          Board& board,
                          Shop& shop,
@@ -66,35 +63,29 @@ public:
                          bool& shouldResumeShopPhase,
                          int slot = 1);
 
-    // -----------------------------------------------------------------
-    // saveRecord - append game result to leaderboard
-    // -----------------------------------------------------------------
+    // Purpose: Append game result to leaderboard file
+    // Input: player, ai (const references)
+    // Output: none
     static void saveRecord(const Player& player, const AI& ai);
 
-    // -----------------------------------------------------------------
-    // displayLeaderboard - show all records sorted by rounds
-    // -----------------------------------------------------------------
+    // Purpose: Display all records sorted by rounds played
+    // Input: none
+    // Output: none (prints to stdout)
     static void displayLeaderboard();
 
-    // -----------------------------------------------------------------
-    // hasSaveFile - check if save file exists
-    // Parameters: slot - save slot number (1, 2, or 3)
-    // -----------------------------------------------------------------
+    // Purpose: Check if save file exists in specified slot
+    // Input: slot (int) - save slot number 1-3
+    // Output: bool - true if save file exists
     static bool hasSaveFile(int slot = 1);
 
-    // -----------------------------------------------------------------
-    // showSavePreview - Display save file preview without loading
-    // Reads Round, HP, and Gold from save file and displays summary
-    // Parameters: slot - save slot number (1, 2, or 3)
-    // Returns: true if preview displayed successfully
-    // -----------------------------------------------------------------
+    // Purpose: Display save file preview without loading
+    // Input: slot (int) - save slot number 1-3
+    // Output: bool - true if preview displayed successfully
     static bool showSavePreview(int slot = 1);
 
-    // -----------------------------------------------------------------
-    // displayAllSlots - Display status of all 3 save slots
-    // Shows which slots are empty/used and their round numbers
-    // Purpose: Help player choose which slot to save/load from
-    // -----------------------------------------------------------------
+    // Purpose: Display status of all 3 save slots
+    // Input: none
+    // Output: none (prints to stdout)
     static void displayAllSlots();
 
 private:

@@ -40,170 +40,195 @@ const int MERGE_COUNT = 3;  // units needed to merge into next star
 // ---------------------------------------------------------------------
 class Unit {
 public:
-    // -----------------------------------------------------------------
-    // Constructor
-    // Inputs : name, unitClass, maxHp, atk, cost, critBonus, attackRange
-    // Output : a fully initialised star-1 Unit object
-    // -----------------------------------------------------------------
+    // Purpose: Initialize a new unit with base stats at star level 1
+    // Input: name (string), unitClass (enum), maxHp, atk, cost (int values), critBonus (optional), attackRange (optional)
+    // Output: Fully initialized Unit object
     Unit(const std::string& name, UnitClass unitClass, int maxHp,
          int atk, int cost, int critBonus = 0, int attackRange = 1);
 
-    // -----------------------------------------------------------------
-    // Copy constructor (deep copy)
-    // Input  : another Unit object
-    // Output : a new Unit with identical stats
-    // -----------------------------------------------------------------
+    // Purpose: Create a deep copy of a unit
+    // Input: other (const Unit reference) - unit to copy
+    // Output: New Unit with identical stats
     Unit(const Unit& other);
 
-    // Getters ----------------------------------------------------------
+    // Purpose: Get unit's display name
+    // Input: none
+    // Output: const string reference - unit name
     std::string getName() const;
-    std::string getBaseName() const;  // name without star suffix
+
+    // Purpose: Get unit's base name without star suffix
+    // Input: none
+    // Output: const string reference - base name
+    std::string getBaseName() const;
+
+    // Purpose: Get unit's class
+    // Input: none
+    // Output: UnitClass enum value
     UnitClass   getClass() const;
+
+    // Purpose: Get unit's current HP
+    // Input: none
+    // Output: int - current health points
     int  getHp() const;
+
+    // Purpose: Get unit's maximum HP
+    // Input: none
+    // Output: int - max health points
     int  getMaxHp() const;
+
+    // Purpose: Get unit's attack power
+    // Input: none
+    // Output: int - attack damage value
     int  getAtk() const;
+
+    // Purpose: Get unit's purchase cost
+    // Input: none
+    // Output: int - gold cost
     int  getCost() const;
+
+    // Purpose: Get unit's row position on board
+    // Input: none
+    // Output: int - row coordinate
     int  getRow() const;
+
+    // Purpose: Get unit's column position on board
+    // Input: none
+    // Output: int - column coordinate
     int  getCol() const;
+
+    // Purpose: Get unit's critical strike bonus
+    // Input: none
+    // Output: int - crit bonus percentage
     int  getCritBonus() const;
+
+    // Purpose: Get unit's attack range
+    // Input: none
+    // Output: int - attack range in squares
     int  getAttackRange() const;
+
+    // Purpose: Get unit's star level
+    // Input: none
+    // Output: int - star level (1-3)
     int  getStarLevel() const;
+
+    // Purpose: Check if unit is still alive
+    // Input: none
+    // Output: bool - true if HP > 0
     bool isAlive() const;
+
+    // Purpose: Check if unit is owned by player
+    // Input: none
+    // Output: bool - true if player unit
     bool isPlayerUnit() const;
+
+    // Purpose: Check if unit is in rage mode
+    // Input: none
+    // Output: bool - true if raging
     bool isRaged() const;
+
+    // Purpose: Get unit's single-character symbol
+    // Input: none
+    // Output: char - character representation
     char getSymbol() const;
+
+    // Purpose: Get unit's string representation
+    // Input: none
+    // Output: string - symbol and star display
     std::string getSymbolString() const;
+
+    // Purpose: Get unit's ability name tag
+    // Input: none
+    // Output: string - ability identifier
     std::string getAbilityTag() const;
 
-    // Setters ----------------------------------------------------------
+    // Purpose: Set unit's position on board
+    // Input: row, col (int) - board coordinates
+    // Output: none
     void setPosition(int row, int col);
+
+    // Purpose: Set whether unit is owned by player
+    // Input: isPlayer (bool) - ownership flag
+    // Output: none
     void setPlayerUnit(bool isPlayer);
 
-    // -----------------------------------------------------------------
-    // takeDamage
-    // What it does : reduces the unit's current HP by `damage`.
-    //                HP will not drop below 0.
-    // Input  : damage - the amount of damage to take
-    // Output : none (modifies internal HP)
-    // -----------------------------------------------------------------
+    // Purpose: Reduce unit's HP by damage amount (minimum 0)
+    // Input: damage (int) - damage to apply
+    // Output: none
     void takeDamage(int damage);
 
-    // -----------------------------------------------------------------
-    // heal
-    // What it does : restores HP by `amount`, capped at maxHp.
-    // Input  : amount - HP to restore
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Restore HP by amount, capped at maxHp
+    // Input: amount (int) - HP to restore
+    // Output: none
     void heal(int amount);
 
-    // -----------------------------------------------------------------
-    // healToFull
-    // What it does : restores HP to maximum (used for resurrection).
-    // Input  : none
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Restore HP to maximum value
+    // Input: none
+    // Output: none
     void healToFull();
 
-    // -----------------------------------------------------------------
-    // getSellPrice
-    // What it does : returns the gold refund (half cost * star level).
-    // Input  : none
-    // Output : integer gold value
-    // -----------------------------------------------------------------
+    // Purpose: Calculate gold refund for selling (half cost * star level)
+    // Input: none
+    // Output: int - gold value
     int getSellPrice() const;
 
-    // -----------------------------------------------------------------
-    // getDistanceTo
-    // What it does : calculates Manhattan distance to another unit.
-    // Inputs : other - pointer to the target unit
-    // Output : integer Manhattan distance
-    // -----------------------------------------------------------------
+    // Purpose: Calculate Manhattan distance to another unit
+    // Input: other (const Unit*) - target unit
+    // Output: int - Manhattan distance
     int getDistanceTo(const Unit* other) const;
 
-    // -----------------------------------------------------------------
-    // getClassString
-    // What it does : returns a human-readable string for the unit class.
-    // Input  : none
-    // Output : string like "Warrior", "Mage", etc.
-    // -----------------------------------------------------------------
+    // Purpose: Get human-readable class name
+    // Input: none
+    // Output: string - class name ("Warrior", "Mage", etc.)
     std::string getClassString() const;
 
-    // -----------------------------------------------------------------
-    // getClassDescription
-    // What it does : returns a one-line lore description for a unit class.
-    // Input  : cls - the UnitClass to describe
-    // Output : string with flavor text for that class
-    // -----------------------------------------------------------------
+    // Purpose: Get flavor text description for unit class
+    // Input: cls (UnitClass) - class to describe
+    // Output: string - lore description for class
     static std::string getClassDescription(UnitClass cls);
 
-    // -----------------------------------------------------------------
-    // getStarString
-    // What it does : returns star display like "*", "**", "***"
-    // Input  : none
-    // Output : string of stars
-    // -----------------------------------------------------------------
+    // Purpose: Get star level display string
+    // Input: none
+    // Output: string - "*", "**", or "***"
     std::string getStarString() const;
 
-    // -----------------------------------------------------------------
-    // upgrade
-    // What it does : increases star level and scales stats.
-    //                Star 2 = 1.8x HP, 1.5x ATK.
-    //                Star 3 = 3.0x HP, 2.5x ATK (from base).
-    // Input  : none
-    // Output : none (modifies stats)
-    // -----------------------------------------------------------------
+    // Purpose: Increase star level and scale stats (1.8x/1.5x for star 2, 3.0x/2.5x for star 3)
+    // Input: none
+    // Output: none
     void upgrade();
 
-    // -----------------------------------------------------------------
-    // forceSetStarLevel
-    // What it does : sets the star level directly WITHOUT rescaling stats.
-    //                Used by the load system when stats are already saved
-    //                post-upgrade.
-    // Input  : level – the target star level (1-3)
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Set star level directly without rescaling stats (for loading saved units)
+    // Input: level (int) - target star level 1-3
+    // Output: none
     void forceSetStarLevel(int level);
 
-    // -----------------------------------------------------------------
-    // applyAtkBonus / applyCritBonus
-    // What it does : adds a flat bonus to ATK or crit chance.
-    //                Used by the synergy system.
-    // Input  : bonus amount
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Add flat bonus to attack power (synergy bonus)
+    // Input: bonus (int) - ATK bonus amount
+    // Output: none
     void applyAtkBonus(int bonus);
+
+    // Purpose: Add flat bonus to critical strike chance (synergy bonus)
+    // Input: bonus (int) - crit bonus amount
+    // Output: none
     void applyCritBonus(int bonus);
 
-    // -----------------------------------------------------------------
-    // resetBonuses
-    // What it does : removes synergy bonuses (resets to base stats).
-    // Input  : none
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Remove all synergy bonuses and reset to base stats
+    // Input: none
+    // Output: none
     void resetBonuses();
 
-    // -----------------------------------------------------------------
-    // clearRage
-    // What it does : resets the rage flag. Called at start of each combat.
-    // Input  : none
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Reset rage flag at start of combat
+    // Input: none
+    // Output: none
     void clearRage();
 
-    // -----------------------------------------------------------------
-    // setRaged
-    // What it does : marks the unit as having entered rage mode.
-    // Input  : none
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Mark unit as entered rage mode
+    // Input: none
+    // Output: none
     void setRaged();
 
-    // -----------------------------------------------------------------
-    // getDisplayName
-    // What it does : returns name with star indicator, e.g. "Warrior**"
-    // Input  : none
-    // Output : string
-    // -----------------------------------------------------------------
+    // Purpose: Get display name with star indicator (e.g. "Warrior**")
+    // Input: none
+    // Output: string - formatted name with stars
     std::string getDisplayName() const;
 
 private:

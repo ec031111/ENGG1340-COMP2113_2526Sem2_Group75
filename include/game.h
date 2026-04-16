@@ -89,54 +89,39 @@ const int PVE_EQUIPMENT_REWARD = 1;    // Number of random units given as reward
 // ---------------------------------------------------------------------
 class Game {
 public:
-    // -----------------------------------------------------------------
-    // Constructor - Initialize game with specified difficulty
-    // Parameters: difficulty - EASY or HARD (affects AI strategy)
-    // -----------------------------------------------------------------
+    // Purpose: Initialize game with specified difficulty
+    // Input: difficulty (enum) - EASY or HARD
+    // Output: Initialized Game object
     Game(Difficulty difficulty);
 
-    // -----------------------------------------------------------------
-    // Destructor - Clean up game resources and dynamically allocated memory
-    // -----------------------------------------------------------------
+    // Purpose: Clean up game resources and dynamically allocated memory
+    // Input: none
+    // Output: none
     ~Game();
 
-    // -----------------------------------------------------------------
-    // run - Main game loop orchestrating all phases until player loses
-    // Game Flow: SHOP -> EVENT -> BATTLE -> RESULT -> REPEAT until HP=0
-    // Description: Coordinates all gameplay phases in sequence:
-    //              1. SHOP: Player buys/sells/places units
-    //              2. EVENT: Random event effects (gold, healing, etc.)
-    //              3. BATTLE: Auto-combat between armies
-    //              4. RESULT: Process outcome, damage, rewards, merging
-    // Parameters: showIntro - Display story intro (true for new games)
-    // Returns: Final score = number of rounds survived before defeat
-    // Purpose: Core game engine loop managing entire game progression
-    // -----------------------------------------------------------------
+    // Purpose: Main game loop orchestrating all phases until player loses
+    // Input: showIntro (bool) - whether to display story intro
+    // Output: int - rounds survived
     int run(bool showIntro = true);
 
-    // -----------------------------------------------------------------
-    // File I/O methods
-    // -----------------------------------------------------------------
-    // saveRecord - Save final score and game stats to leaderboard
-    // -----------------------------------------------------------------
+    // Purpose: Save final score and game stats to leaderboard
+    // Input: none
+    // Output: none
     void saveRecord() const;
 
-    // -----------------------------------------------------------------
-    // saveGame - Save complete game state for later resumption
-    // Saves: player HP/gold/round, bench units, board state
-    // -----------------------------------------------------------------
+    // Purpose: Save complete game state for later resumption
+    // Input: none
+    // Output: none
     void saveGame() const;
 
-    // -----------------------------------------------------------------
-    // loadGame - Load previously saved game state
-    // Returns: true if save file exists and loads successfully
-    // -----------------------------------------------------------------
+    // Purpose: Load previously saved game state
+    // Input: none
+    // Output: bool - true if save file exists and loads successfully
     bool loadGame();
 
-    // -----------------------------------------------------------------
-    // displayLeaderboard - Static method to show all saved game records
-    // Displays ranked list of scores and player performance
-    // -----------------------------------------------------------------
+    // Purpose: Display ranked list of all saved game records
+    // Input: none
+    // Output: none (prints to stdout)
     static void displayLeaderboard();
 
     // Accessors for persistence layer
@@ -165,194 +150,149 @@ private:
     bool shouldResumeShopPhase_;  // flag to resume shop phase from saved game
 
     // --- Phase handlers ---
-    // -----------------------------------------------------------------
-    // shopPhase - Player shopping and formation setup phase
-    // Main loop where players buy/sell units, arrange formation,
-    // manage resources, and prepare for battles
-    // -----------------------------------------------------------------
+    // Purpose: Handle player shopping and formation setup phase
+    // Input: none
+    // Output: none
     void shopPhase();
 
-    // -----------------------------------------------------------------
-    // battlePhase - Initialize combat between player and AI armies
-    // Sets up board, positions units, and initiates combat resolution
-    // Returns: false if combat should be skipped
-    // -----------------------------------------------------------------
+    // Purpose: Initialize combat between player and AI armies
+    // Input: none
+    // Output: bool - false if combat should be skipped
     bool battlePhase();
 
-    // -----------------------------------------------------------------
-    // displayMilestoneAnimation - Show celebratory animation at rounds 5/10/15/20
-    // Shows milestone achievement with visual effects and messages
-    // -----------------------------------------------------------------
+    // Purpose: Show celebratory animation at milestone rounds (5/10/15/20)
+    // Input: round (int) - current round number
+    // Output: none (displays animation)
     void displayMilestoneAnimation(int round) const;
 
     // --- Combat ---
-    // -----------------------------------------------------------------
-    // resolveCombat - Execute tick-by-tick combat simulation
-    // Processes attack rounds until one army is eliminated
-    // Parameters: deadUnits - Vector to collect defeated units
-    // Returns: true if player won this round
-    // -----------------------------------------------------------------
+    // Purpose: Execute tick-by-tick combat simulation until one army eliminated
+    // Input: deadUnits (vector reference) - collect defeated units
+    // Output: bool - true if player won this round
     bool resolveCombat(std::vector<Unit*>& deadUnits);
 
-    // -----------------------------------------------------------------
-    // performAttack - Execute single unit attack with damage calculation
-    // Includes damage roll, critical hit chance, and damage application
-    // Returns: Actual damage dealt to defender
-    // -----------------------------------------------------------------
+    // Purpose: Execute single unit attack with damage calculation and crit chance
+    // Input: attacker, defender (Unit* pointers)
+    // Output: int - actual damage dealt
     int  performAttack(Unit* attacker, Unit* defender);
 
-    // -----------------------------------------------------------------
-    // performAbility - Trigger unit-class special ability
-    // Warrior: Rage mode (double turn), Mage: AOE, Tank: Block, etc.
-    // Parameters: allUnits - All units on board for AOE/multi-target effects
-    // -----------------------------------------------------------------
+    // Purpose: Trigger unit class special ability (Warrior/Mage/Tank/etc.)
+    // Input: attacker (Unit*), defender (Unit*), allUnits (vector reference)
+    // Output: none
     void performAbility(Unit* attacker, Unit* defender, std::vector<Unit*>& allUnits);
 
-    // -----------------------------------------------------------------
-    // cleanupDeadUnits - Remove defeated units from board and track them
-    // Collects killed units in deadUnits vector for later processing
-    // -----------------------------------------------------------------
+    // Purpose: Remove defeated units from board and track them
+    // Input: deadUnits (vector reference) - collect killed units
+    // Output: none
     void cleanupDeadUnits(std::vector<Unit*>& deadUnits);
 
     // --- Unit merging (3 -> 1 upgrade) ---
-    // -----------------------------------------------------------------
-    // checkAndMerge - Auto-merge: 3 identical star-N units → 1 star-(N+1)
-    // Automatically upgrades units when merge conditions are met
-    // -----------------------------------------------------------------
+    // Purpose: Auto-merge 3 identical star-N units into 1 star-(N+1) unit
+    // Input: none
+    // Output: none
     void checkAndMerge();
 
     // --- Events ---
-    // -----------------------------------------------------------------
-    // handleEvent - Process and apply event effects for current round
-    // Applies random event (gold bonus, healing, etc.) and displays result
-    // -----------------------------------------------------------------
+    // Purpose: Process and apply event effects for current round
+    // Input: none
+    // Output: none
     void handleEvent();
 
     // --- Free unit for EVENT_RANDOM_FREE_UNIT ---
-    // -----------------------------------------------------------------
-    // giveRandomFreeUnit - Grant player free unit from random event
-    // Creates temporary shop, picks random unit, adds to player bench
-    // -----------------------------------------------------------------
+    // Purpose: Grant player free unit from random event
+    // Input: none
+    // Output: none
     void giveRandomFreeUnit();
 
     // --- UI ---
-    // -----------------------------------------------------------------
-    // printHelp - Display command reference and game help information
-    // Shows all available commands and their descriptions
-    // -----------------------------------------------------------------
+    // Purpose: Display command reference and game help information
+    // Input: none
+    // Output: none (prints to stdout)
     void printHelp() const;
 
-    // -----------------------------------------------------------------
-    // printCommandTips - Display quick command tips during gameplay
-    // Short reference for common commands (buy, sell, place, etc.)
-    // -----------------------------------------------------------------
+    // Purpose: Display quick command tips during gameplay
+    // Input: none
+    // Output: none (prints to stdout)
     void printCommandTips() const;
 
-    // -----------------------------------------------------------------
-    // printStatusBar - Show compact player stats (HP, Gold, Round, Streaks)
-    // One-line status summary for during gameplay
-    // -----------------------------------------------------------------
+    // Purpose: Show compact player stats (HP, Gold, Round, Streaks)
+    // Input: none
+    // Output: none (prints to stdout)
     void printStatusBar() const;
 
-    // -----------------------------------------------------------------
-    // printDeployLimit - Show current/max unit deployment count
-    // Displays "Units deployed: X/Y" for current round
-    // -----------------------------------------------------------------
+    // Purpose: Show current vs max unit deployment count
+    // Input: none
+    // Output: none (prints to stdout)
     void printDeployLimit() const;
 
-    // -----------------------------------------------------------------
-    // printFormation - Display player unit formation with HP bars
-    // Visual confirmation of army composition before battle
-    // -----------------------------------------------------------------
+    // Purpose: Display player unit formation with HP bars
+    // Input: none
+    // Output: none (prints to stdout)
     void printFormation() const;
 
-    // -----------------------------------------------------------------
-    // showIntro - Display narrative story introduction for new game sessions
-    // Shows opening story about realm, characters, and player mission
-    // -----------------------------------------------------------------
+    // Purpose: Display narrative story introduction for new game sessions
+    // Input: none
+    // Output: none (prints to stdout)
     void showIntro() const;
 
-    // -----------------------------------------------------------------
-    // setCombatPace - Set battle display pace (0-3 levels)
-    // Levels: 0=SLOW (extra delay), 1=NORMAL (wait input), 2=FAST (600ms), 3=FASTEST (instant)
-    // -----------------------------------------------------------------
+    // Purpose: Set battle display pace level
+    // Input: pace (int) - 0=SLOW, 1=NORMAL, 2=FAST, 3=FASTEST
+    // Output: none
     void setCombatPace(int pace);
 
-    // -----------------------------------------------------------------
-    // getCombatPace - Get current battle display pace setting
-    // Returns: Current pace level (0-3)
-    // -----------------------------------------------------------------
+    // Purpose: Get current battle display pace setting
+    // Input: none
+    // Output: int - pace level (0-3)
     int getCombatPace() const;
 
-    // -----------------------------------------------------------------
-    // getMaxDeployUnits - Get deployment limit for current round
-    // Scaling: Round 1-3: 3-5 units, Round 4+: 6 units (capped at round 20)
-    // Returns: Maximum units allowed this round
-    // -----------------------------------------------------------------
+    // Purpose: Get deployment limit for current round
+    // Input: none
+    // Output: int - maximum units allowed this round
     int getMaxDeployUnits() const;
 
-    // -----------------------------------------------------------------
-    // showBattleRewards - Display colored rewards information after battle
-    // Shows win/loss streak bonuses, interest earned, and total new gold
-    // Parameters: playerWon - whether player won the battle
-    // -----------------------------------------------------------------
+    // Purpose: Display colored rewards information after battle
+    // Input: playerWon (bool) - whether player won the battle
+    // Output: none (prints to stdout)
     void showBattleRewards(bool playerWon);
 
-    // -----------------------------------------------------------------
-    // getRoundType - Determine the type of round (PVE/EVENT/PVP)
-    // Parameters: round - the round number (1-indexed)
-    // Returns: RoundType enum indicating the round type
-    // -----------------------------------------------------------------
+    // Purpose: Determine the type of round (PVE/EVENT/PVP)
+    // Input: round (int) - round number (1-indexed)
+    // Output: RoundType - enum indicating round type
     RoundType getRoundType(int round) const;
 
-    // -----------------------------------------------------------------
-    // pvePhase - Handle PVE battle against weak monsters
-    // Creates simple monsters based on round difficulty
-    // Returns: true if player won the PVE battle
-    // -----------------------------------------------------------------
+    // Purpose: Handle PVE battle against weak monsters
+    // Input: none
+    // Output: bool - true if player won the PVE battle
     bool pvePhase();
 
-    // -----------------------------------------------------------------
-    // eventPhase - Handle special event round with direct rewards
-    // Gives players immediate rewards without combat
-    // -----------------------------------------------------------------
+    // Purpose: Handle special event round with direct rewards
+    // Input: none
+    // Output: none
     void eventPhase();
 
-    // -----------------------------------------------------------------
-    // createPveMonsters - Create array of weak monsters for PVE round
-    // Parameters: round - the current round number (affects scale)
-    // Returns: Vector of monster units to fight
-    // -----------------------------------------------------------------
+    // Purpose: Create array of weak monsters for PVE round
+    // Input: round (int) - current round number (affects scale)
+    // Output: vector of Unit* - monster units to fight
     std::vector<Unit*> createPveMonsters(int round);
 
-    // -----------------------------------------------------------------
-    // initializeLog - Initialize battle log file for this game session
-    // Creates a new log file with timestamp
-    // -----------------------------------------------------------------
+    // Purpose: Initialize battle log file for this game session
+    // Input: none
+    // Output: none
     void initializeLog();
 
-    // -----------------------------------------------------------------
-    // writeToLog - Write round information to the battle log file
-    // Parameters:
-    //   round - current round number
-    //   won - whether the player won this round
-    //   gold - current player gold amount
-    //   winStreak - current win streak count
-    //   eventTriggered - whether an event was triggered this round
-    // -----------------------------------------------------------------
+    // Purpose: Write round information to the battle log file
+    // Input: round, won (bool), gold, winStreak, eventTriggered (bool)
+    // Output: none
     void writeToLog(int round, bool won, int gold, int winStreak, bool eventTriggered);
 
-    // -----------------------------------------------------------------
-    // displayLogWithBattleReport - Show battle report and log side by side
-    // Displays both stats in parallel columns for better visualization
-    // -----------------------------------------------------------------
+    // Purpose: Display battle report and log side by side
+    // Input: none
+    // Output: none (prints to stdout)
     void displayLogWithBattleReport();
 
-    // -----------------------------------------------------------------
-    // performAutosave - Automatically save game to slot 1 after each round
-    // Silent operation for background saving, minimal console output
-    // Called automatically after each round completes
-    // -----------------------------------------------------------------
+    // Purpose: Automatically save game to slot 1 after each round
+    // Input: none
+    // Output: none (silent operation)
     void performAutosave();
 
 private:

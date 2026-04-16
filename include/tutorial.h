@@ -42,67 +42,55 @@ public:
     Tutorial();
     ~Tutorial();
 
-    // -----------------------------------------------------------------
-    // run - Main entry point for tutorial system
-    // Description: Displays menu for skipping or starting tutorial.
-    //              Guides players through game mechanics sequentially.
-    // Returns: true if tutorial completed or skipped, false if quit
-    // -----------------------------------------------------------------
+    // Purpose: Display main tutorial menu and guide through lessons
+    // Input: none
+    // Output: bool - true if completed/skipped, false if quit
     bool run();
 
     // Individual lesson methods (return false if user quits to menu)
-    // -----------------------------------------------------------------
-    // lessonIntro - Welcome and objective introduction
-    // Explains game goal: survive as many rounds as possible
-    // -----------------------------------------------------------------
+    // Purpose: Teach game goal and introductory concepts
+    // Input: none
+    // Output: bool - false if user quits to menu
     bool lessonIntro();
 
-    // -----------------------------------------------------------------
-    // lessonShop - Learn shop system mechanics
-    // Teaching: buying, selling, refreshing shop, gold management
-    // -----------------------------------------------------------------
+    // Purpose: Teach shop system mechanics and purchasing
+    // Input: none
+    // Output: bool - false if user quits to menu
     bool lessonShop();
 
-    // -----------------------------------------------------------------
-    // lessonUnits - Understand unit system and classes
-    // Teaching: unit attributes, classes, abilities, star levels
-    // -----------------------------------------------------------------
+    // Purpose: Teach unit attributes, classes, abilities, and star levels
+    // Input: none
+    // Output: bool - false if user quits to menu
     bool lessonUnits();
 
-    // -----------------------------------------------------------------
-    // lessonPlacement - Learn unit deployment and formation
-    // Teaching: placing units on board, formation strategy
-    // -----------------------------------------------------------------
+    // Purpose: Teach unit deployment and formation strategy
+    // Input: none
+    // Output: bool - false if user quits to menu
     bool lessonPlacement();
 
-    // -----------------------------------------------------------------
-    // lessonCombat - Understand combat mechanics
-    // Teaching: attack resolution, damage, abilities in combat
-    // -----------------------------------------------------------------
+    // Purpose: Teach combat mechanics and attack resolution
+    // Input: none
+    // Output: bool - false if user quits to menu
     bool lessonCombat();
 
-    // -----------------------------------------------------------------
-    // lessonSynergy - Learn synergy system and team composition
-    // Teaching: class synergies, bonuses for matching unit types
-    // -----------------------------------------------------------------
+    // Purpose: Teach synergy system and class bonuses
+    // Input: none
+    // Output: bool - false if user quits to menu
     bool lessonSynergy();
 
-    // -----------------------------------------------------------------
-    // lessonGoldManagement - Master gold economy and resources
-    // Teaching: income, interest, spending strategy, streaks
-    // -----------------------------------------------------------------
+    // Purpose: Teach gold economy, income, and spending strategy
+    // Input: none
+    // Output: bool - false if user quits to menu
     bool lessonGoldManagement();
 
-    // -----------------------------------------------------------------
-    // lessonLevelUp - Understand unit merging and upgrading
-    // Teaching: how to merge 3 units into 1 higher star, progression
-    // -----------------------------------------------------------------
+    // Purpose: Teach unit merging mechanic and progression
+    // Input: none
+    // Output: bool - false if user quits to menu
     bool lessonLevelUp();
 
-    // -----------------------------------------------------------------
-    // lessonCompletion - Final congratulations and tips
-    // Summary of key concepts and encouragement to play
-    // -----------------------------------------------------------------
+    // Purpose: Display congratulations and final tips
+    // Input: none
+    // Output: bool - false if user quits to menu
     bool lessonCompletion();
 
 private:
@@ -110,60 +98,49 @@ private:
     int currentLessonIndex_;  // Track current lesson for progress display
 
     // Helper methods
-    // -----------------------------------------------------------------
-    // displayLesson - Show lesson content with formatted display
-    // Parameters: title - Lesson title, content - Paragraphs of text
-    //             current - Progress index, total - Total lessons
-    // -----------------------------------------------------------------
+    // Purpose: Display formatted lesson content with progress bar
+    // Input: title (string), content (vector of strings), current (int), total (int)
+    // Output: none (prints to stdout)
     void displayLesson(const std::string& title, const std::vector<std::string>& content, int current = 0, int total = 9);
 
-    // -----------------------------------------------------------------
-    // printBox - Print text in formatted box with borders
-    // Parameters: text - Content to display, width - Box width
-    // -----------------------------------------------------------------
+    // Purpose: Print text in formatted box with borders
+    // Input: text (const string), width (int) - box width
+    // Output: none (prints to stdout)
     void printBox(const std::string& text, int width = 60);
 
-    // -----------------------------------------------------------------
-    // clearScreen - Clear terminal display (cross-platform)
-    // Platform: Windows (cls) and Linux/macOS (clear)
-    // -----------------------------------------------------------------
+    // Purpose: Clear terminal display (cross-platform)
+    // Input: none
+    // Output: none
     void clearScreen() const;
 
-    // -----------------------------------------------------------------
-    // getUserChoice - Prompt for user input with menu option hint
-    // Returns: User input string (exit via 'menu' command)
-    // -----------------------------------------------------------------
+    // Purpose: Get user input string with menu option hint
+    // Input: none
+    // Output: string - user input (enter 'menu' to exit)
     std::string getUserChoice();
 
-    // -----------------------------------------------------------------
-    // waitForInput - Pause execution until user presses Enter
-    // Purpose: Control pacing during tutorial lessons
-    // -----------------------------------------------------------------
+    // Purpose: Pause execution until user presses Enter
+    // Input: none
+    // Output: none
     void waitForInput();
 
-    // -----------------------------------------------------------------
-    // printEncouragement - Display motivational messages
-    // Purpose: Encourage player progress through lessons
-    // -----------------------------------------------------------------
+    // Purpose: Display motivational messages to encourage progress
+    // Input: none
+    // Output: none (prints to stdout)
     void printEncouragement();
 
-    // -----------------------------------------------------------------
-    // printProgressBar - Show tutorial progress (X of Y lessons)
-    // Parameters: current - Completed lesson count, total - Total lessons
-    // -----------------------------------------------------------------
+    // Purpose: Display tutorial progress bar
+    // Input: current (int) - completed lesson count, total (int) - total lessons
+    // Output: none (prints to stdout)
     void printProgressBar(int current, int total);
 
-    // -----------------------------------------------------------------
-    // demonstrateFullGameplay - Show sample game round automatically
-    // Purpose: Demonstrate real gameplay flow for player learning
-    // -----------------------------------------------------------------
+    // Purpose: Automatically demonstrate real gameplay flow
+    // Input: none
+    // Output: none (displays sample game round)
     void demonstrateFullGameplay();
 
-    // -----------------------------------------------------------------
-    // getDisplayWidth - Calculate console display width excluding ANSI codes
-    // Handles: Color codes, emoji, UTF-8 multi-byte characters
-    // Returns: Visual width for alignment and formatting
-    // -----------------------------------------------------------------
+    // Purpose: Calculate visual display width excluding ANSI codes and UTF-8
+    // Input: str (const string) - string to measure
+    // Output: int - visual display width
     int getDisplayWidth(const std::string& str) const;
 };
 

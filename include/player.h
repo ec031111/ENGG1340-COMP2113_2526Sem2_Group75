@@ -40,133 +40,124 @@ const int INTEREST_PER_10 = 1;    // earn 1 gold per 10 gold saved, max 5
 // ---------------------------------------------------------------------
 class Player {
 public:
-    // -----------------------------------------------------------------
-    // Constructor
-    // What it does : initialises the player with starting HP and gold.
-    // Input  : name – player display name
-    // Output : a fully initialised Player
-    // -----------------------------------------------------------------
+    // Purpose: Initialize player with starting HP and gold
+    // Input: name (const string reference) - player display name
+    // Output: Fully initialized Player object
     Player(const std::string& name = "Player");
 
-    // -----------------------------------------------------------------
-    // Destructor
-    // What it does : frees all dynamically allocated units on the bench.
-    // Input  : none
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Free all dynamically allocated units on the bench
+    // Input: none
+    // Output: none
     ~Player();
 
-    // Getters ----------------------------------------------------------
+    // Purpose: Get player's name
+    // Input: none
+    // Output: const string reference - player name
     std::string getName() const;
+
+    // Purpose: Get player's current HP
+    // Input: none
+    // Output: int - current health points
     int  getHp() const;
+
+    // Purpose: Get player's current gold
+    // Input: none
+    // Output: int - current gold amount
     int  getGold() const;
+
+    // Purpose: Get number of units on bench
+    // Input: none
+    // Output: int - bench size
     int  getBenchSize() const;
+
+    // Purpose: Get current win streak counter
+    // Input: none
+    // Output: int - win streak count
     int  getWinStreak() const;
+
+    // Purpose: Get current loss streak counter
+    // Input: none
+    // Output: int - loss streak count
     int  getLossStreak() const;
+
+    // Purpose: Get total rounds played
+    // Input: none
+    // Output: int - rounds played count
     int  getRoundsPlayed() const;
+
+    // Purpose: Check if player is still alive
+    // Input: none
+    // Output: bool - true if HP > 0
     bool isAlive() const;
 
-    // -----------------------------------------------------------------
-    // addGold / spendGold
-    // What it does : adjusts the player's gold balance.
-    // Input  : amount – positive integer
-    // Output : spendGold returns false if insufficient funds
-    // -----------------------------------------------------------------
+    // Purpose: Add gold to player's balance
+    // Input: amount (int) - gold to add
+    // Output: none
     void addGold(int amount);
+
+    // Purpose: Spend gold from player's balance
+    // Input: amount (int) - gold to spend
+    // Output: bool - false if insufficient funds, true otherwise
     bool spendGold(int amount);
 
-    // -----------------------------------------------------------------
-    // takeDamage
-    // What it does : reduces player HP (floors at 0).
-    // Input  : damage – positive integer
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Reduce player HP by damage amount (minimum 0)
+    // Input: damage (int) - damage to apply
+    // Output: none
     void takeDamage(int damage);
 
-    // -----------------------------------------------------------------
-    // addToBench
-    // What it does : adds a unit to the bench. The player takes
-    //                ownership of the unit's memory.
-    // Input  : unit – dynamically allocated Unit*
-    // Output : true if bench has space, false otherwise
-    // -----------------------------------------------------------------
+    // Purpose: Add unit to bench (player takes ownership of memory)
+    // Input: unit (Unit* pointer) - dynamically allocated unit
+    // Output: bool - true if added, false if bench is full
     bool addToBench(Unit* unit);
 
-    // -----------------------------------------------------------------
-    // removeFromBench
-    // What it does : removes a unit from the bench by index.
-    //                Returns the pointer (caller takes ownership).
-    // Input  : index – 0-based bench index
-    // Output : Unit* on success, nullptr if invalid index
-    // -----------------------------------------------------------------
+    // Purpose: Remove unit from bench by index (caller takes ownership)
+    // Input: index (int) - 0-based bench index
+    // Output: Unit* - pointer to removed unit or nullptr if invalid
     Unit* removeFromBench(int index);
 
-    // -----------------------------------------------------------------
-    // sellUnit
-    // What it does : removes a unit from the bench, adds its sell price
-    //                to gold, and deletes the unit.
-    // Input  : index – bench index
-    // Output : true on success
-    // -----------------------------------------------------------------
+    // Purpose: Sell unit from bench and add sell price to gold
+    // Input: index (int) - bench index
+    // Output: bool - true if sold successfully, false if invalid index
     bool sellUnit(int index);
 
-    // -----------------------------------------------------------------
-    // getBenchUnit
-    // What it does : peeks at a bench slot without removing.
-    // Input  : index
-    // Output : Unit* or nullptr
-    // -----------------------------------------------------------------
+    // Purpose: Get unit from bench without removing
+    // Input: index (int) - bench index
+    // Output: Unit* - pointer to unit or nullptr if invalid
     Unit* getBenchUnit(int index) const;
 
-    // -----------------------------------------------------------------
-    // displayBench
-    // What it does : prints the bench contents to stdout.
-    // Input  : none
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Display all units on bench
+    // Input: none
+    // Output: none (prints to stdout)
     void displayBench() const;
 
-    // -----------------------------------------------------------------
-    // displayStatus
-    // What it does : prints HP, gold, and streak info.
-    // Input  : none
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Display player status (HP, gold, streaks)
+    // Input: none
+    // Output: none (prints to stdout)
     void displayStatus() const;
 
-    // -----------------------------------------------------------------
-    // startNewRound
-    // What it does : gives the player their round income (base gold +
-    //                streak bonus) and increments the round counter.
-    // Input  : none
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Award round income (base gold + streak bonus) and increment round counter
+    // Input: none
+    // Output: none
     void startNewRound();
 
-    // -----------------------------------------------------------------
-    // recordWin / recordLoss
-    // What it does : updates the win/loss streak counters.
-    // Input  : none
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Record a win and update win/loss streak
+    // Input: none
+    // Output: none
     void recordWin();
+
+    // Purpose: Record a loss and update win/loss streak
+    // Input: none
+    // Output: none
     void recordLoss();
 
-    // -----------------------------------------------------------------
-    // getBench (const reference)
-    // What it does : provides read access to the bench vector.
-    // Input  : none
-    // Output : const reference to bench_
-    // -----------------------------------------------------------------
+    // Purpose: Get read-only access to bench vector
+    // Input: none
+    // Output: const reference to bench_ vector
     const std::vector<Unit*>& getBench() const;
 
-    // -----------------------------------------------------------------
-    // loadState
-    // What it does : restores player state from saved values.
-    //                Clears current bench before loading.
-    // Inputs : hp, gold, rounds, winStreak, lossStreak
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Restore player state from saved values (clears bench first)
+    // Input: hp, gold, rounds, winStreak, lossStreak (int) - saved state values
+    // Output: none
     void loadState(int hp, int gold, int rounds, int winStreak, int lossStreak);
 
 private:

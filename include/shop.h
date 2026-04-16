@@ -45,71 +45,44 @@ struct UnitTemplate {
 // ---------------------------------------------------------------------
 class Shop {
 public:
-    // -----------------------------------------------------------------
-    // Constructor
-    // What it does : builds the internal unit template pool.
-    // Input  : none
-    // Output : a Shop with an initialised template pool
-    // -----------------------------------------------------------------
+    // Purpose: Initialize shop with unit template pool
+    // Input: none
+    // Output: Shop object with initialized template pool
     Shop();
 
-    // -----------------------------------------------------------------
-    // Destructor
-    // What it does : deletes any unsold units still in the shop slots.
-    // Input  : none
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Delete unsold units still in shop slots
+    // Input: none
+    // Output: none
     ~Shop();
 
-    // -----------------------------------------------------------------
-    // refresh
-    // What it does : clears current shop slots (deleting unsold units)
-    //                and generates SHOP_SIZE new random units using `new`.
-    // Input  : none
-    // Output : none (populates slots_)
-    // -----------------------------------------------------------------
+    // Purpose: Clear current shop and generate SHOP_SIZE new random units
+    // Input: none
+    // Output: none
     void refresh();
 
-    // -----------------------------------------------------------------
-    // buyUnit
-    // What it does : removes the unit at the given slot from the shop
-    //                and returns ownership to the caller. The caller is
-    //                now responsible for deleting it.
-    // Input  : slotIndex – 0-based shop slot
-    // Output : Unit* if slot is valid and occupied, nullptr otherwise
-    // -----------------------------------------------------------------
+    // Purpose: Remove and return unit from shop slot to caller
+    // Input: slotIndex (int) - 0-based shop slot
+    // Output: Unit* - pointer to removed unit or nullptr if invalid
     Unit* buyUnit(int slotIndex);
 
-    // -----------------------------------------------------------------
-    // display
-    // What it does : prints the current shop contents to stdout.
-    // Input  : none
-    // Output : none (prints to stdout)
-    // -----------------------------------------------------------------
+    // Purpose: Display current shop contents
+    // Input: none
+    // Output: none (prints to stdout)
     void display() const;
 
-    // -----------------------------------------------------------------
-    // getUnit
-    // What it does : returns a pointer to a unit in a slot (no removal).
-    // Input  : slotIndex
-    // Output : Unit* or nullptr
-    // -----------------------------------------------------------------
+    // Purpose: Get pointer to unit in slot without removing
+    // Input: slotIndex (int) - shop slot
+    // Output: Unit* - pointer to unit or nullptr if invalid
     Unit* getUnit(int slotIndex) const;
 
-    // -----------------------------------------------------------------
-    // getRefreshCost
-    // What it does : returns the gold cost to refresh the shop.
-    // Input  : none
-    // Output : integer cost
-    // -----------------------------------------------------------------
+    // Purpose: Get gold cost to refresh shop
+    // Input: none
+    // Output: int - refresh cost
     int getRefreshCost() const;
 
-    // -----------------------------------------------------------------
-    // setPlayerGold
-    // What it does : updates the gold reference for affordability display.
-    // Input  : gold – current player gold
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Update stored player gold for affordability display
+    // Input: gold (int) - current player gold
+    // Output: none
     void setPlayerGold(int gold);
 
 private:
@@ -117,20 +90,14 @@ private:
     std::vector<Unit*>        slots_;         // current SHOP_SIZE offerings
     int playerGoldRef_;                       // for affordability display
 
-    // -----------------------------------------------------------------
-    // initTemplatePool
-    // What it does : populates templatePool_ with all unit blueprints.
-    // Input  : none
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Populate template pool with all available unit blueprints
+    // Input: none
+    // Output: none
     void initTemplatePool();
 
-    // -----------------------------------------------------------------
-    // clearSlots
-    // What it does : deletes all units still in slots_ and clears the vector.
-    // Input  : none
-    // Output : none
-    // -----------------------------------------------------------------
+    // Purpose: Delete all units in slots and clear the vector
+    // Input: none
+    // Output: none
     void clearSlots();
 };
 

@@ -39,100 +39,89 @@ class Board {
 public:
     // -----------------------------------------------------------------
     // Constructor
-    // What it does : creates an empty BOARD_ROWS x BOARD_COLS grid
-    //                with all cells set to nullptr.
-    // Input  : none
-    // Output : an initialised Board object
+    // Purpose: Creates an empty BOARD_ROWS x BOARD_COLS grid with all cells set to nullptr
+    // Input: none
+    // Output: Initialised Board object
     // -----------------------------------------------------------------
     Board();
 
     // -----------------------------------------------------------------
     // placeUnit
-    // What it does : places a unit pointer at (row, col) on the grid
-    //                and updates the unit's internal position.
-    // Inputs : unit – pointer to the Unit to place
-    //          row, col – target cell coordinates
-    // Output : true if placement succeeded, false if cell is occupied
-    //          or coordinates are out of bounds.
+    // Purpose: Places a unit pointer at (row, col) and updates unit's position
+    // Input: unit (Unit* pointer), row, col (target coordinates)
+    // Output: true if succeeded, false if occupied or out of bounds
     // -----------------------------------------------------------------
     bool placeUnit(Unit* unit, int row, int col);
 
     // -----------------------------------------------------------------
     // removeUnit
-    // What it does : removes a unit from the grid (sets cell to nullptr).
-    //                Does NOT delete the unit.
-    // Inputs : row, col – cell to clear
-    // Output : none
+    // Purpose: Remove a unit from grid by setting cell to nullptr (does NOT delete unit)
+    // Input: row, col (cell to clear)
+    // Output: none (modifies grid state)
     // -----------------------------------------------------------------
     void removeUnit(int row, int col);
 
     // -----------------------------------------------------------------
     // getUnit
-    // What it does : returns the Unit pointer at the given cell.
-    // Inputs : row, col – cell coordinates
-    // Output : Unit* or nullptr if empty / out of bounds
+    // Purpose: Retrieve the Unit pointer at the given cell
+    // Input: row, col (cell coordinates)
+    // Output: Unit* pointer or nullptr if empty or out of bounds
     // -----------------------------------------------------------------
     Unit* getUnit(int row, int col) const;
 
     // -----------------------------------------------------------------
     // isValidPosition
-    // What it does : checks if (row, col) is within grid bounds.
-    // Inputs : row, col
-    // Output : true if valid
+    // Purpose: Check if (row, col) is within grid bounds
+    // Input: row, col (cell coordinates)
+    // Output: true if valid coordinates, false otherwise
     // -----------------------------------------------------------------
     bool isValidPosition(int row, int col) const;
 
     // -----------------------------------------------------------------
     // isEmpty
-    // What it does : checks if a cell is empty (nullptr).
-    // Inputs : row, col
-    // Output : true if empty or out of bounds
+    // Purpose: Check if a cell is empty (nullptr)
+    // Input: row, col (cell coordinates)
+    // Output: true if empty or out of bounds, false otherwise
     // -----------------------------------------------------------------
     bool isEmpty(int row, int col) const;
 
     // -----------------------------------------------------------------
     // clear
-    // What it does : sets every cell to nullptr (does NOT delete units).
-    // Input  : none
-    // Output : none
+    // Purpose: Set every cell to nullptr (does NOT delete units)
+    // Input: none
+    // Output: none (modifies grid state)
     // -----------------------------------------------------------------
     void clear();
 
     // -----------------------------------------------------------------
     // display
-    // What it does : prints the board as an ASCII grid to stdout.
-    //                Player units on the left, AI units on the right,
-    //                separated by a vertical bar.
-    // Input  : none
-    // Output : none (prints to stdout)
+    // Purpose: Print the board as ASCII grid with player units on left, AI on right
+    // Input: none
+    // Output: none (prints visual representation to stdout)
     // -----------------------------------------------------------------
     void display() const;
 
     // -----------------------------------------------------------------
     // displayPlayerSide
-    // What it does : prints only the player's half (cols 0-3) for
-    //                the formation/deploy phase.
-    // Input  : none
-    // Output : none (prints to stdout)
+    // Purpose: Print only player's half (cols 0-3) for formation/deploy phase
+    // Input: none
+    // Output: none (prints formation visualization to stdout)
     // -----------------------------------------------------------------
     void displayPlayerSide() const;
 
     // -----------------------------------------------------------------
     // findNearestEnemy
-    // What it does : scans the grid for the closest enemy unit
-    //                (by Manhattan distance) to the given unit.
-    // Input  : unit – the unit looking for a target
-    // Output : pointer to the nearest enemy, or nullptr if none found
+    // Purpose: Scan grid for closest enemy unit using Manhattan distance
+    // Input: unit (Unit* looking for a target)
+    // Output: Unit* pointer to nearest enemy, or nullptr if none found
     // -----------------------------------------------------------------
     Unit* findNearestEnemy(const Unit* unit) const;
 
     // -----------------------------------------------------------------
     // moveToward
-    // What it does : moves a unit one step closer to a target position
-    //                on the grid. Tries row movement first, then column.
-    // Inputs : unit – the unit to move
-    //          targetRow, targetCol – destination coordinates
-    // Output : none (modifies grid and unit position)
+    // Purpose: Move a unit one step closer to target position (tries row first, then col)
+    // Input: unit (Unit* to move), targetRow, targetCol (destination)
+    // Output: none (modifies grid and unit's internal position)
     // -----------------------------------------------------------------
     void moveToward(Unit* unit, int targetRow, int targetCol);
 
