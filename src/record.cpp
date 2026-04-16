@@ -143,116 +143,160 @@ bool Record::loadGame(Player& player,
     }
     checkFile.close();
 
-    // Now open the file for actual loading
+    // Now open the file for actual loading with error handling
     std::ifstream file(saveFilePath);
     if (!file.is_open()) {
         std::cout << "\n  " << BOLD << BR_RED << "ERROR" << RESET << ": Unable to open save file for reading." << std::endl;
         return false;
     }
 
-    // Read game phase
-    int phaseInt;
-    if (!(file >> phaseInt)) {
+    try {
+        // Read game phase
+        int phaseInt;
+        if (!(file >> phaseInt)) {
+            throw std::runtime_error("Failed to read game phase");
+        }
+        if (phaseInt < 0 || phaseInt > 3) {
+            throw std::runtime_error("Invalid game phase value");
+        }
+        currentPhase = (GamePhase)phaseInt;
+        shouldResumeShopPhase = (currentPhase == PHASE_SHOP);
+
+        // Read player state
+        int hp, gold, rounds, winStreak, lossStreak;
+        if (!(file >> hp >> gold >> rounds >> winStreak >> lossStreak)) {
+            throw std::runtime_error("Failed to read player state");
+        }
+        // Validate player state values
+        if (hp < 0 || gold < 0 || rounds < 0 || winStreak < 0 || lossStreak < 0) {
+            throw std::runtime_error("Invalid player state values");
+        }
+
+        // Read bench units
+        int benchCount;
+        if (!(file >> benchCount)) {
+            throw std::runtime_error("Failed to read bench unit count");
+        }
+        if (benchCount < 0 || benchCount > MAX_BENCH_SIZE) {
+            throw std::runtime_error("Invalid bench unit count");
+        }
+
+        std::vector<Unit*> loadedUnits;
+        for (int i = 0; i < benchCount; ++i) {
+            std::string name;
+            int cls, maxHp, atk, cost, critBonus, range, starLevel;
+            if (!(file >> name >> cls >> maxHp >> atk >> cost >> critBonus >> range >> starLevel)) {
+                throw std::runtime_error("Failed to read bench unit data");
+            }
+            
+            // Validate unit data
+            if (cls < 0 || cls >= NUM_CLASSES || maxHp <= 0 || atk < 0 || 
+                cost < 0 || range < 0 || starLevel < 1 || starLevel > MAX_STAR_LEVEL) {
+                throw std::runtime_error("Invalid unit data values");
+            }
+            
+            // Create unit with saved post-upgrade stats directly.
+            Unit* u = new Unit(name, (UnitClass)cls, maxHp, atk, cost, critBonus, range);
+            // Manually set star level without re-scaling stats
+            for (int s = 1; s < starLevel; ++s) {
+                u->forceSetStarLevel(s + 1);
+            }
+            loadedUnits.push_back(u);
+        }
+
+        // Read board units
+        int boardUnitCount;
+        if (!(file >> boardUnitCount)) {
+            throw std::runtime_error("Failed to read board unit count");
+        }
+        if (boardUnitCount < 0 || boardUnitCount > (BOARD_ROWS * BOARD_COLS)) {
+            throw std::runtime_error("Invalid board unit count");
+        }
+
+        // Store board units temporarily (will apply after player state)
+        std::vector<std::tuple<int, int, Unit*>> boardUnits;
+        for (int i = 0; i < boardUnitCount; ++i) {
+            int r, c;
+            std::string name;
+            int cls, maxHp, atk, cost, critBonus, range, starLevel;
+            if (!(file >> r >> c >> name >> cls >> maxHp >> atk >> cost >> critBonus >> range >> starLevel)) {
+                throw std::runtime_error("Failed to read board unit data");
+            }
+            
+            // Validate board position
+            if (r < 0 || r >= BOARD_ROWS || c < 0 || c >= BOARD_COLS) {
+                throw std::runtime_error("Invalid board unit position");
+            }
+            
+            // Validate unit data
+            if (cls < 0 || cls >= NUM_CLASSES || maxHp <= 0 || atk < 0 || 
+                cost < 0 || range < 0 || starLevel < 1 || starLevel > MAX_STAR_LEVEL) {
+                throw std::runtime_error("Invalid unit data values");
+            }
+            
+            Unit* u = new Unit(name, (UnitClass)cls, maxHp, atk, cost, critBonus, range);
+            for (int s = 1; s < starLevel; ++s) {
+                u->forceSetStarLevel(s + 1);
+            }
+            boardUnits.push_back(std::make_tuple(r, c, u));
+        }
+
+        // Read difficulty
+        std::string diff;
+        if (!(file >> diff)) {
+            // Difficulty is optional, continue
+        }
+        
+        // Read current event
+        int eventInt;
+        if (!(file >> eventInt)) {
+            eventInt = EVENT_NONE;
+        }
+        if (eventInt < 0 || eventInt > 100) {
+            eventInt = EVENT_NONE;
+        }
+        currentEvent = (EventType)eventInt;
+        
         file.close();
+
+        // Apply loaded state to player
+        player.loadState(hp, gold, rounds, winStreak, lossStreak);
+
+        // Add loaded units to bench
+        for (size_t i = 0; i < loadedUnits.size(); ++i) {
+            if (!player.addToBench(loadedUnits[i])) {
+                delete loadedUnits[i];  // bench full, shouldn't happen
+            }
+        }
+
+        // Place board units on the board
+        for (size_t i = 0; i < boardUnits.size(); ++i) {
+            int r = std::get<0>(boardUnits[i]);
+            int c = std::get<1>(boardUnits[i]);
+            Unit* u = std::get<2>(boardUnits[i]);
+            board.placeUnit(u, r, c);
+        }
+        
+        std::cout << "\n  " << BOLD << BR_GREEN << "✅ Save file loaded successfully!" << RESET << std::endl;
+        return true;
+
+    } catch (const std::exception& e) {
+        file.close();
+        
+        std::cout << "\n  " << BOLD << BR_RED << "Save file corrupted" << RESET << std::endl;
+        std::cout << "  Details: " << e.what() << std::endl;
+        std::cout << "  This save file cannot be loaded. Please try another slot." << std::endl;
+        
+        return false;
+    } catch (...) {
+        file.close();
+        
+        std::cout << "\n  " << BOLD << BR_RED << "Save file corrupted" << RESET << std::endl;
+        std::cout << "  Unknown error occurred while reading the save file." << std::endl;
+        std::cout << "  This save file cannot be loaded. Please try another slot." << std::endl;
+        
         return false;
     }
-    currentPhase = (GamePhase)phaseInt;
-    shouldResumeShopPhase = (currentPhase == PHASE_SHOP);
-
-    // Read player state
-    int hp, gold, rounds, winStreak, lossStreak;
-    if (!(file >> hp >> gold >> rounds >> winStreak >> lossStreak)) {
-        file.close();
-        return false;
-    }
-
-    // Read bench units
-    int benchCount;
-    if (!(file >> benchCount)) {
-        file.close();
-        return false;
-    }
-
-    std::vector<Unit*> loadedUnits;
-    for (int i = 0; i < benchCount; ++i) {
-        std::string name;
-        int cls, maxHp, atk, cost, critBonus, range, starLevel;
-        if (!(file >> name >> cls >> maxHp >> atk >> cost >> critBonus >> range >> starLevel)) {
-            // Cleanup on error
-            for (size_t j = 0; j < loadedUnits.size(); ++j) delete loadedUnits[j];
-            file.close();
-            return false;
-        }
-        // Create unit with saved post-upgrade stats directly.
-        Unit* u = new Unit(name, (UnitClass)cls, maxHp, atk, cost, critBonus, range);
-        // Manually set star level without re-scaling stats
-        for (int s = 1; s < starLevel; ++s) {
-            u->forceSetStarLevel(s + 1);
-        }
-        loadedUnits.push_back(u);
-    }
-
-    // Read board units
-    int boardUnitCount;
-    if (!(file >> boardUnitCount)) {
-        // Cleanup on error
-        for (size_t j = 0; j < loadedUnits.size(); ++j) delete loadedUnits[j];
-        file.close();
-        return false;
-    }
-
-    // Store board units temporarily (will apply after player state)
-    std::vector<std::tuple<int, int, Unit*>> boardUnits;
-    for (int i = 0; i < boardUnitCount; ++i) {
-        int r, c;
-        std::string name;
-        int cls, maxHp, atk, cost, critBonus, range, starLevel;
-        if (!(file >> r >> c >> name >> cls >> maxHp >> atk >> cost >> critBonus >> range >> starLevel)) {
-            // Cleanup on error
-            for (size_t j = 0; j < loadedUnits.size(); ++j) delete loadedUnits[j];
-            for (size_t j = 0; j < boardUnits.size(); ++j) delete std::get<2>(boardUnits[j]);
-            file.close();
-            return false;
-        }
-        Unit* u = new Unit(name, (UnitClass)cls, maxHp, atk, cost, critBonus, range);
-        for (int s = 1; s < starLevel; ++s) {
-            u->forceSetStarLevel(s + 1);
-        }
-        boardUnits.push_back(std::make_tuple(r, c, u));
-    }
-
-    // Read difficulty
-    std::string diff;
-    file >> diff;
-    
-    // Read current event
-    int eventInt;
-    if (!(file >> eventInt)) {
-        eventInt = EVENT_NONE;
-    }
-    currentEvent = (EventType)eventInt;
-    
-    file.close();
-
-    // Apply loaded state to player
-    player.loadState(hp, gold, rounds, winStreak, lossStreak);
-
-    // Add loaded units to bench
-    for (size_t i = 0; i < loadedUnits.size(); ++i) {
-        if (!player.addToBench(loadedUnits[i])) {
-            delete loadedUnits[i];  // bench full, shouldn't happen
-        }
-    }
-
-    // Place board units on the board
-    for (size_t i = 0; i < boardUnits.size(); ++i) {
-        int r = std::get<0>(boardUnits[i]);
-        int c = std::get<1>(boardUnits[i]);
-        Unit* u = std::get<2>(boardUnits[i]);
-        board.placeUnit(u, r, c);
-    }
-    
-    return true;
 }
 
 // =====================================================================
@@ -359,32 +403,48 @@ bool Record::hasSaveFile(int slot) {
 bool Record::showSavePreview(int slot) {
     std::ifstream file(getSaveFilePath(slot));
     if (!file.is_open()) {
-        std::cout << "\n  " << BOLD << BR_RED << "ERROR" << RESET 
-                  << ": Could not open save file for slot " << slot << "." << std::endl;
         return false;
     }
 
     try {
         // Skip game phase (line 1)
         int phase;
-        file >> phase;
+        if (!(file >> phase)) {
+            throw std::runtime_error("Failed to read game phase");
+        }
+        if (phase < 0 || phase > 3) {
+            throw std::runtime_error("Invalid game phase value");
+        }
 
         // Read player state: HP, Gold, RoundsPlayed, WinStreak, LossStreak
         int hp, gold, rounds, winStreak, lossStreak;
-        file >> hp >> gold >> rounds >> winStreak >> lossStreak;
+        if (!(file >> hp >> gold >> rounds >> winStreak >> lossStreak)) {
+            throw std::runtime_error("Failed to read player state");
+        }
+        
+        // Validate values
+        if (hp < 0 || gold < 0 || rounds < 0 || winStreak < 0 || lossStreak < 0) {
+            throw std::runtime_error("Invalid player state values");
+        }
 
         file.close();
 
-        // Display preview
-        std::cout << "\n  " << BOLD << BR_CYAN << "Save Info: " << RESET
-                  << BR_YELLOW << "Round " << rounds << RESET << " | "
-                  << BR_GREEN << "HP: " << hp << RESET << " | "
-                  << BR_YELLOW << "Gold: " << gold << RESET << std::endl;
+        // Display preview with proper formatting
+        std::cout << "  " << BOLD << BR_GREEN << "[Slot " << slot << "] Used" << RESET
+                  << " | " << BR_YELLOW << "Round " << rounds << RESET
+                  << " | " << BR_CYAN << "HP: " << hp << RESET
+                  << " | " << BR_YELLOW << "Gold: " << gold << RESET << std::endl;
 
         return true;
+    } catch (const std::exception& e) {
+        file.close();
+        std::cout << "  " << BOLD << BR_RED << "[Slot " << slot << "] Corrupted" << RESET
+                  << std::string(20, ' ') << std::endl;
+        return false;
     } catch (...) {
-        std::cout << "\n  " << BOLD << BR_RED << "ERROR" << RESET 
-                  << ": Failed to read save file." << std::endl;
+        file.close();
+        std::cout << "  " << BOLD << BR_RED << "[Slot " << slot << "] Corrupted" << RESET
+                  << std::string(20, ' ') << std::endl;
         return false;
     }
 }
@@ -414,14 +474,28 @@ void Record::displayAllSlots() {
             std::cout << std::string(28, ' ');
         } else {
             try {
-                // Read round number
+                // Read round number and validate
                 int phase;
-                file >> phase;
+                if (!(file >> phase)) {
+                    throw std::runtime_error("Failed to read phase");
+                }
+                if (phase < 0 || phase > 3) {
+                    throw std::runtime_error("Invalid phase value");
+                }
+                
                 int hp, gold, rounds, winStreak, lossStreak;
-                file >> hp >> gold >> rounds >> winStreak >> lossStreak;
+                if (!(file >> hp >> gold >> rounds >> winStreak >> lossStreak)) {
+                    throw std::runtime_error("Failed to read player state");
+                }
+                
+                // Validate player data
+                if (hp < 0 || gold < 0 || rounds < 0 || winStreak < 0 || lossStreak < 0) {
+                    throw std::runtime_error("Invalid player state values");
+                }
+                
                 file.close();
 
-                // Slot is used
+                // Slot is valid
                 std::cout << BOLD << BR_GREEN << "[Slot " << slot << "] Used" << RESET
                           << " | " << BR_YELLOW << "Round " << rounds << RESET;
                 
@@ -430,10 +504,14 @@ void Record::displayAllSlots() {
                 if (info.length() < 40) {
                     std::cout << std::string(40 - info.length(), ' ');
                 }
+            } catch (const std::exception& e) {
+                file.close();
+                std::cout << BOLD << BR_RED << "[Slot " << slot << "] Corrupted" << RESET;
+                std::cout << std::string(24, ' ');
             } catch (...) {
                 file.close();
-                std::cout << BOLD << BR_RED << "[Slot " << slot << "] Error" << RESET;
-                std::cout << std::string(28, ' ');
+                std::cout << BOLD << BR_RED << "[Slot " << slot << "] Corrupted" << RESET;
+                std::cout << std::string(24, ' ');
             }
         }
         
