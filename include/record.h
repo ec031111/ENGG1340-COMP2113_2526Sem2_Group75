@@ -90,6 +90,13 @@ public:
     // -----------------------------------------------------------------
     static bool showSavePreview(int slot = 1);
 
+    // -----------------------------------------------------------------
+    // displayAllSlots - Display status of all 3 save slots
+    // Shows which slots are empty/used and their round numbers
+    // Purpose: Help player choose which slot to save/load from
+    // -----------------------------------------------------------------
+    static void displayAllSlots();
+
 private:
     // Helper structures for serialization
     struct SavedUnit {

@@ -120,27 +120,23 @@ int main() {
 
         } else if (choice == "4") {
             // Load game with slot selection
-            std::cout << "\n  Load Game - Select Save Slot" << std::endl;
-            std::cout << "  =============================" << std::endl;
+            // Display all slots with their status
+            Record::displayAllSlots();
             
-            // Show preview of each save slot
+            // Check if any slots have save files
             int availableSlots = 0;
             for (int i = 1; i <= 3; ++i) {
                 if (Record::hasSaveFile(i)) {
-                    std::cout << "  [" << i << "] ";
-                    Record::showSavePreview(i);
                     availableSlots++;
-                } else {
-                    std::cout << "  [" << i << "] Empty" << std::endl;
                 }
             }
             
             if (availableSlots == 0) {
-                std::cout << "\n  No save files found. Returning to main menu..." << std::endl;
+                std::cout << "  No save files found. Returning to main menu..." << std::endl;
                 continue;
             }
             
-            std::cout << "\n  Select slot (1-3) > ";
+            std::cout << "  Select slot (1-3) > ";
             std::string slotChoice;
             std::getline(std::cin, slotChoice);
             
@@ -155,7 +151,7 @@ int main() {
                 std::cout << "\n  Slot " << slot << " is empty. Returning to main menu..." << std::endl;
                 continue;
             }
-            
+
             Difficulty diff = EASY;
             Game game(diff);
             

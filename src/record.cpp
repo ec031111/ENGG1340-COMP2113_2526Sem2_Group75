@@ -388,3 +388,58 @@ bool Record::showSavePreview(int slot) {
         return false;
     }
 }
+
+// =====================================================================
+// Record::displayAllSlots - Display status of all 3 save slots
+// Shows each slot with Empty/Used status and round number
+// Purpose: Help player choose save/load slot
+// =====================================================================
+void Record::displayAllSlots() {
+    std::cout << "\n";
+    std::cout << BOLD << CYAN << "  +" << std::string(45, '-') << "+" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  |" << std::string(43, ' ') << "|" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  |  " << BOLD << BR_YELLOW << "SAVE SLOTS" << RESET
+              << std::string(32, ' ') << BOLD << CYAN << "|" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  |" << std::string(43, ' ') << "|" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  +" << std::string(45, '-') << "+" << RESET << std::endl;
+
+    // Check each slot
+    for (int slot = 1; slot <= 3; ++slot) {
+        std::cout << BOLD << CYAN << "  |  " << RESET;
+        
+        std::ifstream file(getSaveFilePath(slot));
+        if (!file.is_open()) {
+            // Slot is empty
+            std::cout << BOLD << BR_RED << "[Slot " << slot << "] Empty" << RESET;
+            std::cout << std::string(28, ' ');
+        } else {
+            try {
+                // Read round number
+                int phase;
+                file >> phase;
+                int hp, gold, rounds, winStreak, lossStreak;
+                file >> hp >> gold >> rounds >> winStreak >> lossStreak;
+                file.close();
+
+                // Slot is used
+                std::cout << BOLD << BR_GREEN << "[Slot " << slot << "] Used" << RESET
+                          << " | " << BR_YELLOW << "Round " << rounds << RESET;
+                
+                // Padding to align right side
+                std::string info = "[Slot " + std::to_string(slot) + "] Used | Round " + std::to_string(rounds);
+                if (info.length() < 40) {
+                    std::cout << std::string(40 - info.length(), ' ');
+                }
+            } catch (...) {
+                file.close();
+                std::cout << BOLD << BR_RED << "[Slot " << slot << "] Error" << RESET;
+                std::cout << std::string(28, ' ');
+            }
+        }
+        
+        std::cout << BOLD << CYAN << "|" << RESET << std::endl;
+    }
+    
+    std::cout << BOLD << CYAN << "  +" << std::string(45, '-') << "+" << RESET << std::endl;
+    std::cout << std::endl;
+}
