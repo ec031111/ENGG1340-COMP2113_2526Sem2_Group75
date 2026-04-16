@@ -529,6 +529,9 @@ int Game::run(bool show_intro) {
             // Display log for this round
             displayLogWithBattleReport();
             
+            // Autosave to slot 1 after round completes
+            performAutosave();
+            
             std::cout << "\n  [Press Enter to continue to next round...]";
             std::string dummy;
             std::getline(std::cin, dummy);
@@ -1982,4 +1985,24 @@ void Game::displayLogWithBattleReport() {
     }
     
     std::cout << "  +" << std::string(LW, '=') << "+" << std::endl;
+}
+
+// =====================================================================
+// performAutosave - Automatically save game to slot 1 after each round
+// Silent background operation with minimal visual feedback
+// Saves: Player state, bench units, board units, game phase, current event
+// Purpose: Enable auto-recovery if game crashes or closes unexpectedly
+// =====================================================================
+void Game::performAutosave() {
+    try {
+        Record::saveGame(player_, board_, shop_, ai_, currentPhase_, currentEvent_, 1);
+        
+        // Subtle autosave indicator (optional - can comment out for completely silent save)
+        std::cout << GRAY << "  [autosave]" << RESET << std::endl;
+    } catch (const std::exception& e) {
+        // Silent catch - don't disrupt gameplay
+        // Autosave failure is not critical to game flow
+    } catch (...) {
+        // Silent catch all
+    }
 }

@@ -25,3 +25,4 @@ Player 2 9 Easy
 Player 5 25 Easy
 Player 2 10 Easy
 Player 3 0 Easy
+Player 6 9 Easy

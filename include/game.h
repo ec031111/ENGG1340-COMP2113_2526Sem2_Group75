@@ -348,6 +348,13 @@ private:
     // -----------------------------------------------------------------
     void displayLogWithBattleReport();
 
+    // -----------------------------------------------------------------
+    // performAutosave - Automatically save game to slot 1 after each round
+    // Silent operation for background saving, minimal console output
+    // Called automatically after each round completes
+    // -----------------------------------------------------------------
+    void performAutosave();
+
 private:
     RoundType currentRoundType_;  // Type of current round
     std::string logFilename_;     // Path to the battle log file
