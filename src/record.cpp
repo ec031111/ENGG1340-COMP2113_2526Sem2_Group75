@@ -53,10 +53,11 @@ void Record::saveGame(const Player& player,
                       const Shop& /* shop */,
                       const AI& ai,
                       GamePhase currentPhase,
-                      EventType currentEvent) {
-    std::ofstream file(SAVE_FILE);
+                      EventType currentEvent,
+                      int slot) {
+    std::ofstream file(getSaveFilePath(slot));
     if (!file.is_open()) {
-        std::cerr << "  Could not save game." << std::endl;
+        std::cerr << "  Could not save game to slot " << slot << "." << std::endl;
         return;
     }
     
@@ -129,19 +130,21 @@ bool Record::loadGame(Player& player,
                       AI& /* ai */,
                       GamePhase& currentPhase,
                       EventType& currentEvent,
-                      bool& shouldResumeShopPhase) {
+                      bool& shouldResumeShopPhase,
+                      int slot) {
     // Check if save file exists before attempting to load
-    std::ifstream checkFile(SAVE_FILE);
+    std::string saveFilePath = getSaveFilePath(slot);
+    std::ifstream checkFile(saveFilePath);
     if (!checkFile.is_open()) {
-        std::cout << "\n  " << BOLD << BR_RED << "ERROR" << RESET << ": Save file not found at " << SAVE_FILE << std::endl;
-        std::cout << "  Please check that a previous game was saved." << std::endl;
+        std::cout << "\n  " << BOLD << BR_RED << "ERROR" << RESET << ": Save file not found in slot " << slot << std::endl;
+        std::cout << "  Please check that a previous game was saved to this slot." << std::endl;
         std::cout << "  Returning to main menu..." << std::endl;
         return false;
     }
     checkFile.close();
 
     // Now open the file for actual loading
-    std::ifstream file(SAVE_FILE);
+    std::ifstream file(saveFilePath);
     if (!file.is_open()) {
         std::cout << "\n  " << BOLD << BR_RED << "ERROR" << RESET << ": Unable to open save file for reading." << std::endl;
         return false;
@@ -336,11 +339,11 @@ void Record::displayLeaderboard() {
 }
 
 // =====================================================================
-// Record::hasSaveFile - check if save file exists
-// Returns: true if save.dat exists and is readable, false otherwise
+// Record::hasSaveFile - check if save file exists for given slot
+// Returns: true if save file exists and is readable, false otherwise
 // =====================================================================
-bool Record::hasSaveFile() {
-    std::ifstream file(SAVE_FILE);
+bool Record::hasSaveFile(int slot) {
+    std::ifstream file(getSaveFilePath(slot));
     if (!file.is_open()) {
         return false;
     }
@@ -350,14 +353,14 @@ bool Record::hasSaveFile() {
 
 // =====================================================================
 // Record::showSavePreview - Display save file preview without loading
-// Reads and displays: Round, HP, and Gold from save.dat
+// Reads and displays: Round, HP, and Gold from save file
 // Returns: true if successfully displayed preview, false if file error
 // =====================================================================
-bool Record::showSavePreview() {
-    std::ifstream file(SAVE_FILE);
+bool Record::showSavePreview(int slot) {
+    std::ifstream file(getSaveFilePath(slot));
     if (!file.is_open()) {
         std::cout << "\n  " << BOLD << BR_RED << "ERROR" << RESET 
-                  << ": Could not open save file." << std::endl;
+                  << ": Could not open save file for slot " << slot << "." << std::endl;
         return false;
     }
 

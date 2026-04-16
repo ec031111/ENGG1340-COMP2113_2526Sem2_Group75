@@ -866,7 +866,21 @@ void Game::shopPhase() {
 
 
         } else if (cmd == "save") {
-            Record::saveGame(player_, board_, shop_, ai_, currentPhase_, currentEvent_);
+            // Save game with slot selection
+            std::cout << BOLD << BR_CYAN << "\n  Select save slot (1-3): " << RESET;
+            std::string slotInput;
+            std::getline(std::cin, slotInput);
+            slotInput = trim(slotInput);
+            
+            int slot = 1;
+            if (slotInput == "1" || slotInput == "2" || slotInput == "3") {
+                slot = std::stoi(slotInput);
+            } else {
+                std::cout << "  Invalid slot. Using slot 1." << std::endl;
+            }
+            
+            Record::saveGame(player_, board_, shop_, ai_, currentPhase_, currentEvent_, slot);
+            std::cout << BOLD << BR_GREEN << "  ✅ Game saved to slot " << slot << "!" << RESET << std::endl;
 
         } else if (cmd == "ready") {
             // No champion on the board
@@ -1537,35 +1551,12 @@ void Game::saveRecord() const {
 // File: docs/savegame.dat (overwrite mode)
 // Serialization: Each unit stores base stats + star level (no re-scaling on load)
 // Purpose: Enable mid-game suspend/resume functionality
+// NOTE: Use Record::saveGame(game, player, slot) instead for slot support
 // =====================================================================
 void Game::saveGame() const {
-    std::ofstream file(SAVE_FILE);
-    if (!file.is_open()) {
-        std::cerr << "  Could not save game." << std::endl;
-        return;
-    }
-    // Save player state
-    file << player_.getHp() << " " << player_.getGold() << " "
-         << player_.getRoundsPlayed() << " " << player_.getWinStreak() << " "
-         << player_.getLossStreak() << std::endl;
-
-    // Save bench units
-    const std::vector<Unit*>& bench = player_.getBench();
-    file << bench.size() << std::endl;
-    for (size_t i = 0; i < bench.size(); ++i) {
-        file << bench[i]->getBaseName() << " "
-             << bench[i]->getClass() << " "
-             << bench[i]->getMaxHp() << " "
-             << bench[i]->getAtk() << " "
-             << bench[i]->getCost() << " "
-             << bench[i]->getCritBonus() << " "
-             << bench[i]->getAttackRange() << " "
-             << bench[i]->getStarLevel() << std::endl;
-    }
-
-    // Save difficulty
-    file << ai_.getDifficultyString() << std::endl;
-    file.close();
+    // Deprecated: Use Record::saveGame(player, board, shop, ai, phase, event, slot) instead
+    // This function kept for backwards compatibility only
+    Record::saveGame(player_, board_, shop_, ai_, currentPhase_, currentEvent_, 1);  // Default to slot 1
 }
 
 // =====================================================================
@@ -1577,62 +1568,9 @@ void Game::saveGame() const {
 // Purpose: Resume interrupted games without loss of progression
 // =====================================================================
 bool Game::loadGame() {
-    std::ifstream file(SAVE_FILE);
-    if (!file.is_open()) return false;
-
-    // Read player state
-    int hp, gold, rounds, winStreak, lossStreak;
-    if (!(file >> hp >> gold >> rounds >> winStreak >> lossStreak)) {
-        file.close();
-        return false;
-    }
-
-    // Read bench units
-    int benchCount;
-    if (!(file >> benchCount)) {
-        file.close();
-        return false;
-    }
-
-    std::vector<Unit*> loadedUnits;
-    for (int i = 0; i < benchCount; ++i) {
-        std::string name;
-        int cls, maxHp, atk, cost, critBonus, range, starLevel;
-        if (!(file >> name >> cls >> maxHp >> atk >> cost >> critBonus >> range >> starLevel)) {
-            // Cleanup on error
-            for (size_t j = 0; j < loadedUnits.size(); ++j) delete loadedUnits[j];
-            file.close();
-            return false;
-        }
-        // Create unit with saved post-upgrade stats directly.
-        // Do NOT call upgrade() again — the stats are already scaled.
-        Unit* u = new Unit(name, (UnitClass)cls, maxHp, atk, cost, critBonus, range);
-        // Manually set star level without re-scaling stats
-        for (int s = 1; s < starLevel; ++s) {
-            u->forceSetStarLevel(s + 1);
-        }
-        loadedUnits.push_back(u);
-    }
-
-    // Read difficulty
-    std::string diff;
-    file >> diff;
-    file.close();
-
-    // Apply loaded state to player
-    player_.loadState(hp, gold, rounds, winStreak, lossStreak);
-
-    // Add loaded units to bench
-    for (size_t i = 0; i < loadedUnits.size(); ++i) {
-        if (!player_.addToBench(loadedUnits[i])) {
-            delete loadedUnits[i];  // bench full, shouldn't happen
-        }
-    }
-
-    std::cout << "  Game loaded! Round " << rounds
-              << ", HP: " << hp << ", Gold: " << gold
-              << ", Bench: " << benchCount << " units" << std::endl;
-    return true;
+    // Deprecated: Use Record::loadGame(game, player, slot) instead
+    // This function kept for backwards compatibility only
+    return Record::loadGame(player_, board_, shop_, ai_, currentPhase_, currentEvent_, shouldResumeShopPhase_, 1);  // Default to slot 1
 }
 
 // =====================================================================

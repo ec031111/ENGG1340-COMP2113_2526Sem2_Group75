@@ -119,30 +119,58 @@ int main() {
             Record::displayLeaderboard();
 
         } else if (choice == "4") {
-            // Load game - try to read save file and resume
-            if (!Record::hasSaveFile()) {
-                std::cout << "  No save file found." << std::endl;
-            } else {
-                // Show save preview before loading
-                Record::showSavePreview();
-                
-                // Default to EASY, loadGame will handle the rest
-                Difficulty diff = EASY;
-                Game game(diff);
-                
-                GamePhase phase = PHASE_ROUND_START;
-                EventType event = EVENT_NONE;
-                bool shouldResumeShop = false;
-                
-                if (Record::loadGame(game.getPlayer(), game.getBoard(), game.getShop(), 
-                                     const_cast<AI&>(game.getAI()), phase, event, shouldResumeShop)) {
-                    game.setCurrentPhase(phase);
-                    game.setCurrentEvent(event);
-                    game.setShouldResumeShop(shouldResumeShop);
-                    game.run(false);
+            // Load game with slot selection
+            std::cout << "\n  Load Game - Select Save Slot" << std::endl;
+            std::cout << "  =============================" << std::endl;
+            
+            // Show preview of each save slot
+            int availableSlots = 0;
+            for (int i = 1; i <= 3; ++i) {
+                if (Record::hasSaveFile(i)) {
+                    std::cout << "  [" << i << "] ";
+                    Record::showSavePreview(i);
+                    availableSlots++;
                 } else {
-                    std::cout << "  Save file is corrupted." << std::endl;
+                    std::cout << "  [" << i << "] Empty" << std::endl;
                 }
+            }
+            
+            if (availableSlots == 0) {
+                std::cout << "\n  No save files found. Returning to main menu..." << std::endl;
+                continue;
+            }
+            
+            std::cout << "\n  Select slot (1-3) > ";
+            std::string slotChoice;
+            std::getline(std::cin, slotChoice);
+            
+            int slot = 1;
+            if (slotChoice == "1" || slotChoice == "2" || slotChoice == "3") {
+                slot = std::stoi(slotChoice);
+            } else {
+                std::cout << "  Invalid slot. Using slot 1." << std::endl;
+            }
+            
+            if (!Record::hasSaveFile(slot)) {
+                std::cout << "\n  Slot " << slot << " is empty. Returning to main menu..." << std::endl;
+                continue;
+            }
+            
+            Difficulty diff = EASY;
+            Game game(diff);
+            
+            GamePhase phase = PHASE_ROUND_START;
+            EventType event = EVENT_NONE;
+            bool shouldResumeShop = false;
+            
+            if (Record::loadGame(game.getPlayer(), game.getBoard(), game.getShop(), 
+                                 const_cast<AI&>(game.getAI()), phase, event, shouldResumeShop, slot)) {
+                game.setCurrentPhase(phase);
+                game.setCurrentEvent(event);
+                game.setShouldResumeShop(shouldResumeShop);
+                game.run(false);
+            } else {
+                std::cout << "  Save file is corrupted." << std::endl;
             }
 
         } else if (choice == "5" || choice == "quit" || choice == "exit") {

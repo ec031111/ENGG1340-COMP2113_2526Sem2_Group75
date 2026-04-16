@@ -22,8 +22,18 @@
 #include <vector>
 
 // File paths
-const std::string SAVE_FILE = "docs/savegame.dat";
+const std::string SAVE_FILE_1 = "docs/save1.dat";
+const std::string SAVE_FILE_2 = "docs/save2.dat";
+const std::string SAVE_FILE_3 = "docs/save3.dat";
 const std::string RECORD_FILE = "docs/records.txt";
+
+// Helper function to get save file path based on slot (1-3)
+inline std::string getSaveFilePath(int slot) {
+    if (slot == 1) return SAVE_FILE_1;
+    if (slot == 2) return SAVE_FILE_2;
+    if (slot == 3) return SAVE_FILE_3;
+    return SAVE_FILE_1; // default to slot 1
+}
 
 // =====================================================================
 // Record - Handles all save/load/record operations
@@ -32,16 +42,19 @@ class Record {
 public:
     // -----------------------------------------------------------------
     // saveGame - save complete game state including board, shop, phases
+    // Parameters: slot - save slot number (1, 2, or 3)
     // -----------------------------------------------------------------
     static void saveGame(const Player& player,
                         const Board& board,
                         const Shop& shop,
                         const AI& ai,
                         GamePhase currentPhase,
-                        EventType currentEvent);
+                        EventType currentEvent,
+                        int slot = 1);
 
     // -----------------------------------------------------------------
     // loadGame - load game state and restore board/shop
+    // Parameters: slot - save slot number (1, 2, or 3)
     // Returns: true if load successful
     // -----------------------------------------------------------------
     static bool loadGame(Player& player,
@@ -50,7 +63,8 @@ public:
                          AI& ai,
                          GamePhase& currentPhase,
                          EventType& currentEvent,
-                         bool& shouldResumeShopPhase);
+                         bool& shouldResumeShopPhase,
+                         int slot = 1);
 
     // -----------------------------------------------------------------
     // saveRecord - append game result to leaderboard
@@ -64,15 +78,17 @@ public:
 
     // -----------------------------------------------------------------
     // hasSaveFile - check if save file exists
+    // Parameters: slot - save slot number (1, 2, or 3)
     // -----------------------------------------------------------------
-    static bool hasSaveFile();
+    static bool hasSaveFile(int slot = 1);
 
     // -----------------------------------------------------------------
     // showSavePreview - Display save file preview without loading
-    // Reads Round, HP, and Gold from save.dat and displays summary
+    // Reads Round, HP, and Gold from save file and displays summary
+    // Parameters: slot - save slot number (1, 2, or 3)
     // Returns: true if preview displayed successfully
     // -----------------------------------------------------------------
-    static bool showSavePreview();
+    static bool showSavePreview(int slot = 1);
 
 private:
     // Helper structures for serialization
