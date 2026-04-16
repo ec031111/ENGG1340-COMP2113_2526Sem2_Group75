@@ -161,13 +161,13 @@ public:
     void loadState(int hp, int gold, int rounds, int winStreak, int lossStreak);
 
 private:
-    std::string name_;
-    int hp_;
-    int gold_;
-    int winStreak_;
-    int lossStreak_;
-    int roundsPlayed_;
-    std::vector<Unit*> bench_;   // dynamically allocated units
+    std::string name_;           // Player's display name
+    int hp_;                     // Current health points
+    int gold_;                   // Current gold amount
+    int winStreak_;              // Consecutive wins
+    int lossStreak_;             // Consecutive losses
+    int roundsPlayed_;           // Total rounds survived
+    std::vector<Unit*> bench_;   // Dynamically allocated units
 };
 
 #endif // PLAYER_H

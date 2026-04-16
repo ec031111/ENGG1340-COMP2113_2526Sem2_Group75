@@ -64,9 +64,9 @@ public:
 
 private:
     // Track last used animations to prevent immediate repeats
-    static int lastAnimationUsed_;
-    static int secondLastAnimation_;
-    static int thirdLastAnimation_;
+    static int lastAnimationUsed_;       // Last animation style used
+    static int secondLastAnimation_;     // Second-to-last animation
+    static int thirdLastAnimation_;      // Third-to-last animation
 
     // Animation helper functions (called by randomEventAnimation)
     static void animationLoadingBar(const std::string& text);

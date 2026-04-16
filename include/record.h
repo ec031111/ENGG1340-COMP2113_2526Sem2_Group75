@@ -91,19 +91,19 @@ public:
 private:
     // Helper structures for serialization
     struct SavedUnit {
-        std::string name;
-        int cls;
-        int maxHp;
-        int atk;
-        int cost;
-        int critBonus;
-        int range;
-        int starLevel;
+        std::string name;                // Unit name
+        int cls;                         // Unit class enum value
+        int maxHp;                       // Current max HP
+        int atk;                         // Current attack power
+        int cost;                        // Purchase cost
+        int critBonus;                   // Crit bonus
+        int range;                       // Attack range
+        int starLevel;                   // Star level (1-3)
     };
 
     struct BoardUnitData {
-        int row, col;
-        SavedUnit unit;
+        int row, col;                    // Board position
+        SavedUnit unit;                  // Unit data
     };
 };
 

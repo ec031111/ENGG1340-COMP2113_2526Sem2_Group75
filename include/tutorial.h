@@ -94,8 +94,8 @@ public:
     bool lessonCompletion();
 
 private:
-    std::vector<TutorialLesson> lessons_;
-    int currentLessonIndex_;  // Track current lesson for progress display
+    std::vector<TutorialLesson> lessons_;    // List of all tutorial lessons
+    int currentLessonIndex_;                 // Track current lesson for progress display
 
     // Helper methods
     // Purpose: Display formatted lesson content with progress bar

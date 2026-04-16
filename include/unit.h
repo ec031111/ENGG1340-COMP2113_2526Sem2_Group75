@@ -232,24 +232,24 @@ public:
     std::string getDisplayName() const;
 
 private:
-    std::string baseName_;  // original name (e.g. "Warrior")
-    UnitClass   unitClass_;
-    int hp_;
-    int maxHp_;
-    int baseMaxHp_;   // original max HP before star upgrades
-    int atk_;
-    int baseAtk_;     // original ATK before star upgrades
-    int cost_;
-    int row_;
-    int col_;
-    int critBonus_;
-    int baseCritBonus_;
-    int attackRange_;
-    int starLevel_;
-    bool raged_;       // Warrior Rage flag (applied once per combat)
-    int atkBonus_;    // synergy bonus
-    int critBonusExtra_; // synergy bonus
-    bool playerOwned_;
+    std::string baseName_;       // Original name (e.g., "Warrior")
+    UnitClass   unitClass_;      // Unit classification (Warrior, Mage, etc.)
+    int hp_;                     // Current health points
+    int maxHp_;                  // Current maximum HP
+    int baseMaxHp_;              // Original max HP before star upgrades
+    int atk_;                    // Current attack power
+    int baseAtk_;                // Original ATK before star upgrades
+    int cost_;                   // Purchase cost in gold
+    int row_;                    // Current board row position
+    int col_;                    // Current board column position
+    int critBonus_;              // Current crit chance bonus
+    int baseCritBonus_;          // Base crit chance before synergy
+    int attackRange_;            // Attack range in squares
+    int starLevel_;              // Star level (1-3)
+    bool raged_;                 // Warrior Rage flag (applied once per combat)
+    int atkBonus_;               // Synergy bonus to attack
+    int critBonusExtra_;         // Synergy bonus to crit chance
+    bool playerOwned_;           // Ownership flag (true=player, false=AI)
 };
 
 #endif // UNIT_H

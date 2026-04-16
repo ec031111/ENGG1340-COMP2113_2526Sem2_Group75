@@ -79,9 +79,9 @@ public:
     std::string getDifficultyString() const;
 
 private:
-    Difficulty difficulty_;
-    std::vector<Unit*> army_;  // dynamically allocated units
-    int gold_;
+    Difficulty difficulty_;              // AI difficulty level (EASY/HARD)
+    std::vector<Unit*> army_;            // Dynamically allocated unit army
+    int gold_;                           // AI gold budget for this round
 
     // Purpose: Purchase units using cheapest-first strategy
     // Input: shop (Shop reference) - temporary shop to purchase from

@@ -138,16 +138,16 @@ public:
     void setShouldResumeShop(bool resume) { shouldResumeShopPhase_ = resume; }
 
 private:
-    Board   board_;
-    Shop    shop_;
-    Player  player_;
-    AI      ai_;
-    bool    running_;
-    bool    skipCombat_;
-    EventType currentEvent_;  // event active this round
-    int     combatPace_;      // battle display pace (0-3)
-    GamePhase currentPhase_;  // current phase in the round
-    bool shouldResumeShopPhase_;  // flag to resume shop phase from saved game
+    Board   board_;                      // 5x8 battlefield grid
+    Shop    shop_;                       // Unit shop system
+    Player  player_;                     // Player 1 (human controlled)
+    AI      ai_;                         // AI opponent
+    bool    running_;                    // Game loop flag
+    bool    skipCombat_;                 // Skip combat debug flag
+    EventType currentEvent_;             // Event active this round
+    int     combatPace_;                 // Battle display pace (0-3)
+    GamePhase currentPhase_;             // Current phase in the round
+    bool shouldResumeShopPhase_;         // Flag to resume shop phase from saved game
 
     // --- Phase handlers ---
     // Purpose: Handle player shopping and formation setup phase
@@ -296,8 +296,8 @@ private:
     void performAutosave();
 
 private:
-    RoundType currentRoundType_;  // Type of current round
-    std::string logFilename_;     // Path to the battle log file
+    RoundType currentRoundType_;         // Type of current round (PVE/EVENT/PVP)
+    std::string logFilename_;            // Path to the battle log file
 };
 
 #endif // GAME_H
