@@ -36,12 +36,19 @@ struct SynergyBonus {
 };
 
 // ---------------------------------------------------------------------
-// Synergy
+// Synergy - Unit class synergy bonus system
 // ---------------------------------------------------------------------
 // Calculates and applies synergy bonuses based on unit composition.
+// When multiple units of the same class are deployed together, they
+// receive stat bonuses. The more units of a class present, the higher
+// the tier of bonus (Tier 1/2/3).
+// Tier 1: 2+ units of same class
+// Tier 2: 3+ units of same class (replaces Tier 1)
+// Tier 3: 4+ units of same class (replaces Tier 2)
 // Call calculateSynergies() before each battle, and clearSynergies()
-// after.
-// ---------------------------------------------------------------------
+// after combat ends to remove bonuses.
+// Purpose: Strategic depth through team composition rewards.
+// -----------------------------------------------------------------
 class Synergy {
 public:
     // -----------------------------------------------------------------
