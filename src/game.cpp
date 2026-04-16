@@ -1044,6 +1044,9 @@ void Game::shopPhase() {
             setCombatPace(pace);
             std::cout << GREEN << "  ✅ Combat pace set to " << pace << RESET << std::endl;
 
+        } else if (cmd == "settings") {
+            settingsMenu();
+
         } else if (cmd == "help") {
             printHelp();
 
@@ -1704,6 +1707,7 @@ void Game::printHelp() const {
     printBoxLine("      1=NORMAL (press Enter)", W);
     printBoxLine("      2=FAST (auto with 600ms)", W);
     printBoxLine("      3=FASTEST (no display)", W);
+    printBoxLine("    settings       Adjust game preferences", W);
     printBoxLine("    save           Save game to file", W);
     printBoxLine("    menu           Return to main menu", W);
     printBoxLine("    quit           Exit game completely", W);
@@ -1741,7 +1745,7 @@ void Game::printCommandTips() const {
     std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
     printBoxLine(BOLD BR_CYAN "  buy <1-5>  sell <idx>  refresh  info <idx>" RESET, W);
     printBoxLine(BOLD BR_CYAN "  place <idx> <row> <col>  remove <row> <col>" RESET, W);
-    printBoxLine(BOLD BR_CYAN "  auto    ready    formation    help    menu" RESET, W);
+    printBoxLine(BOLD BR_CYAN "  auto    ready    formation    help    settings" RESET, W);
     std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
 }
 
@@ -2004,5 +2008,126 @@ void Game::performAutosave() {
         // Autosave failure is not critical to game flow
     } catch (...) {
         // Silent catch all
+    }
+}
+
+// =====================================================================
+// settingsMenu - Display and manage game settings
+// Purpose: Allow player to toggle animations, colors, and sound preferences
+// =====================================================================
+void Game::settingsMenu() {
+    bool settingsDone = false;
+    
+    while (!settingsDone && running_) {
+        // Clear screen for clean display
+        #ifdef _WIN32
+            system("cls");
+        #else
+            system("clear");
+        #endif
+        
+        const int W = 50;
+        std::cout << std::endl;
+        std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+        printBoxTitle(BOLD BR_YELLOW "SETTINGS" RESET, W);
+        std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+        
+        // Show current settings status
+        std::cout << BOLD << YELLOW;
+        printBoxLine("  CURRENT STATUS:", W);
+        std::cout << RESET;
+        
+        std::string animStatus = settings_.animationsEnabled ? "ON" : "OFF";
+        std::string colorStatus = settings_.colorEnabled ? "ON" : "OFF";
+        std::string soundStatus = settings_.soundEnabled ? "ON" : "OFF";
+        
+        printBoxLine("    1. Animations:  " + animStatus, W);
+        printBoxLine("    2. Colors:      " + colorStatus, W);
+        printBoxLine("    3. Sound:       " + soundStatus, W);
+        printBoxLine("    4. Show Status  (view all settings)", W);
+        printBoxLine("    0. Back to Game", W);
+        
+        std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+        
+        std::cout << BLUE << "  Select (0-4) > " << RESET;
+        std::string input;
+        if (!std::getline(std::cin, input)) {
+            running_ = false;
+            break;
+        }
+        
+        std::string choice = trim(input);
+        
+        if (choice == "1") {
+            settings_.animationsEnabled = !settings_.animationsEnabled;
+            std::string newStatus = settings_.animationsEnabled ? "ENABLED" : "DISABLED";
+            std::cout << GREEN << "  ✅ Animations " << newStatus << RESET << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(800));
+            
+        } else if (choice == "2") {
+            settings_.colorEnabled = !settings_.colorEnabled;
+            std::string newStatus = settings_.colorEnabled ? "ENABLED" : "DISABLED";
+            if (settings_.colorEnabled) {
+                std::cout << GREEN << "  ✅ Colors " << newStatus << RESET << std::endl;
+            } else {
+                std::cout << "  OK: Colors DISABLED" << std::endl;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(800));
+            
+        } else if (choice == "3") {
+            settings_.soundEnabled = !settings_.soundEnabled;
+            std::string newStatus = settings_.soundEnabled ? "ENABLED" : "DISABLED";
+            std::cout << GREEN << "  ✅ Sound " << newStatus << RESET << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(800));
+            
+        } else if (choice == "4") {
+            // Show detailed status
+            #ifdef _WIN32
+                system("cls");
+            #else
+                system("clear");
+            #endif
+            
+            std::cout << std::endl;
+            std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+            printBoxTitle(BOLD BR_YELLOW "SETTINGS STATUS" RESET, W);
+            std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+            
+            std::cout << BOLD << YELLOW;
+            printBoxLine("  ANIMATIONS:", W);
+            std::cout << RESET;
+            printBoxLine("    " + std::string(settings_.animationsEnabled ? "✅ ON" : "❌ OFF"), W);
+            printBoxLine("    Shows visual effects during events", W);
+            
+            std::cout << BOLD << YELLOW;
+            printBoxLine("  COLORS:", W);
+            std::cout << RESET;
+            if (settings_.colorEnabled) {
+                std::cout << GREEN;
+                printBoxLine("    ✅ ON  (using ANSI colors)", W);
+                std::cout << RESET;
+            } else {
+                printBoxLine("    ❌ OFF (plain text only)", W);
+            }
+            printBoxLine("    ANSI color codes for text coloring", W);
+            
+            std::cout << BOLD << YELLOW;
+            printBoxLine("  SOUND:", W);
+            std::cout << RESET;
+            printBoxLine("    " + std::string(settings_.soundEnabled ? "✅ ON" : "❌ OFF"), W);
+            printBoxLine("    Text-based sound notifications", W);
+            
+            std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+            std::cout << BLUE << "  Press ENTER to continue..." << RESET;
+            std::string dummy;
+            std::getline(std::cin, dummy);
+            
+        } else if (choice == "0") {
+            settingsDone = true;
+            
+        } else {
+            std::cout << RED << "  Invalid choice. Please select 0-4." << RESET << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        }
     }
 }

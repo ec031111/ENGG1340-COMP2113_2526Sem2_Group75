@@ -80,6 +80,18 @@ const int PVE_DAMAGE_ON_LOSS = 3;      // Damage taken if lose PVE round
 const int PVE_GOLD_REWARD = 20;        // Gold gained if win PVE round
 const int PVE_EQUIPMENT_REWARD = 1;    // Number of random units given as reward
 
+// =====================================================================
+// Settings - Structure to manage game display and audio preferences
+// =====================================================================
+struct Settings {
+    bool animationsEnabled;  // Toggle visual animations on/off
+    bool colorEnabled;       // Toggle ANSI color codes on/off
+    bool soundEnabled;       // Toggle sound feedback display on/off (text-only)
+    
+    // Constructor: Initialize all settings to true (enabled)
+    Settings() : animationsEnabled(true), colorEnabled(true), soundEnabled(true) {}
+};
+
 // ---------------------------------------------------------------------
 // Game
 // ---------------------------------------------------------------------
@@ -295,9 +307,21 @@ private:
     // Output: none (silent operation)
     void performAutosave();
 
+    // Purpose: Display settings menu and allow user to toggle preferences
+    // Input: none
+    // Output: none
+    void settingsMenu();
+
+    // Accessor for color setting
+    // Purpose: Check if colors are enabled for display
+    // Input: none
+    // Output: bool - true if colors enabled
+    bool isColorEnabled() const { return settings_.colorEnabled; }
+
 private:
     RoundType currentRoundType_;         // Type of current round (PVE/EVENT/PVP)
     std::string logFilename_;            // Path to the battle log file
+    Settings settings_;                  // Game display and audio preferences
 };
 
 #endif // GAME_H
