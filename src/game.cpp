@@ -930,14 +930,16 @@ void Game::shopPhase() {
                        Unit* unit = player_.removeFromBench(0);
                        if (unit == nullptr) break;
                        bool ok = false;
-                       for (int c = PLAYER_MAX_COL; c >= 0 && !ok; --c )
-                           for (int r = 0; r < BOARD_ROWS && !ok; ++r)
+                       for (int c = PLAYER_MAX_COL; c >= 0 && !ok; --c) {
+                           for (int r = 0; r < BOARD_ROWS && !ok; ++r) {
                                if (board_.isEmpty(r, c)) {
                                    board_.placeUnit(unit, r, c);
                                    ok = true;
                                    placed++;
                                }
-                           if (!ok) { player_.addToBench(unit); break; }
+                           }
+                       }
+                       if (!ok) { player_.addToBench(unit); break; }
                     }
                     std::cout << GREEN << " Auto-placed " << placed << " units!" << RESET << std::endl;
                     board_.displayPlayerSide();
