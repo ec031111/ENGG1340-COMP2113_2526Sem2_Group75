@@ -265,37 +265,93 @@ bool Tutorial::lessonShop() {
     if (choice == "skip" || choice == "SKIP") {
         std::cout << "  Skipping this lesson..." << std::endl;
     } else {
-        // Interactive: Show practice
+        // Interactive: Show practice with real game format
         clearScreen();
         printProgressBar(2, 9);  // Show progress at top
         std::cout << std::endl;
         std::cout << "  Let's practice with a sample shop!" << std::endl;
+        std::cout << "  (You have 15 gold to spend)" << std::endl;
         std::cout << std::endl;
         
-        // Display shop in format matching game.cpp
-        const int W = 58;
-        std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
-        std::string shopTitle = "SHOP  (refresh: $2)";
-        int pad = (W - (int)shopTitle.size()) / 2;
-        std::cout << BOLD << CYAN << "  |" << std::string(pad, ' ') << shopTitle
-                  << std::string(W - pad - (int)shopTitle.size(), ' ') << "|" << RESET << std::endl;
+        // Display shop in EXACT format matching game.cpp
+        const int W = 68;
         std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
         
-        // Sample shop units
-        std::cout << "  |  [1] Warrior   WarriorHP:20  ATK:8  R:1 [Rage] $5        |" << std::endl;
-        std::cout << "  |  [2] Mage      MageHP:15  ATK:12 R:3 [AOE] $6            |" << std::endl;
-        std::cout << "  |  [3] Tank      TankHP:30  ATK:5  R:1 [Block] $7          |" << std::endl;
-        std::cout << "  |  [4] Assassin  AssassinHP:14  ATK:11 R:1 [Crit] $6       |" << std::endl;
-        std::cout << "  |  [5] Archer    ArcherHP:16  ATK:9  R:3 [DblShot] $4      |" << std::endl;
+        std::string title = BOLD + std::string(BR_YELLOW) + "🏪 SHOP  (refresh: $2) 🏪" + RESET;
+        int pad = (W - getDisplayWidth(title)) / 2;
+        if (pad < 0) pad = 0;
+        std::cout << "  |" << std::string(pad, ' ') << title
+                  << std::string(std::max(0, W - pad - getDisplayWidth(title)), ' ') << "|" << std::endl;
         
         std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
-        std::cout << BOLD << BR_YELLOW << "  Your Gold: 15" << RESET << std::endl;
+        
+        // Sample shop units matching real format
+        // Format: ✓/✗ [#] 🎨 Name ClassHP:XX ATK:X R:X [Ability] $Cost
+        int playerGold = 15;
+        
+        // Unit 1: Warrior - can afford
+        std::cout << "  |" << (playerGold >= 5 ? GREEN "  ✓ " RESET : RED "  ✗ " RESET)
+                  << "[1] " << "⚔️ " << std::left << std::setw(10) << "Warrior"
+                  << std::setw(9) << "Warrior"
+                  << "HP:" << std::setw(4) << "20"
+                  << "ATK:" << std::setw(3) << "8"
+                  << "R:" << "1"
+                  << " [Rage] "
+                  << (playerGold >= 5 ? GREEN : RED) << "$5" << RESET
+                  << std::string(W - 60, ' ') << "|" << std::endl;
+        
+        // Unit 2: Mage - can afford
+        std::cout << "  |" << (playerGold >= 6 ? GREEN "  ✓ " RESET : RED "  ✗ " RESET)
+                  << "[2] " << "✨ " << std::left << std::setw(10) << "Mage"
+                  << std::setw(9) << "Mage"
+                  << "HP:" << std::setw(4) << "15"
+                  << "ATK:" << std::setw(3) << "12"
+                  << "R:" << "3"
+                  << " [AOE]  "
+                  << (playerGold >= 6 ? GREEN : RED) << "$6" << RESET
+                  << std::string(W - 60, ' ') << "|" << std::endl;
+        
+        // Unit 3: Tank - can afford
+        std::cout << "  |" << (playerGold >= 7 ? GREEN "  ✓ " RESET : RED "  ✗ " RESET)
+                  << "[3] " << "🛡️ " << std::left << std::setw(10) << "Tank"
+                  << std::setw(9) << "Tank"
+                  << "HP:" << std::setw(4) << "30"
+                  << "ATK:" << std::setw(3) << "5"
+                  << "R:" << "1"
+                  << " [Block] "
+                  << (playerGold >= 7 ? GREEN : RED) << "$7" << RESET
+                  << std::string(W - 60, ' ') << "|" << std::endl;
+        
+        // Unit 4: Assassin - can afford
+        std::cout << "  |" << (playerGold >= 6 ? GREEN "  ✓ " RESET : RED "  ✗ " RESET)
+                  << "[4] " << "🗡️ " << std::left << std::setw(10) << "Assassin"
+                  << std::setw(9) << "Assassin"
+                  << "HP:" << std::setw(4) << "14"
+                  << "ATK:" << std::setw(3) << "11"
+                  << "R:" << "1"
+                  << " [Crit]  "
+                  << (playerGold >= 6 ? GREEN : RED) << "$6" << RESET
+                  << std::string(W - 60, ' ') << "|" << std::endl;
+        
+        // Unit 5: Archer - can afford
+        std::cout << "  |" << (playerGold >= 4 ? GREEN "  ✓ " RESET : RED "  ✗ " RESET)
+                  << "[5] " << "🏹 " << std::left << std::setw(10) << "Archer"
+                  << std::setw(9) << "Archer"
+                  << "HP:" << std::setw(4) << "16"
+                  << "ATK:" << std::setw(3) << "9"
+                  << "R:" << "3"
+                  << " [DblShot]"
+                  << (playerGold >= 4 ? GREEN : RED) << "$4" << RESET
+                  << std::string(W - 60, ' ') << "|" << std::endl;
+        
+        std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+        std::cout << BOLD << BR_YELLOW << "  💰 Your Gold: 15" << RESET << std::endl;
         std::cout << std::endl;
         
         std::cout << "  SHOP COMMANDS:" << std::endl;
-        std::cout << "  • buy <1-5>     - Buy a unit" << std::endl;
-        std::cout << "  • info shop N   - See unit details" << std::endl;
-        std::cout << "  • refresh       - Re-roll shop" << std::endl;
+        std::cout << "  • " << BR_CYAN << "buy <1-5>" << RESET << "      - Purchase a unit" << std::endl;
+        std::cout << "  • " << BR_CYAN << "info shop N" << RESET << "  - See unit details" << std::endl;
+        std::cout << "  • " << BR_CYAN << "refresh" << RESET << "        - Re-roll shop" << std::endl;
         std::cout << std::endl;
         
         bool validInput = false;
@@ -441,23 +497,23 @@ bool Tutorial::lessonPlacement() {
     if (choice == "skip" || choice == "SKIP") {
         std::cout << "  Skipping this lesson..." << std::endl;
     } else {
-        // Interactive: Show practice placement
+        // Interactive: Show practice placement with real game format
         clearScreen();
         printProgressBar(4, 9);  // Show progress at top
         std::cout << std::endl;
         std::cout << "  Let's practice placing units on the battlefield!" << std::endl;
         std::cout << std::endl;
         std::cout << "  Your Bench:" << std::endl;
-        std::cout << "  [1] Warrior" << std::endl;
-        std::cout << "  [2] Archer" << std::endl;
+        std::cout << "  [1] " << "⚔️  Warrior" << std::endl;
+        std::cout << "  [2] " << "🏹 Archer" << std::endl;
         std::cout << std::endl;
         
-        // Your Formation board - where units are placed
-        const int FORM_W = 15;
-        std::cout << BOLD << WHITE << "  +" << std::string(FORM_W, '-') << "+" << RESET << std::endl;
-        std::cout << BOLD << WHITE << "  | YOUR FORMATION |" << RESET << std::endl;
-        std::cout << BOLD << WHITE << "  |    0 1 2 3     |" << RESET << std::endl;
-        std::cout << BOLD << WHITE << "  +" << std::string(FORM_W, '-') << "+" << RESET << std::endl;
+        // Your Formation board - matching real game format
+        const int FORM_W = 17;
+        std::cout << BOLD << CYAN << "  +" << std::string(FORM_W, '-') << "+" << RESET << std::endl;
+        std::cout << "  |" << BOLD << CYAN << " YOUR FORMATION " << RESET << "|" << std::endl;
+        std::cout << "  |    0 1 2 3     |" << std::endl;
+        std::cout << BOLD << CYAN << "  +" << std::string(FORM_W, '-') << "+" << RESET << std::endl;
         
         std::string formRows[] = {
             " 0 | .  .  .  .  |",
@@ -468,17 +524,17 @@ bool Tutorial::lessonPlacement() {
         };
         
         for (const auto& row : formRows) {
-            std::cout << BOLD << WHITE << row << RESET << std::endl;
+            std::cout << " " << row << std::endl;
         }
-        std::cout << BOLD << WHITE << "  +" << std::string(FORM_W, '-') << "+" << RESET << std::endl;
+        std::cout << BOLD << CYAN << "  +" << std::string(FORM_W, '-') << "+" << RESET << std::endl;
         std::cout << std::endl;
         std::cout << "  No units deployed." << std::endl;
         std::cout << std::endl;
-        std::cout << "  PLACEMENT COMMANDS:" << std::endl;
-        std::cout << "  • place <idx> <row> <col>  - Place unit at position" << std::endl;
-        std::cout << "  • remove <row> <col>       - Remove unit from board" << std::endl;
-        std::cout << "  • auto                     - Auto-place all units" << std::endl;
-        std::cout << "  • formation                - Show current formation" << std::endl;
+        std::cout << "  " << BR_CYAN << "PLACEMENT COMMANDS:" << RESET << std::endl;
+        std::cout << "  • " << BR_CYAN << "place <idx> <row> <col>" << RESET << "  - Place unit at position" << std::endl;
+        std::cout << "  • " << BR_CYAN << "remove <row> <col>" << RESET << "       - Remove unit from board" << std::endl;
+        std::cout << "  • " << BR_CYAN << "auto" << RESET << "                     - Auto-place all units" << std::endl;
+        std::cout << "  • " << BR_CYAN << "formation" << RESET << "                - Show current formation" << std::endl;
         std::cout << std::endl;
         
         bool validInput = false;
@@ -736,20 +792,20 @@ void Tutorial::demonstrateFullGameplay() {
     std::cout << BOLD << BR_YELLOW << "  [PHASE 2: ARRANGING FORMATION]" << RESET << std::endl;
     std::cout << std::endl;
     std::cout << "  Your Bench:" << std::endl;
-    std::cout << "    [1] Warrior" << std::endl;
-    std::cout << "    [2] Tank" << std::endl;
-    std::cout << "    [3] Archer" << std::endl;
+    std::cout << "    [1] " << "⚔️  Warrior" << std::endl;
+    std::cout << "    [2] " << "🛡️  Tank" << std::endl;
+    std::cout << "    [3] " << "🏹 Archer" << std::endl;
     std::cout << std::endl;
-    std::cout << BOLD << WHITE << "  +---------------+" << RESET << std::endl;
-    std::cout << BOLD << WHITE << "  | YOUR FORMATION |" << RESET << std::endl;
-    std::cout << BOLD << WHITE << "  |    0 1 2 3     |" << RESET << std::endl;
-    std::cout << BOLD << WHITE << "  +---------------+" << RESET << std::endl;
-    std::cout << " 0 | Tn .  .  Ar |" << std::endl;
+    std::cout << BOLD << CYAN << "  +---------------+" << RESET << std::endl;
+    std::cout << "  |" << BOLD << CYAN << " YOUR FORMATION " << RESET << "|" << std::endl;
+    std::cout << "  |    0 1 2 3     |" << std::endl;
+    std::cout << BOLD << CYAN << "  +---------------+" << RESET << std::endl;
+    std::cout << " 0 | 🛡️  .  .  🏹 |" << std::endl;
     std::cout << " 1 | .  .  .  .  |" << std::endl;
-    std::cout << " 2 | Wa .  .  .  |" << std::endl;
+    std::cout << " 2 | ⚔️  .  .  .  |" << std::endl;
     std::cout << " 3 | .  .  .  .  |" << std::endl;
     std::cout << " 4 | .  .  .  .  |" << std::endl;
-    std::cout << BOLD << WHITE << "  +---------------+" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  +---------------+" << RESET << std::endl;
     std::cout << std::endl;
     std::cout << "  Strategy: Tank in front + high-damage Warrior in middle + Archer for support" << std::endl;
     std::cout << std::endl;
