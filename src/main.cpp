@@ -71,6 +71,41 @@ void displayMainMenu() {
 }
 
 // -----------------------------------------------------------------
+// selectPlayerName
+// What it does: Prompts user to input their player name for the game
+// Input: none
+// Output: player name as std::string (empty string defaults to "Player")
+// -----------------------------------------------------------------
+std::string selectPlayerName() {
+    const int W = 43;
+    std::cout << std::endl;
+    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+    boxLine(BOLD + std::string(BR_CYAN) + "  👤 Choose Your Name" + RESET, W);
+    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+    boxLine("  Your name will be recorded on the", W);
+    boxLine("  leaderboard for each victory.", W);
+    boxLine("  (Leave empty for default: Player)", W);
+    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+    std::cout << BOLD << BR_YELLOW << "  Enter name > " << RESET;
+    
+    std::string playerName;
+    std::getline(std::cin, playerName);
+    
+    // Trim leading/trailing whitespace
+    size_t start = playerName.find_first_not_of(" \t\n\r");
+    size_t end = playerName.find_last_not_of(" \t\n\r");
+    
+    if (start == std::string::npos) {
+        playerName = "Player";  // Default name if empty
+    } else {
+        playerName = playerName.substr(start, end - start + 1);
+    }
+    
+    std::cout << BR_GREEN << "  ✅ Welcome, " << playerName << "!" << RESET << std::endl << std::endl;
+    return playerName;
+}
+
+// -----------------------------------------------------------------
 // selectDifficulty
 // What it does : prompts the user to choose Easy or Hard difficulty.
 // Input  : none
@@ -123,9 +158,10 @@ int main() {
         if (!std::getline(std::cin, choice)) break;
 
         if (choice == "1") {
-            // New Game - directly select difficulty and start
+            // New Game - input player name, select difficulty, and start
+            std::string playerName = selectPlayerName();
             Difficulty diff = selectDifficulty();
-            Game game(diff);
+            Game game(diff, playerName);
             game.run(true);
 
         } else if (choice == "2") {

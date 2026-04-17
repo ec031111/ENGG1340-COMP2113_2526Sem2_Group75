@@ -300,20 +300,89 @@ bool Record::loadGame(Player& player,
 }
 
 // =====================================================================
-// Record::saveRecord - append game result to leaderboard
+// Record::saveRecord - Save highest record for each player (max 50 records)
+// What it does: Saves game result to records.txt, keeping only the highest
+//               record (most rounds survived) for each player. When records
+//               exceed 50 lines, removes oldest records from the beginning.
+// Inputs: player (Player&) - player whose record to save
+//         ai (AI&) - AI opponent with difficulty info
+// Outputs: none (writes to RECORD_FILE, prints status to stdout)
 // =====================================================================
 void Record::saveRecord(const Player& player, const AI& ai) {
-    std::ofstream file(RECORD_FILE, std::ios::app);
-    if (!file.is_open()) {
+    const int MAX_RECORDS = 50;
+    
+    std::string playerName = player.getName();
+    int roundsPlayed = player.getRoundsPlayed();
+    int finalGold = player.getGold();
+    std::string difficulty = ai.getDifficultyString();
+    
+    // Read all existing records and find if this player exists
+    std::vector<std::string> allRecords;
+    std::ifstream inFile(RECORD_FILE);
+    std::string line;
+    bool playerFound = false;
+    int highestRounds = 0;
+    
+    if (inFile.is_open()) {
+        while (std::getline(inFile, line)) {
+            std::istringstream iss(line);
+            std::string name;
+            int rounds, gold;
+            std::string diff;
+            
+            if (iss >> name >> rounds >> gold >> diff) {
+                if (name == playerName) {
+                    playerFound = true;
+                    highestRounds = rounds;
+                    // Only keep this record if new score is not better
+                    if (roundsPlayed > highestRounds) {
+                        // New score is better, don't add old record
+                        continue;
+                    } else {
+                        // New score is not better, keep the old record
+                        allRecords.push_back(line);
+                        std::cout << "\n  Record not saved. " << playerName 
+                                  << "'s best remains: " << highestRounds << " rounds." << std::endl;
+                        return;
+                    }
+                } else {
+                    allRecords.push_back(line);
+                }
+            }
+        }
+        inFile.close();
+    }
+    
+    // Add the new record for this player
+    std::ostringstream newRecord;
+    newRecord << playerName << " " << roundsPlayed << " " << finalGold << " " << difficulty;
+    allRecords.push_back(newRecord.str());
+    
+    // If total records exceed MAX_RECORDS, remove oldest records from the beginning
+    while ((int)allRecords.size() > MAX_RECORDS) {
+        allRecords.erase(allRecords.begin());
+    }
+    
+    // Write all records back to file
+    std::ofstream outFile(RECORD_FILE);
+    if (!outFile.is_open()) {
         std::cerr << "  Warning: could not write to " << RECORD_FILE << std::endl;
         return;
     }
-    file << player.getName() << " "
-         << player.getRoundsPlayed() << " "
-         << player.getGold() << " "
-         << ai.getDifficultyString() << std::endl;
-    file.close();
-    std::cout << "\n  Record saved." << std::endl;
+    
+    for (const auto& rec : allRecords) {
+        outFile << rec << std::endl;
+    }
+    
+    outFile.close();
+    
+    if (playerFound && roundsPlayed > highestRounds) {
+        std::cout << "\n  🎉 New personal best! " << playerName << ": " 
+                  << roundsPlayed << " rounds (was " << highestRounds << ")" << std::endl;
+    } else if (!playerFound) {
+        std::cout << "\n  ✅ Record saved! " << playerName << ": " 
+                  << roundsPlayed << " rounds." << std::endl;
+    }
 }
 
 // =====================================================================

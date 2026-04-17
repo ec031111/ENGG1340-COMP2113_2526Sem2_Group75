@@ -183,10 +183,14 @@ static std::string abilityDesc(UnitClass cls) {
 }
 
 // =====================================================================
-// Constructor / Destructor
+// Constructor - Initialize game with difficulty and player name
+// What it does: Sets up the game engine with difficulty and player name
+// Inputs: difficulty (Difficulty enum) - game difficulty (EASY or HARD)
+//         playerName (std::string) - name of the player (default: "Player")
+// Outputs: none (initializes member variables)
 // =====================================================================
-Game::Game(Difficulty difficulty)
-    : ai_(difficulty), running_(true), skipCombat_(false),
+Game::Game(Difficulty difficulty, const std::string& playerName)
+    : player_(playerName), ai_(difficulty), running_(true), skipCombat_(false),
       currentEvent_(EVENT_NONE), combatPace_(1), currentPhase_(PHASE_ROUND_START),
       shouldResumeShopPhase_(false), currentRoundType_(ROUND_TYPE_PVP), logFilename_("") {}
 
@@ -391,9 +395,6 @@ int Game::run(bool show_intro) {
         }
     }
 
-    // Initialize battle log for this game session
-    initializeLog();
-
     while (running_ && player_.isAlive()) {
         // Handle resuming from saved game
         if (!shouldResumeShopPhase_) {
@@ -516,11 +517,6 @@ int Game::run(bool show_intro) {
                       << " You take " << damage << " damage." << std::endl;
         }
 
-        // Write to log after battle
-        writeToLog(player_.getRoundsPlayed(), playerWon, player_.getGold(), 
-                   playerWon ? player_.getWinStreak() : player_.getLossStreak(), 
-                   currentEvent_ != EVENT_NONE);
-
         // Note: Unit cleanup is handled in battlePhase() for unit persistence
         currentEvent_ = EVENT_NONE;
         currentPhase_ = PHASE_ROUND_START;  // Ready for next round
@@ -562,9 +558,6 @@ int Game::run(bool show_intro) {
             
             std::cout << "  +" << std::string(GW, '=') << "+" << std::endl;
         } else {
-            // Display log for this round
-            displayLogWithBattleReport();
-            
             // Autosave to slot 1 after round completes
             performAutosave();
             
@@ -1916,24 +1909,17 @@ int Game::getCombatPace() const {
 
 // =====================================================================
 // initializeLog - Create and initialize battle log file for this game session
-// What it does: Creates a new log file with timestamp in docs/ folder
+// What it does: Creates/overwrites a fixed log file (only keeps last battle)
 // Returns: void
 // =====================================================================
 void Game::initializeLog() {
-    std::time_t now = std::time(nullptr);
-    std::tm* timeinfo = std::localtime(&now);
+    logFilename_ = "docs/last_battle_log.txt";
     
-    char timestamp[100];
-    std::strftime(timestamp, sizeof(timestamp), "%Y%m%d_%H%M%S", timeinfo);
-    
-    logFilename_ = std::string("docs/battle_log_") + timestamp + ".txt";
-    
-    // Create/open file and write header
+    // Create/open file and write header (overwrite mode)
     std::ofstream file(logFilename_);
     if (file.is_open()) {
         file << "========================================" << std::endl;
-        file << "AUTO-BATTLER ARENA - BATTLE LOG" << std::endl;
-        file << "Session Start: " << std::asctime(timeinfo);
+        file << "AUTO-BATTLER ARENA - LAST BATTLE LOG" << std::endl;
         file << "========================================" << std::endl << std::endl;
         file.close();
     }

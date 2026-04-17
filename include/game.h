@@ -101,10 +101,11 @@ struct Settings {
 // ---------------------------------------------------------------------
 class Game {
 public:
-    // Purpose: Initialize game with specified difficulty
+    // Purpose: Initialize game with specified difficulty and player name
     // Input: difficulty (enum) - EASY or HARD
+    //        playerName (string) - name of the player
     // Output: Initialized Game object
-    Game(Difficulty difficulty);
+    Game(Difficulty difficulty, const std::string& playerName = "Player");
 
     // Purpose: Clean up game resources and dynamically allocated memory
     // Input: none
