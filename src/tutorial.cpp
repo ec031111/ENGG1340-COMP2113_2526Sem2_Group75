@@ -126,18 +126,18 @@ void Tutorial::waitForInput() {
 // -----------------------------------------------------------------
 void Tutorial::printEncouragement() {
     const std::vector<std::string> messages = {
-        "Great job! You're learning fast!",
-        "Excellent! You're getting the hang of it!",
-        "Perfect! You're a quick learner!",
-        "Well done! Keep it up!",
-        "Fantastic! You're doing amazing!",
-        "Superb! You're ready for the battlefield!",
-        "Wonderful! You're progressing nicely!",
-        "Outstanding! You're becoming a true commander!"
+        "🌟 Great job! You're learning fast!",
+        "⭐ Excellent! You're getting the hang of it!",
+        "✨ Perfect! You're a quick learner!",
+        "🎯 Well done! Keep it up!",
+        "🚀 Fantastic! You're doing amazing!",
+        "🏆 Superb! You're ready for the battlefield!",
+        "💫 Wonderful! You're progressing nicely!",
+        "👑 Outstanding! You're becoming a true commander!"
     };
     
     int idx = rand() % messages.size();
-    std::cout << BOLD << BR_GREEN << "\n  [SUCCESS] " << messages[idx] << RESET << std::endl;
+    std::cout << BOLD << BR_GREEN << "\n  ✓ " << messages[idx] << RESET << std::endl;
 }
 
 // -----------------------------------------------------------------
@@ -177,8 +177,8 @@ void Tutorial::displayLesson(const std::string& title,
     
     const int W = 70;
     std::cout << std::endl;
-    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
-    std::cout << BOLD << CYAN << "  | TUTORIAL: " << std::left << std::setw(W - 14) << title << "|" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  +" << std::string(W, '=') << "+" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  | 📚 TUTORIAL: " << std::left << std::setw(W - 17) << title << "|" << RESET << std::endl;
     std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
     printBox("", W);
     
@@ -187,7 +187,7 @@ void Tutorial::displayLesson(const std::string& title,
     }
     
     printBox("", W);
-    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  +" << std::string(W, '=') << "+" << RESET << std::endl;
     std::cout << std::endl;
 }
 
@@ -213,7 +213,7 @@ bool Tutorial::lessonIntro() {
         "" BR_RED "Destroy all enemy units to win!" RESET
     };
     
-    displayLesson("Welcome, Commander!", content, 1, 9);
+    displayLesson("Welcome, Commander! 👑", content, 1, 9);
     
     std::string choice = getUserChoice();
     if (choice == "menu" || choice == "MENU") {
@@ -250,7 +250,7 @@ bool Tutorial::lessonShop() {
         "interest bonuses!"
     };
     
-    displayLesson("The Shop System", content, 2, 9);
+    displayLesson("The Shop System 🏪", content, 2, 9);
     
     std::string choice = getUserChoice();
     if (choice == "menu" || choice == "MENU") {
@@ -374,7 +374,7 @@ bool Tutorial::lessonUnits() {
         "Each unit has: Name, Class, " BR_BLUE "HP" RESET ", " BR_BLUE "ATK" RESET ", " BR_BLUE "Crit%" RESET ", Level (star)"
     };
     
-    displayLesson("Units and Special Abilities", content, 3, 9);
+    displayLesson("Units and Special Abilities 🧩", content, 3, 9);
     
     std::string choice = getUserChoice();
     if (choice == "menu" || choice == "MENU") {
@@ -427,7 +427,7 @@ bool Tutorial::lessonPlacement() {
         "  (Ma=Mage, Ar=Archer, Ta=Tank, WA=Warrior)"
     };
     
-    displayLesson("Board Placement & Formation", content, 4, 9);
+    displayLesson("Board Placement & Formation 🗺️", content, 4, 9);
     
     std::string choice = getUserChoice();
     if (choice == "menu" || choice == "MENU") {
@@ -560,7 +560,7 @@ bool Tutorial::lessonCombat() {
         "You can watch the combat and press " BR_YELLOW "[Enter]" RESET " to skip"
     };
     
-    displayLesson("Combat System", content, 5, 9);
+    displayLesson("Combat System ⚔️", content, 5, 9);
     
     std::string choice = getUserChoice();
     if (choice == "menu" || choice == "MENU") {
@@ -594,7 +594,7 @@ bool Tutorial::lessonSynergy() {
         "💡 " BOLD BR_YELLOW "STRATEGY" RESET ": Build themed armies for maximum power!"
     };
     
-    displayLesson("Synergy Effects", content, 6, 9);
+    displayLesson("Synergy Effects ✨", content, 6, 9);
     
     std::string choice = getUserChoice();
     if (choice == "menu" || choice == "MENU") {
@@ -638,7 +638,7 @@ bool Tutorial::lessonGoldManagement() {
         "💰 " BOLD BR_YELLOW "PRO TIP: " RESET "" BR_YELLOW "50 gold generates 5 free gold per round!" RESET
     };
     
-    displayLesson("Gold & Resource Management", content, 7, 9);
+    displayLesson("Gold & Resource Management 💰", content, 7, 9);
     
     std::string choice = getUserChoice();
     if (choice == "menu" || choice == "MENU") {
@@ -682,7 +682,7 @@ bool Tutorial::lessonLevelUp() {
         "ℹ️  " BOLD BR_RED "NOTE:" RESET " Merging is " BR_GREEN "automatic" RESET " - no action needed from you!"
     };
     
-    displayLesson("Unit Leveling & Merging", content, 8, 9);
+    displayLesson("Unit Leveling & Merging ⭐", content, 8, 9);
     
     std::string choice = getUserChoice();
     if (choice == "menu" || choice == "MENU") {
@@ -860,7 +860,7 @@ bool Tutorial::lessonCompletion() {
         BOLD BR_YELLOW "May fortune favor the bold, Commander!" RESET
     };
     
-    displayLesson("Tutorial Complete!", content, 9, 9);
+    displayLesson("Tutorial Complete! 🏁", content, 9, 9);
     printEncouragement();
     std::cout << "\n  You will now return to the main menu..." << std::endl;
     

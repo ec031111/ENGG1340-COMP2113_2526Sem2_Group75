@@ -26,6 +26,36 @@
 #include <thread>
 #include <chrono>
 
+static int visibleWidth(const std::string& text) {
+    int width = 0;
+    bool inEscape = false;
+    for (size_t i = 0; i < text.size(); ++i) {
+        if (text[i] == '\033') {
+            inEscape = true;
+            continue;
+        }
+        if (inEscape) {
+            if (text[i] == 'm') inEscape = false;
+            continue;
+        }
+
+        unsigned char ch = static_cast<unsigned char>(text[i]);
+        if ((ch & 0x80) == 0) {
+            ++width;
+        } else if ((ch & 0xE0) == 0xC0) {
+            width += 2;
+            ++i;
+        } else if ((ch & 0xF0) == 0xE0) {
+            width += 2;
+            i += 2;
+        } else if ((ch & 0xF8) == 0xF0) {
+            width += 2;
+            i += 3;
+        }
+    }
+    return width;
+}
+
 // -----------------------------------------------------------------
 // trim - Remove leading and trailing whitespace from string
 // What it does : strips spaces, tabs, newlines from string edges
@@ -55,15 +85,18 @@ std::string toLower(std::string s) {
 // Helper: print a line padded to width W inside |...|
 static void printBoxLine(const std::string& text, int W) {
     std::string s = text;
-    if ((int)s.size() < W) s += std::string(W - s.size(), ' ');
+    int width = visibleWidth(s);
+    if (width < W) s += std::string(W - width, ' ');
     std::cout << "  |" << s << "|" << std::endl;
 }
 
 // Helper: print centered title
 static void printBoxTitle(const std::string& title, int W) {
-    int pad = (W - (int)title.size()) / 2;
+    int titleWidth = visibleWidth(title);
+    int pad = (W - titleWidth) / 2;
+    if (pad < 0) pad = 0;
     std::cout << "  |" << std::string(pad, ' ') << title
-              << std::string(W - pad - (int)title.size(), ' ') << "|" << std::endl;
+              << std::string(std::max(0, W - pad - titleWidth), ' ') << "|" << std::endl;
 }
 
 // Helper: build an HP bar string of given width
@@ -173,23 +206,23 @@ Game::~Game() {}
 void Game::showIntro() const {
     const int W = 60;
     std::cout << std::endl;
-    std::cout << "  +" << std::string(W, '=') << "+" << std::endl;
-    printBoxTitle("THE BATTLE FOR AETHORIA", W);
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    std::cout << BOLD << BR_CYAN << "  +" << std::string(W, '=') << "+" << RESET << std::endl;
+    printBoxTitle(BOLD + std::string(BR_CYAN) + "⚔️  THE BATTLE FOR AETHORIA  🏆" + RESET, W);
+    std::cout << BOLD << BR_CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
     printBoxLine("", W);
-    printBoxLine("  In the war-torn realm of Aethoria, the Dark Lord", W);
-    printBoxLine("  Malachar has raised an army of darkness. As the", W);
-    printBoxLine("  last surviving commander of the Allied Forces,", W);
-    printBoxLine("  you must recruit heroes, form your formation,", W);
+    printBoxLine("  In the war-torn realm of Aethoria, the " + std::string(BR_RED) + "Dark Lord" + RESET, W);
+    printBoxLine("  " + std::string(BR_RED) + "Malachar" + RESET + " has raised an army of darkness. As the", W);
+    printBoxLine("  last surviving commander of the " + std::string(BR_GREEN) + "Allied Forces" + RESET + ",", W);
+    printBoxLine("  you must recruit " + std::string(BR_YELLOW) + "heroes" + RESET + ", form your formation,", W);
     printBoxLine("  and fight wave after wave of enemies to protect", W);
     printBoxLine("  what remains of civilization.", W);
     printBoxLine("", W);
-    printBoxLine("  Each round, Malachar's forces grow stronger.", W);
-    printBoxLine("  Your task: survive as long as you can, and", W);
-    printBoxLine("  perhaps... turn the tide of war.", W);
+    printBoxLine("  Each round, " + std::string(BR_RED) + "Malachar's forces" + RESET + " grow stronger.", W);
+    printBoxLine("  Your task: " + std::string(BR_YELLOW) + "survive as long as you can" + RESET + ", and", W);
+    printBoxLine("  perhaps... " + std::string(BR_GREEN) + "turn the tide of war" + RESET + ".", W);
     printBoxLine("", W);
-    std::cout << "  +" << std::string(W, '=') << "+" << std::endl;
-    std::cout << "\n  [Press Enter to begin your campaign...]";
+    std::cout << BOLD << BR_CYAN << "  +" << std::string(W, '=') << "+" << RESET << std::endl;
+    std::cout << "\n  " << BOLD << BR_YELLOW << "[Press Enter to begin your campaign...]" << RESET;
     std::string dummy;
     std::getline(std::cin, dummy);
 }
@@ -307,11 +340,14 @@ void Game::displayMilestoneAnimation(int round) const {
 int Game::run(bool show_intro) {
     std::cout << std::endl;
     std::cout << BOLD << CYAN << "  +======================================+" << RESET << std::endl;
-    std::cout << BOLD << CYAN << "  |       AUTO-BATTLER ARENA             |" << RESET << std::endl;
-    std::cout << BOLD << CYAN << "  |       Difficulty: " << std::left << std::setw(19)
-              << ai_.getDifficultyString() << "|" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  |    ⚔️  AUTO-BATTLER ARENA  🏆      |" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  |       Difficulty: "
+              << (ai_.getDifficultyString() == "HARD" ? BR_RED : BR_GREEN)
+              << std::left << std::setw(19) << ai_.getDifficultyString()
+              << CYAN << "|" << RESET << std::endl;
     std::cout << BOLD << CYAN << "  +======================================+" << RESET << std::endl;
-    std::cout << "\n  Type 'help' for commands. 'save' to save game.\n" << std::endl;
+    std::cout << "\n  " << BR_CYAN << "📖" << RESET << " Type 'help' for commands. "
+              << BR_YELLOW << "💾" << RESET << " 'save' to save game.\n" << std::endl;
 
     // Show story intro for new games only
     if (show_intro) {

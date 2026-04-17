@@ -19,10 +19,28 @@
 #include <string>
 #include <sstream>
 
+static int visibleWidth(const std::string& text) {
+    int width = 0;
+    bool inEscape = false;
+    for (char ch : text) {
+        if (ch == '\033') {
+            inEscape = true;
+            continue;
+        }
+        if (inEscape) {
+            if (ch == 'm') inEscape = false;
+            continue;
+        }
+        ++width;
+    }
+    return width;
+}
+
 // Helper: print a padded line inside |...|
 static void boxLine(const std::string& text, int W) {
     std::string s = text;
-    if ((int)s.size() < W) s += std::string(W - s.size(), ' ');
+    int width = visibleWidth(s);
+    if (width < W) s += std::string(W - width, ' ');
     std::cout << "  |" << s << "|" << std::endl;
 }
 
@@ -33,23 +51,23 @@ static void boxLine(const std::string& text, int W) {
 // Output : none (prints to stdout)
 // -----------------------------------------------------------------
 void displayMainMenu() {
-    const int W = 37;
+    const int W = 43;
     std::cout << std::endl;
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
     boxLine("", W);
-    boxLine("      AUTO-BATTLER ARENA", W);
+    boxLine(BOLD + std::string(BR_CYAN) + "   ⚔️  AUTO-BATTLER ARENA  🏆" + RESET, W);
     boxLine("", W);
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
     boxLine("", W);
-    boxLine("  1.  New Game", W);
-    boxLine("  2.  Tutorial", W);
-    boxLine("  3.  Leaderboard", W);
-    boxLine("  4.  Load Game", W);
-    boxLine("  5.  Quit", W);
+    boxLine("  " + std::string(BR_GREEN) + "1.  🎮 New Game" + RESET, W);
+    boxLine("  " + std::string(BR_BLUE) + "2.  📚 Tutorial" + RESET, W);
+    boxLine("  " + std::string(BR_YELLOW) + "3.  🏅 Leaderboard" + RESET, W);
+    boxLine("  " + std::string(BR_RED) + "4.  💾 Load Game" + RESET, W);
+    boxLine("  " + std::string(BR_WHITE) + "5.  🚪 Quit" + RESET, W);
     boxLine("", W);
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
     std::cout << std::endl;
-    std::cout << "  Select > ";
+    std::cout << BOLD << BR_YELLOW << "  Select > " << RESET;
 }
 
 // -----------------------------------------------------------------
@@ -59,28 +77,28 @@ void displayMainMenu() {
 // Output : the chosen Difficulty enum value
 // -----------------------------------------------------------------
 Difficulty selectDifficulty() {
-    const int W = 37;
+    const int W = 43;
     std::cout << std::endl;
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
-    boxLine("  Select Difficulty", W);
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
-    boxLine("  1. Easy", W);
+    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+    boxLine(BOLD + std::string(BR_CYAN) + "  🎯 Select Difficulty" + RESET, W);
+    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+    boxLine("  " + std::string(BR_GREEN) + "1. Easy  😊" + RESET, W);
     boxLine("     - AI buys cheap units", W);
     boxLine("     - Random placement", W);
-    boxLine("  2. Hard", W);
+    boxLine("  " + std::string(BR_RED) + "2. Hard  😈" + RESET, W);
     boxLine("     - AI uses smart strategy", W);
     boxLine("     - Optimised formation", W);
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
-    std::cout << "  Select > ";
+    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+    std::cout << BOLD << BR_YELLOW << "  Select > " << RESET;
 
     std::string input;
     std::getline(std::cin, input);
 
     if (input == "2") {
-        std::cout << "  Difficulty set to HARD. Good luck!" << std::endl;
+        std::cout << BR_RED << "  Difficulty set to HARD. Good luck!" << RESET << std::endl;
         return HARD;
     }
-    std::cout << "  Difficulty set to EASY." << std::endl;
+    std::cout << BR_GREEN << "  Difficulty set to EASY." << RESET << std::endl;
     return EASY;
 }
 

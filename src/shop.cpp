@@ -14,6 +14,64 @@
 #include <sstream>
 #include <string>
 #include <cstdlib>
+#include <utility>
+
+static const std::string ANSI_RESET = "\033[0m";
+static const std::string ANSI_RED = "\033[31m";
+static const std::string ANSI_GREEN = "\033[32m";
+static const std::string ANSI_YELLOW = "\033[33m";
+static const std::string ANSI_BLUE = "\033[34m";
+static const std::string ANSI_MAGENTA = "\033[35m";
+static const std::string ANSI_CYAN = "\033[36m";
+static const std::string ANSI_BOLD = "\033[1m";
+static const std::string ANSI_BRIGHT_YELLOW = "\033[93m";
+
+static int visibleWidth(const std::string& text) {
+    int width = 0;
+    bool inEscape = false;
+    for (size_t i = 0; i < text.size(); ++i) {
+        if (text[i] == '\033') {
+            inEscape = true;
+            continue;
+        }
+        if (inEscape) {
+            if (text[i] == 'm') inEscape = false;
+            continue;
+        }
+
+        unsigned char ch = static_cast<unsigned char>(text[i]);
+        if ((ch & 0x80) == 0) {
+            ++width;
+        } else if ((ch & 0xE0) == 0xC0) {
+            width += 2;
+            ++i;
+        } else if ((ch & 0xF0) == 0xE0) {
+            width += 2;
+            i += 2;
+        } else if ((ch & 0xF8) == 0xF0) {
+            width += 2;
+            i += 3;
+        }
+    }
+    return width;
+}
+
+static std::string padToWidth(std::string text, int width) {
+    int display = visibleWidth(text);
+    if (display < width) text += std::string(width - display, ' ');
+    return text;
+}
+
+static std::pair<std::string, std::string> getClassColorEmoji(UnitClass cls) {
+    switch (cls) {
+        case WARRIOR: return {ANSI_RED, "⚔️"};
+        case MAGE: return {ANSI_BLUE, "🔮"};
+        case TANK: return {ANSI_GREEN, "🛡️"};
+        case ASSASSIN: return {ANSI_MAGENTA, "🗡️"};
+        case ARCHER: return {ANSI_YELLOW, "🏹"};
+        default: return {ANSI_CYAN, "•"};
+    }
+}
 
 // -----------------------------------------------------------------
 // Constructor
@@ -123,43 +181,40 @@ Unit* Shop::buyUnit(int slotIndex) {
 // Purpose: Visual shop interface for player browsing and purchasing
 // -----------------------------------------------------------------
 void Shop::display() const {
-    const int W = 58;  // inner width between the two '|'
+    const int W = 68;
     std::cout << std::endl;
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    std::cout << ANSI_BOLD << ANSI_CYAN << "  +" << std::string(W, '-') << "+" << ANSI_RESET << std::endl;
 
-    // Title centered
-    std::string title = "SHOP  (refresh: $" + std::to_string(REFRESH_COST) + ")";
-    int pad = (W - (int)title.size()) / 2;
+    std::string title = ANSI_BOLD + ANSI_BRIGHT_YELLOW + "🏪 SHOP  (refresh: $" + std::to_string(REFRESH_COST) + ") 🏪" + ANSI_RESET;
+    int pad = (W - visibleWidth(title)) / 2;
+    if (pad < 0) pad = 0;
     std::cout << "  |" << std::string(pad, ' ') << title
-              << std::string(W - pad - (int)title.size(), ' ') << "|" << std::endl;
+              << std::string(std::max(0, W - pad - visibleWidth(title)), ' ') << "|" << std::endl;
 
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    std::cout << ANSI_BOLD << ANSI_CYAN << "  +" << std::string(W, '-') << "+" << ANSI_RESET << std::endl;
 
     for (int i = 0; i < SHOP_SIZE; ++i) {
         std::ostringstream line;
         if (slots_[i] != nullptr) {
             bool canAfford = (slots_[i]->getCost() <= playerGoldRef_);
-            if (!canAfford) line << " X";
-            else            line << "  ";
+            auto [color, emoji] = getClassColorEmoji(slots_[i]->getClass());
+            line << (canAfford ? "  " + ANSI_GREEN + "✓ " + ANSI_RESET : "  " + ANSI_RED + "✗ " + ANSI_RESET);
             line << "[" << (i + 1) << "] "
-                 << std::left << std::setw(10) << slots_[i]->getName()
-                 << std::setw(4) << slots_[i]->getClassString()
+                 << color << emoji << " " << std::left << std::setw(10) << slots_[i]->getName() << ANSI_RESET
+                 << std::setw(9) << slots_[i]->getClassString()
                  << "HP:" << std::setw(4) << slots_[i]->getMaxHp()
                  << "ATK:" << std::setw(3) << slots_[i]->getAtk()
                  << "R:" << slots_[i]->getAttackRange()
                  << " [" << slots_[i]->getAbilityTag() << "]"
-                 << " $" << slots_[i]->getCost();
+                 << " " << (canAfford ? ANSI_GREEN : ANSI_RED) << "$" << slots_[i]->getCost() << ANSI_RESET;
         } else {
-            line << "    [" << (i + 1) << "] -- SOLD --";
+            line << "    [" << (i + 1) << "] " << ANSI_YELLOW << "-- SOLD --" << ANSI_RESET;
         }
-        std::string s = line.str();
-        // Pad or trim to exactly W chars
-        if ((int)s.size() < W) s += std::string(W - s.size(), ' ');
-        else if ((int)s.size() > W) s = s.substr(0, W);
+        std::string s = padToWidth(line.str(), W);
         std::cout << "  |" << s << "|" << std::endl;
     }
 
-    std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
+    std::cout << ANSI_BOLD << ANSI_CYAN << "  +" << std::string(W, '-') << "+" << ANSI_RESET << std::endl;
 }
 
 // -----------------------------------------------------------------

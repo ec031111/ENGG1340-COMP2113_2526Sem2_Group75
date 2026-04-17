@@ -21,10 +21,62 @@
 #define RESET       "\033[0m"
 #define CYAN        "\033[36m"
 #define YELLOW      "\033[33m"
+#define BLUE        "\033[34m"
+#define MAGENTA     "\033[35m"
+#define RED         "\033[31m"
 #define BR_YELLOW   "\033[93m"
+#define BR_BLUE     "\033[94m"
+#define BR_PURPLE   "\033[95m"
 #define BR_CYAN     "\033[96m"
 #define BR_GREEN    "\033[92m"
 #define BR_RED      "\033[91m"
+
+static int visibleWidth(const std::string& text) {
+    int width = 0;
+    bool inEscape = false;
+    for (size_t i = 0; i < text.size(); ++i) {
+        if (text[i] == '\033') {
+            inEscape = true;
+            continue;
+        }
+        if (inEscape) {
+            if (text[i] == 'm') inEscape = false;
+            continue;
+        }
+
+        unsigned char ch = static_cast<unsigned char>(text[i]);
+        if ((ch & 0x80) == 0) {
+            ++width;
+        } else if ((ch & 0xE0) == 0xC0) {
+            width += 2;
+            ++i;
+        } else if ((ch & 0xF0) == 0xE0) {
+            width += 2;
+            i += 2;
+        } else if ((ch & 0xF8) == 0xF0) {
+            width += 2;
+            i += 3;
+        }
+    }
+    return width;
+}
+
+static std::string padToWidth(std::string text, int width) {
+    int display = visibleWidth(text);
+    if (display < width) text += std::string(width - display, ' ');
+    return text;
+}
+
+static std::pair<std::string, std::string> getClassColorEmoji(UnitClass cls) {
+    switch (cls) {
+        case WARRIOR: return {RED, "⚔️"};
+        case MAGE: return {BR_BLUE, "🔮"};
+        case TANK: return {BR_GREEN, "🛡️"};
+        case ASSASSIN: return {BR_PURPLE, "🗡️"};
+        case ARCHER: return {BR_YELLOW, "🏹"};
+        default: return {CYAN, "•"};
+    }
+}
 
 // -----------------------------------------------------------------
 // Constructor
@@ -153,19 +205,26 @@ Unit* Player::getBenchUnit(int index) const {
 // Output : none (stdout)
 // -----------------------------------------------------------------
 void Player::displayBench() const {
-    std::cout << "\n  --- Your Bench (" << bench_.size() << "/"
-              << MAX_BENCH_SIZE << ") ---" << std::endl;
+    std::cout << "\n  " << BOLD << BR_BLUE << "📦 Your Bench (" << bench_.size() << "/"
+              << MAX_BENCH_SIZE << ")" << RESET << std::endl;
     if (bench_.empty()) {
-        std::cout << "  (empty)" << std::endl;
+        std::cout << "  " << YELLOW << "(empty)" << RESET << std::endl;
         return;
     }
     for (size_t i = 0; i < bench_.size(); ++i) {
+        auto [color, emoji] = getClassColorEmoji(bench_[i]->getClass());
+        std::string starDisplay;
+        for (int level = 0; level < bench_[i]->getStarLevel(); ++level) {
+            starDisplay += "*";
+        }
         std::cout << "  [" << (i + 1) << "] "
+                  << color << emoji << " " << RESET
                   << std::left << std::setw(10) << bench_[i]->getName()
                   << " " << std::setw(9) << bench_[i]->getClassString()
                   << "HP:" << std::setw(4) << bench_[i]->getMaxHp()
                   << "ATK:" << std::setw(4) << bench_[i]->getAtk()
-                  << "Sell: $" << bench_[i]->getSellPrice()
+                  << "Lv:" << BR_YELLOW << starDisplay << RESET
+                  << " Sell: " << BR_YELLOW << "$" << bench_[i]->getSellPrice() << RESET
                   << std::endl;
     }
 }
@@ -177,53 +236,36 @@ void Player::displayBench() const {
 // Output : none (stdout)
 // -----------------------------------------------------------------
 void Player::displayStatus() const {
-    const int W = 55;
+    const int W = 62;
     std::cout << std::endl;
     std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
 
-    // Line 1: Player name and gold
     std::ostringstream line1;
-    line1 << BOLD << BR_YELLOW << "  " << std::left << std::setw(15) << name_
-          << "Gold: " << std::left << std::setw(6) << gold_ << RESET;
-    std::string s1 = line1.str();
-    if ((int)s1.size() < W) s1 += std::string(W - s1.size(), ' ');
+    line1 << "  " << BOLD << BR_CYAN << "👤 " << RESET << std::left << std::setw(15) << name_
+        << BOLD << BR_YELLOW << "💰 Gold: " << RESET << std::left << std::setw(6) << gold_;
+    std::string s1 = padToWidth(line1.str(), W);
     std::cout << "  |" << s1 << "|" << std::endl;
 
-    // Line 2: HP with visual bar
     const int HP_BAR_WIDTH = 20;
     int filled = (hp_ * HP_BAR_WIDTH) / STARTING_HP;
     if (filled < 0) filled = 0;
     if (filled > HP_BAR_WIDTH) filled = HP_BAR_WIDTH;
-    
-    std::string hpBar;
-    if (hp_ > STARTING_HP * 0.5) {
-        hpBar = "[" + std::string(BOLD) + std::string(BR_GREEN) 
-              + std::string(filled, '=') 
-              + std::string(RESET) 
-              + std::string(HP_BAR_WIDTH - filled, ' ') 
-              + "]";
-    } else {
-        hpBar = "[" + std::string(BOLD) + std::string(BR_RED) 
-              + std::string(filled, '=') 
-              + std::string(RESET) 
-              + std::string(HP_BAR_WIDTH - filled, ' ') 
-              + "]";
-    }
+    std::string hpColor = (hp_ > STARTING_HP * 0.75) ? BR_GREEN : ((hp_ > STARTING_HP * 0.25) ? BR_YELLOW : BR_RED);
+    std::string hpBar = "[" + std::string(BOLD) + hpColor + std::string(filled, '=')
+                + std::string(HP_BAR_WIDTH - filled, '-') + RESET + "]";
     
     std::ostringstream line2;
-    line2 << BOLD << BR_CYAN << "  HP: " << RESET
+    line2 << "  " << BOLD << BR_RED << "❤️ HP: " << RESET
           << std::left << std::setw(3) << hp_ 
           << "/" << STARTING_HP << " " << hpBar;
-    std::string s2 = line2.str();
-    if ((int)s2.size() < W) s2 += std::string(W - s2.size(), ' ');
+    std::string s2 = padToWidth(line2.str(), W);
     std::cout << "  |" << s2 << "|" << std::endl;
 
-    // Line 3: Round and streaks
     std::ostringstream line3;
-    line3 << BOLD << BR_YELLOW << "  Round: " << std::left << std::setw(5) << roundsPlayed_
-          << "Win: " << winStreak_ << "  Loss: " << lossStreak_ << RESET;
-    std::string s3 = line3.str();
-    if ((int)s3.size() < W) s3 += std::string(W - s3.size(), ' ');
+    line3 << "  " << BOLD << BR_CYAN << "🎯 Round: " << RESET << std::left << std::setw(5) << roundsPlayed_
+        << BR_GREEN << "✓ Win: " << winStreak_ << RESET
+        << "  " << BR_RED << "✗ Loss: " << lossStreak_ << RESET;
+    std::string s3 = padToWidth(line3.str(), W);
     std::cout << "  |" << s3 << "|" << std::endl;
 
     std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;

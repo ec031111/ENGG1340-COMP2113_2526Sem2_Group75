@@ -14,6 +14,28 @@
 #include <iostream>
 #include <iomanip>
 #include <climits>
+#include <string>
+#include <utility>
+
+static const std::string ANSI_RESET = "\033[0m";
+static const std::string ANSI_RED = "\033[31m";
+static const std::string ANSI_BLUE = "\033[34m";
+static const std::string ANSI_GREEN = "\033[32m";
+static const std::string ANSI_MAGENTA = "\033[35m";
+static const std::string ANSI_YELLOW = "\033[33m";
+static const std::string ANSI_CYAN = "\033[36m";
+static const std::string ANSI_BOLD = "\033[1m";
+
+static std::pair<std::string, std::string> getClassColorEmoji(UnitClass cls) {
+    switch (cls) {
+        case WARRIOR: return {ANSI_RED, "⚔️"};
+        case MAGE: return {ANSI_BLUE, "🔮"};
+        case TANK: return {ANSI_GREEN, "🛡️"};
+        case ASSASSIN: return {ANSI_MAGENTA, "🗡️"};
+        case ARCHER: return {ANSI_YELLOW, "🏹"};
+        default: return {ANSI_CYAN, "•"};
+    }
+}
 
 // -----------------------------------------------------------------
 // Constructor
@@ -104,10 +126,11 @@ void Board::clear() {
 // -----------------------------------------------------------------
 void Board::display() const {
     std::cout << std::endl;
-    std::cout << "  +---------+---------+" << std::endl;
-    std::cout << "  | PLAYER  |   AI    |" << std::endl;
+    std::cout << ANSI_BOLD << ANSI_CYAN << "  +---------+---------+" << ANSI_RESET << std::endl;
+    std::cout << "  |" << ANSI_BOLD << ANSI_CYAN << " YOUR ARMY" << ANSI_RESET
+              << " |" << ANSI_BOLD << ANSI_RED << " ENEMY ARMY" << ANSI_RESET << "|" << std::endl;
     std::cout << "  | 0 1 2 3 | 4 5 6 7 |" << std::endl;
-    std::cout << "  +---------+---------+" << std::endl;
+    std::cout << ANSI_BOLD << ANSI_CYAN << "  +---------+---------+" << ANSI_RESET << std::endl;
 
     for (int r = 0; r < BOARD_ROWS; ++r) {
         std::cout << " " << r << "|";
@@ -115,14 +138,15 @@ void Board::display() const {
             if (c == AI_MIN_COL) std::cout << "|";
             std::cout << " ";
             if (grid_[r][c] != nullptr) {
-                std::cout << grid_[r][c]->getSymbolString();
+                auto [color, emoji] = getClassColorEmoji(grid_[r][c]->getClass());
+                std::cout << color << emoji << ANSI_RESET;
             } else {
                 std::cout << ". ";
             }
         }
         std::cout << "|" << std::endl;
     }
-    std::cout << "  +---------+---------+" << std::endl;
+    std::cout << ANSI_BOLD << ANSI_CYAN << "  +---------+---------+" << ANSI_RESET << std::endl;
     std::cout << std::endl;
 }
 
@@ -135,24 +159,25 @@ void Board::display() const {
 // -----------------------------------------------------------------
 void Board::displayPlayerSide() const {
     std::cout << std::endl;
-    std::cout << "  +---------------+" << std::endl;
-    std::cout << "  | YOUR FORMATION |" << std::endl;
+    std::cout << ANSI_BOLD << ANSI_CYAN << "  +---------------+" << ANSI_RESET << std::endl;
+    std::cout << "  |" << ANSI_BOLD << ANSI_CYAN << " YOUR FORMATION " << ANSI_RESET << "|" << std::endl;
     std::cout << "  |    0 1 2 3     |" << std::endl;
-    std::cout << "  +---------------+" << std::endl;
+    std::cout << ANSI_BOLD << ANSI_CYAN << "  +---------------+" << ANSI_RESET << std::endl;
 
     for (int r = 0; r < BOARD_ROWS; ++r) {
         std::cout << " " << r << " |";
         for (int c = 0; c <= PLAYER_MAX_COL; ++c) {
             std::cout << " ";
             if (grid_[r][c] != nullptr) {
-                std::cout << grid_[r][c]->getSymbolString();
+                auto [color, emoji] = getClassColorEmoji(grid_[r][c]->getClass());
+                std::cout << color << emoji << ANSI_RESET;
             } else {
                 std::cout << ". ";
             }
         }
         std::cout << " |" << std::endl;
     }
-    std::cout << "  +---------------+" << std::endl;
+    std::cout << ANSI_BOLD << ANSI_CYAN << "  +---------------+" << ANSI_RESET << std::endl;
     std::cout << std::endl;
 }
 
