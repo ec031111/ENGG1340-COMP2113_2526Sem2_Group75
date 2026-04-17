@@ -138,8 +138,8 @@ void Board::display() const {
             if (c == AI_MIN_COL) std::cout << "|";
             std::cout << " ";
             if (grid_[r][c] != nullptr) {
-                auto [color, emoji] = getClassColorEmoji(grid_[r][c]->getClass());
-                std::cout << color << emoji << ANSI_RESET;
+                auto pair_ = getClassColorEmoji(grid_[r][c]->getClass());
+                std::cout << pair_.first << pair_.second << ANSI_RESET;
             } else {
                 std::cout << ". ";
             }
@@ -169,8 +169,8 @@ void Board::displayPlayerSide() const {
         for (int c = 0; c <= PLAYER_MAX_COL; ++c) {
             std::cout << " ";
             if (grid_[r][c] != nullptr) {
-                auto [color, emoji] = getClassColorEmoji(grid_[r][c]->getClass());
-                std::cout << color << emoji << ANSI_RESET;
+                auto pair_ = getClassColorEmoji(grid_[r][c]->getClass());
+                std::cout << pair_.first << pair_.second << ANSI_RESET;
             } else {
                 std::cout << ". ";
             }

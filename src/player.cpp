@@ -212,7 +212,9 @@ void Player::displayBench() const {
         return;
     }
     for (size_t i = 0; i < bench_.size(); ++i) {
-        auto [color, emoji] = getClassColorEmoji(bench_[i]->getClass());
+        auto pair_ = getClassColorEmoji(bench_[i]->getClass());
+        std::string color = pair_.first;
+        std::string emoji = pair_.second;
         std::string starDisplay;
         for (int level = 0; level < bench_[i]->getStarLevel(); ++level) {
             starDisplay += "*";

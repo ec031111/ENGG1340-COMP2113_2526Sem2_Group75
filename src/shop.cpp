@@ -197,7 +197,9 @@ void Shop::display() const {
         std::ostringstream line;
         if (slots_[i] != nullptr) {
             bool canAfford = (slots_[i]->getCost() <= playerGoldRef_);
-            auto [color, emoji] = getClassColorEmoji(slots_[i]->getClass());
+            auto pair_ = getClassColorEmoji(slots_[i]->getClass());
+            std::string color = pair_.first;
+            std::string emoji = pair_.second;
             line << (canAfford ? "  " + ANSI_GREEN + "✓ " + ANSI_RESET : "  " + ANSI_RED + "✗ " + ANSI_RESET);
             line << "[" << (i + 1) << "] "
                  << color << emoji << " " << std::left << std::setw(10) << slots_[i]->getName() << ANSI_RESET
