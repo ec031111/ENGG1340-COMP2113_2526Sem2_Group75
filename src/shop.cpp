@@ -94,14 +94,9 @@ Shop::~Shop() {
     clearSlots();
 }
 
-// -----------------------------------------------------------------
-// -----------------------------------------------------------------
-// initTemplatePool - Load all available unit templates and their base stats
-// Description: Populates the template pool with 15 pre-defined unit templates.
-//              Each template specifies: name, class, HP, ATK, cost, crit, range
-//              Templates are used as blueprints for random shop generation.
-// Purpose: Initialize the master list of recruitable unit types
-// -----------------------------------------------------------------
+// Purpose: Initialize master template pool with all available unit types
+// Input: None
+// Output: None (populates templatePool_ with 15 pre-defined unit templates)
 void Shop::initTemplatePool() {
     //                         name        class     HP  ATK cost crit range
     templatePool_.push_back({"Warrior",   WARRIOR,  120,  18,  3,  0,  1});
@@ -121,12 +116,9 @@ void Shop::initTemplatePool() {
     templatePool_.push_back({"Sniper",    ARCHER,    65,  30,  5, 10,  4});
 }
 
-// -----------------------------------------------------------------
-// clearSlots - Delete all unsold units in shop and reset inventory
-// Description: Safely deletes all Unit pointers in slots and clears vector.
-//              Prevents memory leaks before regenerating shop inventory.
-// Purpose: Clean up shop inventory and free memory before refresh
-// -----------------------------------------------------------------
+// Purpose: Delete all unsold units and clear shop inventory
+// Input: None
+// Output: None (frees memory and clears slots_ vector)
 void Shop::clearSlots() {
     for (size_t i = 0; i < slots_.size(); ++i) {
         if (slots_[i] != nullptr) {
@@ -137,15 +129,9 @@ void Shop::clearSlots() {
     slots_.clear();
 }
 
-// -----------------------------------------------------------------
-// refresh - Generate new random shop inventory from template pool
-// Description: Clears old slots and populates 5 new random units.
-//              Each unit is randomly selected from template pool and
-//              instantiated with stats unchanged from template.
-// Process: 1. Clear current slots (free memory)
-//          2. For each slot, pick random template and create Unit
-// Purpose: Provide fresh unit choices each round
-// -----------------------------------------------------------------
+// Purpose: Generate new random shop inventory from template pool
+// Input: None
+// Output: None (populates slots_ with 5 new random units)
 void Shop::refresh() {
     clearSlots();
     for (int i = 0; i < SHOP_SIZE; ++i) {
@@ -157,13 +143,9 @@ void Shop::refresh() {
     }
 }
 
-// -----------------------------------------------------------------
-// buyUnit
-// What it does : removes the unit from the given slot and returns it.
-//                The caller takes ownership of the pointer.
-// Input  : slotIndex (0-based)
-// Output : Unit* on success, nullptr if slot is empty or invalid
-// -----------------------------------------------------------------
+// Purpose: Remove and return unit from specified shop slot
+// Input: slotIndex (int) - shop slot position (0-based)
+// Output: Unit pointer (ownership transferred to caller), nullptr if invalid
 Unit* Shop::buyUnit(int slotIndex) {
     if (slotIndex < 0 || slotIndex >= (int)slots_.size()) return nullptr;
     if (slots_[slotIndex] == nullptr) return nullptr;
@@ -173,13 +155,9 @@ Unit* Shop::buyUnit(int slotIndex) {
     return unit;
 }
 
-// -----------------------------------------------------------------
-// display - Print formatted shop table with unit stats and affordability
-// Description: Shows all 5 shop slots with unit details and pricing.
-//              Marks units player cannot afford with "X" indicator.
-//              Shows sold-out slots as "-- SOLD --".
-// Purpose: Visual shop interface for player browsing and purchasing
-// -----------------------------------------------------------------
+// Purpose: Display formatted shop inventory with unit stats and affordability
+// Input: None
+// Output: None (prints shop table to stdout with colors)
 void Shop::display() const {
     const int W = 68;
     std::cout << std::endl;
@@ -225,6 +203,9 @@ void Shop::display() const {
 // Input  : slotIndex
 // Output : Unit* or nullptr
 // -----------------------------------------------------------------
+// Purpose: Retrieve unit from specified shop slot without removing it
+// Input: slotIndex (int) - shop slot position (0-based)
+// Output: Unit pointer if present, nullptr if invalid or empty
 Unit* Shop::getUnit(int slotIndex) const {
     if (slotIndex < 0 || slotIndex >= (int)slots_.size()) return nullptr;
     return slots_[slotIndex];

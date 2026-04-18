@@ -1,0 +1,560 @@
+[
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::Player(const std::string&)",
+    "oldString": "// -----------------------------------------------------------------\n// Constructor\n// What it does : sets up the player with starting HP, gold, and\n//                empty bench / streak counters.\n// Input  : name\n// Output : initialised Player\n// -----------------------------------------------------------------\nPlayer::Player(const std::string& name)",
+    "newString": "// What: Constructor\n// Purpose: Initialize player with starting HP, gold, empty bench, and streak counters\n// Input: name (const string&) - player's display name\n// Output: Fully initialized Player object\nPlayer::Player(const std::string& name)"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::~Player()",
+    "oldString": "// -----------------------------------------------------------------\n// Destructor\n// What it does : deletes all units remaining on the bench.\n// Input  : none\n// Output : none (frees dynamic memory)\n// -----------------------------------------------------------------\nPlayer::~Player() {",
+    "newString": "// What: Destructor\n// Purpose: Free all dynamically allocated units remaining on the bench\n// Input: none\n// Output: none (frees dynamic memory)\nPlayer::~Player() {"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::getName()",
+    "oldString": "// --- Getters ---\nstd::string Player::getName() const    { return name_; }",
+    "newString": "// --- Getters ---\n// What: Getter\n// Purpose: Get player's name\n// Input: none\n// Output: const string - player's display name\nstd::string Player::getName() const    { return name_; }"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::getHp()",
+    "oldString": "std::string Player::getName() const    { return name_; }\nint  Player::getHp() const            { return hp_; }",
+    "newString": "std::string Player::getName() const    { return name_; }\n// What: Getter\n// Purpose: Get player's current health points\n// Input: none\n// Output: int - current HP\nint  Player::getHp() const            { return hp_; }"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::getGold()",
+    "oldString": "int  Player::getHp() const            { return hp_; }\nint  Player::getGold() const          { return gold_; }",
+    "newString": "int  Player::getHp() const            { return hp_; }\n// What: Getter\n// Purpose: Get player's current gold amount\n// Input: none\n// Output: int - current gold\nint  Player::getGold() const          { return gold_; }"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::getBenchSize()",
+    "oldString": "int  Player::getGold() const          { return gold_; }\nint  Player::getBenchSize() const     { return (int)bench_.size(); }",
+    "newString": "int  Player::getGold() const          { return gold_; }\n// What: Getter\n// Purpose: Get number of units currently on bench\n// Input: none\n// Output: int - bench size\nint  Player::getBenchSize() const     { return (int)bench_.size(); }"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::getWinStreak()",
+    "oldString": "int  Player::getBenchSize() const     { return (int)bench_.size(); }\nint  Player::getWinStreak() const     { return winStreak_; }",
+    "newString": "int  Player::getBenchSize() const     { return (int)bench_.size(); }\n// What: Getter\n// Purpose: Get current win streak counter\n// Input: none\n// Output: int - win streak count\nint  Player::getWinStreak() const     { return winStreak_; }"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::getLossStreak()",
+    "oldString": "int  Player::getWinStreak() const     { return winStreak_; }\nint  Player::getLossStreak() const    { return lossStreak_; }",
+    "newString": "int  Player::getWinStreak() const     { return winStreak_; }\n// What: Getter\n// Purpose: Get current loss streak counter\n// Input: none\n// Output: int - loss streak count\nint  Player::getLossStreak() const    { return lossStreak_; }"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::getRoundsPlayed()",
+    "oldString": "int  Player::getLossStreak() const    { return lossStreak_; }\nint  Player::getRoundsPlayed() const  { return roundsPlayed_; }",
+    "newString": "int  Player::getLossStreak() const    { return lossStreak_; }\n// What: Getter\n// Purpose: Get total rounds played in current game\n// Input: none\n// Output: int - rounds played count\nint  Player::getRoundsPlayed() const  { return roundsPlayed_; }"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::isAlive()",
+    "oldString": "int  Player::getRoundsPlayed() const  { return roundsPlayed_; }\nbool Player::isAlive() const          { return hp_ > 0; }",
+    "newString": "int  Player::getRoundsPlayed() const  { return roundsPlayed_; }\n// What: Query method\n// Purpose: Check if player is still alive in game\n// Input: none\n// Output: bool - true if HP > 0, false otherwise\nbool Player::isAlive() const          { return hp_ > 0; }"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::addGold(int)",
+    "oldString": "// Purpose: Increase player's gold reserves by the given amount\n// Input: amount (int) - gold to add\n// Output: None\nvoid Player::addGold(int amount) {",
+    "newString": "// What: Mutator method\n// Purpose: Increase player's gold reserves by the given amount\n// Input: amount (int) - gold amount to add\n// Output: none\nvoid Player::addGold(int amount) {"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::spendGold(int)",
+    "oldString": "// Purpose: Deduct gold from player's reserves if affordable\n// Input: amount (int) - gold amount to spend\n// Output: true if transaction succeeded, false if insufficient gold\nbool Player::spendGold(int amount) {",
+    "newString": "// What: Mutator method\n// Purpose: Deduct gold from player's reserves if affordable\n// Input: amount (int) - gold amount to spend\n// Output: bool - true if transaction succeeded, false if insufficient gold\nbool Player::spendGold(int amount) {"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::takeDamage(int)",
+    "oldString": "// Purpose: Reduce player HP by damage amount (minimum 0)\n// Input: damage (int) - damage to apply\n// Output: None\nvoid Player::takeDamage(int damage) {",
+    "newString": "// What: Mutator method\n// Purpose: Reduce player HP by damage amount (minimum 0)\n// Input: damage (int) - damage amount to apply\n// Output: none\nvoid Player::takeDamage(int damage) {"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::addToBench(Unit*)",
+    "oldString": "// Purpose: Add a unit to player's bench if space is available\n// Input: unit (Unit*) - pointer to unit (ownership transferred)\n// Output: true if added successfully, false if bench is full\nbool Player::addToBench(Unit* unit) {",
+    "newString": "// What: Mutator method\n// Purpose: Add a unit to player's bench if space is available\n// Input: unit (Unit*) - pointer to unit to add (ownership transferred)\n// Output: bool - true if added successfully, false if bench is full\nbool Player::addToBench(Unit* unit) {"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::removeFromBench(int)",
+    "oldString": "// Purpose: Remove and return a unit from bench at given index\n// Input: index (int) - bench position (0-based)\n// Output: Unit pointer (ownership transferred to caller), nullptr if invalid index\nUnit* Player::removeFromBench(int index) {",
+    "newString": "// What: Mutator method\n// Purpose: Remove and return a unit from bench at given index\n// Input: index (int) - bench position (0-based index)\n// Output: Unit* - unit pointer or nullptr if invalid index (ownership transferred)\nUnit* Player::removeFromBench(int index) {"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::sellUnit(int)",
+    "oldString": "// Purpose: Sell a bench unit, award gold, and remove it\n// Input: index (int) - bench position of unit to sell\n// Output: true if sale succeeded, false if invalid index\nbool Player::sellUnit(int index) {",
+    "newString": "// What: Mutator method\n// Purpose: Sell a bench unit, award gold, and remove it\n// Input: index (int) - bench position of unit to sell (0-based)\n// Output: bool - true if sale succeeded, false if invalid index\nbool Player::sellUnit(int index) {"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::getBenchUnit(int)",
+    "oldString": "// -----------------------------------------------------------------\n// getBenchUnit\n// What it does : peeks at a bench unit without removing it.\n// Input  : index\n// Output : Unit* or nullptr\n// -----------------------------------------------------------------\nUnit* Player::getBenchUnit(int index) const {",
+    "newString": "// What: Accessor method\n// Purpose: Retrieve bench unit at given index without removing it\n// Input: index (int) - bench position (0-based)\n// Output: Unit* - unit pointer or nullptr if invalid index\nUnit* Player::getBenchUnit(int index) const {"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::displayBench()",
+    "oldString": "// Purpose: Display all units on the player's bench with formatted details\n// Input: None\n// Output: None (prints formatted bench list to stdout)\nvoid Player::displayBench() const {",
+    "newString": "// What: Display method\n// Purpose: Display all units on the player's bench with formatted details\n// Input: none\n// Output: none (prints formatted bench list to stdout)\nvoid Player::displayBench() const {"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::displayStatus()",
+    "oldString": "// Purpose: Display player status including HP, gold, round, and streak info\n// Input: None\n// Output: None (prints formatted status box to stdout with colors)\nvoid Player::displayStatus() const {",
+    "newString": "// What: Display method\n// Purpose: Display player status including HP, gold, round, and streak info\n// Input: none\n// Output: none (prints formatted status box to stdout with colors)\nvoid Player::displayStatus() const {"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::startNewRound()",
+    "oldString": "// Purpose: Start new round by incrementing counter and awarding income\n// Input: None\n// Output: None (updates roundsPlayed_, gold_ with income + bonuses)\nvoid Player::startNewRound() {",
+    "newString": "// What: Mutator method\n// Purpose: Start new round by incrementing counter and awarding income\n// Input: none\n// Output: none (updates roundsPlayed_, gold_ with income + bonuses)\nvoid Player::startNewRound() {"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::recordWin()",
+    "oldString": "// -----------------------------------------------------------------\n// recordWin / recordLoss\n// What it does : updates streak counters after a battle.\n// Input  : none\n// Output : none\n// -----------------------------------------------------------------\nvoid Player::recordWin() {",
+    "newString": "// What: Mutator method\n// Purpose: Update streak counters after a battle win\n// Input: none\n// Output: none\nvoid Player::recordWin() {"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::recordLoss()",
+    "oldString": "void Player::recordWin() {\n    winStreak_++;\n    lossStreak_ = 0;\n}\n\nvoid Player::recordLoss() {",
+    "newString": "void Player::recordWin() {\n    winStreak_++;\n    lossStreak_ = 0;\n}\n\n// What: Mutator method\n// Purpose: Update streak counters after a battle loss\n// Input: none\n// Output: none\nvoid Player::recordLoss() {"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::getBench()",
+    "oldString": "void Player::recordLoss() {\n    lossStreak_++;\n    winStreak_ = 0;\n}\n\nconst std::vector<Unit*>& Player::getBench() const {",
+    "newString": "void Player::recordLoss() {\n    lossStreak_++;\n    winStreak_ = 0;\n}\n\n// What: Getter\n// Purpose: Get const reference to player's bench vector\n// Input: none\n// Output: const std::vector<Unit*>& - bench units vector reference\nconst std::vector<Unit*>& Player::getBench() const {"
+  },
+  {
+    "filePath": "src/player.cpp",
+    "function": "Player::loadState(int, int, int, int, int)",
+    "oldString": "// -----------------------------------------------------------------\n// loadState\n// What it does : restores player state from saved values.\n// Inputs : hp, gold, rounds, winStreak, lossStreak\n// Output : none\n// -----------------------------------------------------------------\nvoid Player::loadState(int hp, int gold, int rounds, int winStreak, int lossStreak) {",
+    "newString": "// What: Mutator method\n// Purpose: Restore player state from saved game values\n// Input: hp (int), gold (int), rounds (int), winStreak (int), lossStreak (int)\n// Output: none\nvoid Player::loadState(int hp, int gold, int rounds, int winStreak, int lossStreak) {"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::Unit(const std::string&, UnitClass, int, int, int, int, int)",
+    "oldString": "// -----------------------------------------------------------------\n// Constructor\n// Inputs : name, unitClass, maxHp, atk, cost, critBonus, attackRange\n// Output : a star-1 Unit at position (-1,-1)\n// -----------------------------------------------------------------\nUnit::Unit(const std::string& name, UnitClass unitClass, int maxHp,",
+    "newString": "// What: Constructor\n// Purpose: Initialize a new unit with base stats at star level 1\n// Input: name (string), unitClass (UnitClass), maxHp (int), atk (int), cost (int), critBonus (int), attackRange (int)\n// Output: Fully initialized Unit object at position (-1,-1)\nUnit::Unit(const std::string& name, UnitClass unitClass, int maxHp,"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::Unit(const Unit&)",
+    "oldString": "// -----------------------------------------------------------------\n// Copy constructor\n// -----------------------------------------------------------------\nUnit::Unit(const Unit& other)",
+    "newString": "// What: Copy constructor\n// Purpose: Create a deep copy of a unit with all attributes\n// Input: other (const Unit&) - unit to copy\n// Output: New Unit with identical attributes\nUnit::Unit(const Unit& other)"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::getSymbol()",
+    "oldString": "// Purpose: Return display character for board representation\n// Input: None\n// Output: char - first character of unit's name\nchar Unit::getSymbol() const {",
+    "newString": "// What: Getter\n// Purpose: Return display character for board representation\n// Input: none\n// Output: char - first character of unit's name\nchar Unit::getSymbol() const {"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::getSymbolString()",
+    "oldString": "// Purpose: Return 2-character display string including star level indicator\n// Input: None\n// Output: string - \"X \" (star 1), \"X2\" (star 2), \"X3\" (star 3)\nstd::string Unit::getSymbolString() const {",
+    "newString": "// What: Getter\n// Purpose: Return 2-character display string including star level indicator\n// Input: none\n// Output: std::string - \"X \" (star 1), \"X2\" (star 2), \"X3\" (star 3)\nstd::string Unit::getSymbolString() const {"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::getAbilityTag()",
+    "oldString": "// -----------------------------------------------------------------\n// getAbilityTag - Return unit's special ability name based on class\n// Description: Maps each unit class to its unique combat ability.\n//              Used for displaying ability info in UI and tooltips.\n// Returns: String like \"Rage\", \"AOE\", \"Block\", \"Crit\", \"DblShot\"\n// Purpose: Allows dynamic UI display of unit abilities\n// -----------------------------------------------------------------\nstd::string Unit::getAbilityTag() const {",
+    "newString": "// What: Getter\n// Purpose: Return unit's special ability name based on class\n// Input: none\n// Output: std::string - ability name (\"Rage\", \"AOE\", \"Block\", \"Crit\", \"DblShot\")\nstd::string Unit::getAbilityTag() const {"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::takeDamage(int)",
+    "oldString": "// Purpose: Apply damage to unit, reducing HP (minimum 0)\n// Input: damage (int) - damage amount to apply\n// Output: None (modifies hp_ state)\nvoid Unit::takeDamage(int damage) {",
+    "newString": "// What: Mutator method\n// Purpose: Apply damage to unit, reducing HP (minimum 0)\n// Input: damage (int) - damage amount to apply\n// Output: none (modifies hp_ state)\nvoid Unit::takeDamage(int damage) {"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::heal(int)",
+    "oldString": "// Purpose: Restore unit health by amount (capped at maxHp)\n// Input: amount (int) - health to restore\n// Output: None (modifies hp_ state)\nvoid Unit::heal(int amount) {",
+    "newString": "// What: Mutator method\n// Purpose: Restore unit health by amount (capped at maxHp)\n// Input: amount (int) - health amount to restore\n// Output: none (modifies hp_ state)\nvoid Unit::heal(int amount) {"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::healToFull()",
+    "oldString": "// Purpose: Instantly restore unit to full health\n// Input: None\n// Output: None (sets hp_ to maxHp_)\nvoid Unit::healToFull() {",
+    "newString": "// What: Mutator method\n// Purpose: Instantly restore unit to full health\n// Input: none\n// Output: none (sets hp_ to maxHp_)\nvoid Unit::healToFull() {"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::getSellPrice()",
+    "oldString": "// Purpose: Calculate unit's sell value based on cost and star level\n// Input: None\n// Output: int - sell price (cost/2 * starLevel, minimum 1)\nint Unit::getSellPrice() const {",
+    "newString": "// What: Getter\n// Purpose: Calculate unit's sell value based on cost and star level\n// Input: none\n// Output: int - sell price (cost/2 * starLevel, minimum 1)\nint Unit::getSellPrice() const {"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::getDistanceTo(const Unit*)",
+    "oldString": "// Purpose: Calculate Manhattan distance to another unit\n// Input: other (const Unit*) - target unit for distance calculation\n// Output: int - distance value (always >= 0)\nint Unit::getDistanceTo(const Unit* other) const {",
+    "newString": "// What: Getter\n// Purpose: Calculate Manhattan distance to another unit\n// Input: other (const Unit*) - target unit for distance calculation\n// Output: int - Manhattan distance value (always >= 0)\nint Unit::getDistanceTo(const Unit* other) const {"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::getClassString()",
+    "oldString": "// -----------------------------------------------------------------\n// getClassString - Return human-readable unit class name\n// Description: Maps UnitClass enum to user-facing class name strings.\n//              Used throughout UI for player communication.\n// Returns: Class name like \"Warrior\", \"Mage\", \"Tank\", etc.\n// Purpose: Display unit type information in menus and tooltips\n// -----------------------------------------------------------------\nstd::string Unit::getClassString() const {",
+    "newString": "// What: Getter\n// Purpose: Return human-readable unit class name for UI display\n// Input: none\n// Output: std::string - class name (\"Warrior\", \"Mage\", \"Tank\", \"Assassin\", \"Archer\")\nstd::string Unit::getClassString() const {"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::getClassDescription(UnitClass)",
+    "oldString": "// -----------------------------------------------------------------\n// getClassDescription\n// Returns a one-line lore description for each unit class.\n// -----------------------------------------------------------------\nstd::string Unit::getClassDescription(UnitClass cls) {",
+    "newString": "// What: Getter (static)\n// Purpose: Return lore description for each unit class\n// Input: cls (UnitClass) - unit class enum value\n// Output: std::string - one-line lore description\nstd::string Unit::getClassDescription(UnitClass cls) {"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::getStarString()",
+    "oldString": "// -----------------------------------------------------------------\n// getStarString - Return star level as asterisk string representation\n// Description: Converts star level (1-3) into visual string format.\n//              Star 1: \"\", Star 2: \"**\", Star 3: \"***\"\n// Returns: String of asterisks matching star level (empty for star 1)\n// Purpose: Visual indicator of unit upgrade status for display\n// -----------------------------------------------------------------\nstd::string Unit::getStarString() const {",
+    "newString": "// What: Getter\n// Purpose: Return star level as asterisk string representation for visual display\n// Input: none\n// Output: std::string - asterisks matching star level (\"\", \"**\", \"***\")\nstd::string Unit::getStarString() const {"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::getDisplayName()",
+    "oldString": "// -----------------------------------------------------------------\n// getDisplayName\n// What it does : returns \"Name*\" / \"Name**\" / \"Name***\"\n// -----------------------------------------------------------------\nstd::string Unit::getDisplayName() const {",
+    "newString": "// What: Getter\n// Purpose: Return display name with star level suffix\n// Input: none\n// Output: std::string - name with stars (\"Name\", \"Name*\", \"Name**\", \"Name***\")\nstd::string Unit::getDisplayName() const {"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::upgrade()",
+    "oldString": "// -----------------------------------------------------------------\n// upgrade\n// What it does : bumps star level and scales base stats.\n//   Star 2: HP * 1.8, ATK * 1.5\n//   Star 3: HP * 3.0, ATK * 2.5 (from original base)\n// -----------------------------------------------------------------\n// Purpose: Upgrade unit to next star level with enhanced stats\n// Input: None\n// Output: None (increases starLevel_, maxHp_, atk_)\nvoid Unit::upgrade() {",
+    "newString": "// What: Mutator method\n// Purpose: Upgrade unit to next star level with enhanced stats and full heal\n// Input: none\n// Output: none (increases starLevel_, maxHp_, atk_; Star 2: 1.8x HP, 1.5x ATK; Star 3: 3.0x HP, 2.5x ATK)\nvoid Unit::upgrade() {"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::forceSetStarLevel(int)",
+    "oldString": "// Purpose: Manually set unit's star level for testing and save loading\n// Input: level (int) - target star level (must be 1-3)\n// Output: None (sets starLevel_ if valid, ignores otherwise)\nvoid Unit::forceSetStarLevel(int level) {",
+    "newString": "// What: Mutator method\n// Purpose: Manually set unit's star level for testing and save loading\n// Input: level (int) - target star level (must be 1-3)\n// Output: none (sets starLevel_ if valid, ignores otherwise)\nvoid Unit::forceSetStarLevel(int level) {"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::applyAtkBonus(int)",
+    "oldString": "// -----------------------------------------------------------------\n// applyAtkBonus / applyCritBonus - Apply temporary stat bonuses from synergies\n// Description: Accumulate bonus attack or crit chance from synergy effects.\n//              Bonuses persist until resetBonuses() called (each round).\n// Parameters: bonus - Amount to add to current bonus pool\n// Purpose: Implement synergy system for team composition rewards\n// -----------------------------------------------------------------\nvoid Unit::applyAtkBonus(int bonus)  { atkBonus_ += bonus; }",
+    "newString": "// What: Mutator method\n// Purpose: Apply temporary attack bonus from synergy effects\n// Input: bonus (int) - amount to add to attack bonus pool\n// Output: none (accumulates in atkBonus_, persists until resetBonuses())\nvoid Unit::applyAtkBonus(int bonus)  { atkBonus_ += bonus; }"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::applyCritBonus(int)",
+    "oldString": "void Unit::applyAtkBonus(int bonus)  { atkBonus_ += bonus; }\nvoid Unit::applyCritBonus(int bonus) { critBonusExtra_ += bonus; }",
+    "newString": "void Unit::applyAtkBonus(int bonus)  { atkBonus_ += bonus; }\n// What: Mutator method\n// Purpose: Apply temporary critical strike bonus from synergy effects\n// Input: bonus (int) - amount to add to crit bonus pool\n// Output: none (accumulates in critBonusExtra_, persists until resetBonuses())\nvoid Unit::applyCritBonus(int bonus) { critBonusExtra_ += bonus; }"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::resetBonuses()",
+    "oldString": "// Purpose: Clear all temporary stat bonuses from synergies\n// Input: None\n// Output: None (resets atkBonus_ and critBonusExtra_ to 0)\nvoid Unit::resetBonuses() {",
+    "newString": "// What: Mutator method\n// Purpose: Clear all temporary stat bonuses from synergies\n// Input: none\n// Output: none (resets atkBonus_ and critBonusExtra_ to 0)\nvoid Unit::resetBonuses() {"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::clearRage()",
+    "oldString": "// Purpose: Reset unit's rage status flag\n// Input: None\n// Output: None (sets raged_ to false)\nvoid Unit::clearRage() {",
+    "newString": "// What: Mutator method\n// Purpose: Reset unit's rage status flag\n// Input: none\n// Output: none (sets raged_ to false)\nvoid Unit::clearRage() {"
+  },
+  {
+    "filePath": "src/unit.cpp",
+    "function": "Unit::setRaged()",
+    "oldString": "// Purpose: Mark unit as currently in rage mode for special ability\n// Input: None\n// Output: None (sets raged_ to true)\nvoid Unit::setRaged() {",
+    "newString": "// What: Mutator method\n// Purpose: Mark unit as currently in rage mode for special ability\n// Input: none\n// Output: none (sets raged_ to true)\nvoid Unit::setRaged() {"
+  },
+  {
+    "filePath": "src/shop.cpp",
+    "function": "Shop::Shop()",
+    "oldString": "// -----------------------------------------------------------------\n// Constructor\n// What it does : initialises the template pool.\n// Input  : none\n// Output : a Shop ready to refresh()\n// -----------------------------------------------------------------\nShop::Shop() {",
+    "newString": "// What: Constructor\n// Purpose: Initialize shop with unit template pool and player gold reference\n// Input: none\n// Output: Shop object ready to call refresh()\nShop::Shop() {"
+  },
+  {
+    "filePath": "src/shop.cpp",
+    "function": "Shop::~Shop()",
+    "oldString": "// -----------------------------------------------------------------\n// Destructor\n// What it does : frees any dynamically allocated units still in slots.\n// Input  : none\n// Output : none\n// -----------------------------------------------------------------\nShop::~Shop() {",
+    "newString": "// What: Destructor\n// Purpose: Free all dynamically allocated units still in shop slots\n// Input: none\n// Output: none\nShop::~Shop() {"
+  },
+  {
+    "filePath": "src/shop.cpp",
+    "function": "Shop::initTemplatePool()",
+    "oldString": "// Purpose: Initialize master template pool with all available unit types\n// Input: None\n// Output: None (populates templatePool_ with 15 pre-defined unit templates)\nvoid Shop::initTemplatePool() {",
+    "newString": "// What: Initializer method\n// Purpose: Initialize master template pool with all available unit types\n// Input: none\n// Output: none (populates templatePool_ with 15 pre-defined unit templates)\nvoid Shop::initTemplatePool() {"
+  },
+  {
+    "filePath": "src/shop.cpp",
+    "function": "Shop::clearSlots()",
+    "oldString": "// Purpose: Delete all unsold units and clear shop inventory\n// Input: None\n// Output: None (frees memory and clears slots_ vector)\nvoid Shop::clearSlots() {",
+    "newString": "// What: Mutator method\n// Purpose: Delete all unsold units and clear shop inventory\n// Input: none\n// Output: none (frees memory and clears slots_ vector)\nvoid Shop::clearSlots() {"
+  },
+  {
+    "filePath": "src/shop.cpp",
+    "function": "Shop::refresh()",
+    "oldString": "// Purpose: Generate new random shop inventory from template pool\n// Input: None\n// Output: None (populates slots_ with 5 new random units)\nvoid Shop::refresh() {",
+    "newString": "// What: Mutator method\n// Purpose: Generate new random shop inventory from template pool\n// Input: none\n// Output: none (populates slots_ with 5 new random units)\nvoid Shop::refresh() {"
+  },
+  {
+    "filePath": "src/shop.cpp",
+    "function": "Shop::buyUnit(int)",
+    "oldString": "// Purpose: Remove and return unit from specified shop slot\n// Input: slotIndex (int) - shop slot position (0-based)\n// Output: Unit pointer (ownership transferred to caller), nullptr if invalid\nUnit* Shop::buyUnit(int slotIndex) {",
+    "newString": "// What: Mutator method\n// Purpose: Remove and return unit from specified shop slot\n// Input: slotIndex (int) - shop slot position (0-based)\n// Output: Unit* - unit pointer or nullptr if invalid (ownership transferred)\nUnit* Shop::buyUnit(int slotIndex) {"
+  },
+  {
+    "filePath": "src/shop.cpp",
+    "function": "Shop::display()",
+    "oldString": "// Purpose: Display formatted shop inventory with unit stats and affordability\n// Input: None\n// Output: None (prints shop table to stdout with colors)\nvoid Shop::display() const {",
+    "newString": "// What: Display method\n// Purpose: Display formatted shop inventory with unit stats and affordability\n// Input: none\n// Output: none (prints shop table to stdout with colors)\nvoid Shop::display() const {"
+  },
+  {
+    "filePath": "src/shop.cpp",
+    "function": "Shop::getUnit(int)",
+    "oldString": "// -----------------------------------------------------------------\n// getUnit\n// What it does : peeks at a shop slot without buying.\n// Input  : slotIndex\n// Output : Unit* or nullptr\n// -----------------------------------------------------------------\n// Purpose: Retrieve unit from specified shop slot without removing it\n// Input: slotIndex (int) - shop slot position (0-based)\n// Output: Unit pointer if present, nullptr if invalid or empty\nUnit* Shop::getUnit(int slotIndex) const {",
+    "newString": "// What: Getter\n// Purpose: Retrieve unit from specified shop slot without removing it\n// Input: slotIndex (int) - shop slot position (0-based)\n// Output: Unit* - unit pointer if present, nullptr if invalid or empty\nUnit* Shop::getUnit(int slotIndex) const {"
+  },
+  {
+    "filePath": "src/shop.cpp",
+    "function": "Shop::getRefreshCost()",
+    "oldString": "// -----------------------------------------------------------------\n// getRefreshCost - Return cost to reroll shop inventory\n// Description: Returns the fixed gold cost for shop refresh action.\n// Returns: Integer gold amount (REFRESH_COST constant)\n// Purpose: Allow callers to check refresh affordability\n// -----------------------------------------------------------------\nint Shop::getRefreshCost() const {",
+    "newString": "// What: Getter\n// Purpose: Return cost to reroll shop inventory\n// Input: none\n// Output: int - refresh cost (REFRESH_COST constant)\nint Shop::getRefreshCost() const {"
+  },
+  {
+    "filePath": "src/shop.cpp",
+    "function": "Shop::setPlayerGold(int)",
+    "oldString": "// -----------------------------------------------------------------\n// setPlayerGold - Update player's gold reference for shop affordability display\n// Description: Stores player's current gold amount for use in display().\n//              Allows marking unaffordable units with \"X\" in shop view.\n// Parameters: gold - Current player gold amount\n// Purpose: Enable dynamic shop UI based on player resources\n// -----------------------------------------------------------------\nvoid Shop::setPlayerGold(int gold) {",
+    "newString": "// What: Mutator method\n// Purpose: Update player's gold reference for shop affordability display\n// Input: gold (int) - current player gold amount\n// Output: none (stores for use in display() to mark affordability)\nvoid Shop::setPlayerGold(int gold) {"
+  },
+  {
+    "filePath": "src/event.cpp",
+    "function": "Event::rollEvent(int)",
+    "oldString": "//----------------------------------------------------------------------------------\n// Purpose: Randomly determine if event occurs this round (40% chance after round 1)\n// Input: round (int) - current game round number\n// Output: EventType - EVENT_NONE or random event type\n//----------------------------------------------------------------------------------\nEventType Event::rollEvent(int round) {",
+    "newString": "// What: Static query method\n// Purpose: Randomly determine if event occurs this round (40% chance after round 1)\n// Input: round (int) - current game round number\n// Output: EventType - EVENT_NONE or random event type\nEventType Event::rollEvent(int round) {"
+  },
+  {
+    "filePath": "src/event.cpp",
+    "function": "Event::applyEvent(EventType, Player&)",
+    "oldString": "//---------------------------------------------------------------------------------\n// applyEvent\n// Purpose: Apply event effect to player and return description\n// Input: event (EventType), player (Player&)\n// Output: String describing event result for player display\n//---------------------------------------------------------------------------------\nstd::string Event::applyEvent(EventType event, Player& player) {",
+    "newString": "// What: Static mutator method\n// Purpose: Apply event effect to player and return description\n// Input: event (EventType), player (Player&) - player to affect\n// Output: std::string - description of event result for player display\nstd::string Event::applyEvent(EventType event, Player& player) {"
+  },
+  {
+    "filePath": "src/event.cpp",
+    "function": "Event::getEventName(EventType)",
+    "oldString": "// -----------------------------------------------------------------\n// getEventName - Return human-readable name for event type\n// Description: Converts EventType enum to user-friendly display name.\n//              Used in UI, logs, and player notifications.\n// Parameters: event - EventType enum value\n// Returns: String name like \"Gold Rush\", \"Divine Blessing\", etc\n// Purpose: Display event information in human-readable format\n// -----------------------------------------------------------------\nstd::string Event::getEventName(EventType event) {",
+    "newString": "// What: Static getter\n// Purpose: Return human-readable name for event type\n// Input: event (EventType) - event enum value\n// Output: std::string - display name (\"Shop Sale\", \"Gold Rush\", \"Divine Blessing\", etc.)\nstd::string Event::getEventName(EventType event) {"
+  },
+  {
+    "filePath": "src/event.cpp",
+    "function": "Event::animationLoadingBar(const std::string&)",
+    "oldString": "// -----------------------------------------------------------------\n// animationLoadingBar - Display a filling progress bar animation\n// Shows bar filling from 0% to 100% with yellow color\n// Parameters: text - Event name/description to display above bar\n// Returns: void (displays animation)\n// -----------------------------------------------------------------\nvoid Event::animationLoadingBar(const std::string& text) {",
+    "newString": "// What: Static display method\n// Purpose: Display a filling progress bar animation\n// Input: text (const string&) - event name/description to display above bar\n// Output: none (displays animation to terminal, fills 0% to 100%)\nvoid Event::animationLoadingBar(const std::string& text) {"
+  },
+  {
+    "filePath": "src/event.cpp",
+    "function": "Event::animationSpinningWheel(const std::string&)",
+    "oldString": "// -----------------------------------------------------------------\n// animationSpinningWheel - Display a spinning wheel animation\n// Shows rotating symbols: /, -, \\, | in cyan color\n// Parameters: text - Event name/description to display\n// Returns: void (displays animation)\n// -----------------------------------------------------------------\nvoid Event::animationSpinningWheel(const std::string& text) {",
+    "newString": "// What: Static display method\n// Purpose: Display a spinning wheel animation\n// Input: text (const string&) - event name/description to display\n// Output: none (displays animation with rotating symbols: / - \\ |)\nvoid Event::animationSpinningWheel(const std::string& text) {"
+  },
+  {
+    "filePath": "src/event.cpp",
+    "function": "Event::animationBlinkingText(const std::string&)",
+    "oldString": "// -----------------------------------------------------------------\n// animationBlinkingText - Display blinking event text\n// Text blinks on and off in green color for dramatic effect\n// Parameters: text - Event name/description to blink\n// Returns: void (displays animation)\n// -----------------------------------------------------------------\nvoid Event::animationBlinkingText(const std::string& text) {",
+    "newString": "// What: Static display method\n// Purpose: Display blinking event text for dramatic effect\n// Input: text (const string&) - event name/description to blink\n// Output: none (displays blinking animation in green color)\nvoid Event::animationBlinkingText(const std::string& text) {"
+  },
+  {
+    "filePath": "src/event.cpp",
+    "function": "Event::animationSlidingTitle(const std::string&)",
+    "oldString": "// -----------------------------------------------------------------\n// animationSlidingTitle - Display text sliding across screen\n// Title slides from right to left in bright red\n// Parameters: text - Event name/description to slide\n// Returns: void (displays animation)\n// -----------------------------------------------------------------\nvoid Event::animationSlidingTitle(const std::string& text) {",
+    "newString": "// What: Static display method\n// Purpose: Display text sliding across screen from right to left\n// Input: text (const string&) - event name/description to slide\n// Output: none (displays sliding animation in bright red)\nvoid Event::animationSlidingTitle(const std::string& text) {"
+  },
+  {
+    "filePath": "src/event.cpp",
+    "function": "Event::randomEventAnimation(const std::string&)",
+    "oldString": "// -----------------------------------------------------------------\n// randomEventAnimation - Play random animation (no immediate repeats)\n// Selects from 4 different animation styles\n// Ensures the same animation doesn't play 3 times in a row\n// Parameters: eventName - Name of the event to announce\n// Returns: void (displays random animation)\n// -----------------------------------------------------------------\nvoid Event::randomEventAnimation(const std::string& eventName) {",
+    "newString": "// What: Static display method\n// Purpose: Play random animation from 4 styles, avoiding immediate repeats\n// Input: eventName (const string&) - name of the event to announce\n// Output: none (displays random animation, preventing same animation 3x in a row)\nvoid Event::randomEventAnimation(const std::string& eventName) {"
+  },
+  {
+    "filePath": "src/record.cpp",
+    "function": "Record::saveGame(...)",
+    "oldString": "// Rcord::saveGame - serialize game state to file\n// Purpose: Save complete game state to file for later resumption\n// Input: player, board, shop, ai, currentPhase, currentEvent, slot\n// Output: None (writes to save file)\nvoid Record::saveGame(const Player& player,",
+    "newString": "// What: Static mutator method\n// Purpose: Save complete game state to file for later resumption\n// Input: player (const&), board (const&), shop (const&), ai (const&), currentPhase (GamePhase), currentEvent (EventType), slot (int)\n// Output: none (writes to save file)\nvoid Record::saveGame(const Player& player,"
+  },
+  {
+    "filePath": "src/record.cpp",
+    "function": "Record::loadGame(...)",
+    "oldString": "// =====================================================================\n// Record::loadGame - restore game state from save file\n// =====================================================================\n// Purpose: Load complete game state from save file\n// Input: player, board, shop, ai, currentPhase, currentEvent, shouldResumeShop, slot\n// Output: true if successful, false if file corrupted or invalid\nbool Record::loadGame(Player& player,",
+    "newString": "// What: Static accessor method\n// Purpose: Load complete game state from save file\n// Input: player (&), board (&), shop (&), ai (&), currentPhase (&), currentEvent (&), shouldResumeShopPhase (&), slot (int)\n// Output: bool - true if successful, false if file corrupted or invalid\nbool Record::loadGame(Player& player,"
+  },
+  {
+    "filePath": "src/record.cpp",
+    "function": "Record::saveRecord(const Player&, const AI&)",
+    "oldString": "// =====================================================================\n// Record::saveRecord - Save highest record for each player (max 50 records)\n// What it does: Saves game result to records.txt, keeping only the highest\n//               record (most rounds survived) for each player. When records\n//               exceed 50 lines, removes oldest records from the beginning.\n// Inputs: player (Player&) - player whose record to save\n//         ai (AI&) - AI opponent with difficulty info\n// Outputs: none (writes to RECORD_FILE, prints status to stdout)\n// =====================================================================\nvoid Record::saveRecord(const Player& player, const AI& ai) {",
+    "newString": "// What: Static mutator method\n// Purpose: Save highest record for each player (max 50 records total)\n// Input: player (const Player&) - player whose record to save, ai (const AI&) - AI opponent with difficulty\n// Output: none (writes to RECORD_FILE, prints status to stdout)\nvoid Record::saveRecord(const Player& player, const AI& ai) {"
+  },
+  {
+    "filePath": "src/record.cpp",
+    "function": "Record::displayLeaderboard()",
+    "oldString": "// =====================================================================\n// Record::displayLeaderboard - show sorted leaderboard\n// =====================================================================\nvoid Record::displayLeaderboard() {",
+    "newString": "// What: Static display method\n// Purpose: Display all game records sorted by rounds survived (descending)\n// Input: none\n// Output: none (prints leaderboard to stdout, top 10 entries)\nvoid Record::displayLeaderboard() {"
+  },
+  {
+    "filePath": "src/record.cpp",
+    "function": "Record::hasSaveFile(int)",
+    "oldString": "// =====================================================================\n// Record::hasSaveFile - check if save file exists for given slot\n// Returns: true if save file exists and is readable, false otherwise\n// =====================================================================\nbool Record::hasSaveFile(int slot) {",
+    "newString": "// What: Static query method\n// Purpose: Check if save file exists for given slot\n// Input: slot (int) - save slot number to check\n// Output: bool - true if save file exists and is readable, false otherwise\nbool Record::hasSaveFile(int slot) {"
+  },
+  {
+    "filePath": "src/record.cpp",
+    "function": "Record::showSavePreview(int)",
+    "oldString": "// =====================================================================\n// Record::showSavePreview - Display save file preview without loading\n// Reads and displays: Round, HP, and Gold from save file\n// Returns: true if successfully displayed preview, false if file error\n// =====================================================================\nbool Record::showSavePreview(int slot) {",
+    "newString": "// What: Static display method\n// Purpose: Display save file preview without loading full game state\n// Input: slot (int) - save slot number to preview\n// Output: bool - true if successfully displayed preview, false if file error\nbool Record::showSavePreview(int slot) {"
+  },
+  {
+    "filePath": "src/tutorial.cpp",
+    "function": "Tutorial::Tutorial()",
+    "oldString": "// -----------------------------------------------------------------\n// Constructor\n// -----------------------------------------------------------------\nTutorial::Tutorial() {",
+    "newString": "// What: Constructor\n// Purpose: Initialize tutorial with lesson progression system\n// Input: none\n// Output: Tutorial object ready to display lessons\nTutorial::Tutorial() {"
+  },
+  {
+    "filePath": "src/tutorial.cpp",
+    "function": "Tutorial::~Tutorial()",
+    "oldString": "// -----------------------------------------------------------------\n// Destructor\n// -----------------------------------------------------------------\nTutorial::~Tutorial() {}",
+    "newString": "// What: Destructor\n// Purpose: Clean up tutorial resources\n// Input: none\n// Output: none\nTutorial::~Tutorial() {}"
+  },
+  {
+    "filePath": "src/tutorial.cpp",
+    "function": "Tutorial::clearScreen()",
+    "oldString": "// Purpose: Clear terminal screen for clean tutorial display\n// Input: None\n// Output: None (clears screen - works on macOS/Linux and Windows)\nvoid Tutorial::clearScreen() const {",
+    "newString": "// What: Display utility method\n// Purpose: Clear terminal screen for clean tutorial display\n// Input: none\n// Output: none (clears screen - works on macOS/Linux and Windows)\nvoid Tutorial::clearScreen() const {"
+  },
+  {
+    "filePath": "src/tutorial.cpp",
+    "function": "Tutorial::getDisplayWidth(const std::string&)",
+    "oldString": "// Helper: print a boxed line\n// -----------------------------------------------------------------\nint Tutorial::getDisplayWidth(const std::string& str) const {",
+    "newString": "// What: Utility method\n// Purpose: Calculate display width accounting for ANSI escape codes and UTF-8 characters\n// Input: str (const string&) - string to measure\n// Output: int - display width in columns\nint Tutorial::getDisplayWidth(const std::string& str) const {"
+  },
+  {
+    "filePath": "src/tutorial.cpp",
+    "function": "Tutorial::printBox(const std::string&, int)",
+    "oldString": "// Purpose: Print formatted boxed text for tutorial UI\n// Input: text (const std::string&), width (int)\n// Output: None (prints formatted box to stdout)\nvoid Tutorial::printBox(const std::string& text, int width) {",
+    "newString": "// What: Display method\n// Purpose: Print formatted boxed text for tutorial UI with padding\n// Input: text (const string&), width (int) - text and target width\n// Output: none (prints formatted box line to stdout)\nvoid Tutorial::printBox(const std::string& text, int width) {"
+  },
+  {
+    "filePath": "src/tutorial.cpp",
+    "function": "Tutorial::getUserChoice()",
+    "oldString": "// -----------------------------------------------------------------\n// Helper: Get user input with menu option\n// -----------------------------------------------------------------\nstd::string Tutorial::getUserChoice() {",
+    "newString": "// What: Input method\n// Purpose: Get user choice input with menu return option\n// Input: none\n// Output: std::string - user input string\nstd::string Tutorial::getUserChoice() {"
+  },
+  {
+    "filePath": "src/tutorial.cpp",
+    "function": "Tutorial::waitForInput()",
+    "oldString": "// -----------------------------------------------------------------\n// Helper: Wait for user to press enter\n// -----------------------------------------------------------------\n// Purpose: Pause tutorial and wait for user input to continue\n// Input: None\n// Output: None (reads from stdin)\nvoid Tutorial::waitForInput() {",
+    "newString": "// What: Input method\n// Purpose: Pause tutorial and wait for user input to continue\n// Input: none\n// Output: none (reads from stdin)\nvoid Tutorial::waitForInput() {"
+  },
+  {
+    "filePath": "src/tutorial.cpp",
+    "function": "Tutorial::printEncouragement()",
+    "oldString": "// -----------------------------------------------------------------\n// Helper: Print encouragement message\n// -----------------------------------------------------------------\nvoid Tutorial::printEncouragement() {",
+    "newString": "// What: Display method\n// Purpose: Print random encouragement message to motivate player\n// Input: none\n// Output: none (prints encouragement to stdout)\nvoid Tutorial::printEncouragement() {"
+  },
+  {
+    "filePath": "src/tutorial.cpp",
+    "function": "Tutorial::printProgressBar(int, int)",
+    "oldString": "// -----------------------------------------------------------------\n// Helper: Display tutorial progress bar (9 lessons)\n// -----------------------------------------------------------------\nvoid Tutorial::printProgressBar(int current, int total) {",
+    "newString": "// What: Display method\n// Purpose: Display tutorial progress bar showing completed/current/remaining lessons\n// Input: current (int), total (int) - current lesson number and total lessons\n// Output: none (prints progress visualization to stdout)\nvoid Tutorial::printProgressBar(int current, int total) {"
+  },
+  {
+    "filePath": "src/tutorial.cpp",
+    "function": "Tutorial::displayLesson(const std::string&, const std::vector<std::string>&, int, int)",
+    "oldString": "// -----------------------------------------------------------------\n// Helper: Display a lesson with content\n// -----------------------------------------------------------------\nvoid Tutorial::displayLesson(const std::string& title,",
+    "newString": "// What: Display method\n// Purpose: Display a formatted lesson with content and progress tracking\n// Input: title (const string&), content (const vector<string>&), current (int), total (int)\n// Output: none (prints formatted lesson box to stdout)\nvoid Tutorial::displayLesson(const std::string& title,"
+  },
+  {
+    "filePath": "src/tutorial.cpp",
+    "function": "Tutorial::lessonIntro()",
+    "oldString": "// -----------------------------------------------------------------\n// Lesson 1: Introduction\n// -----------------------------------------------------------------\nbool Tutorial::lessonIntro() {",
+    "newString": "// What: Lesson method\n// Purpose: Teach game goal and introductory concepts to new players\n// Input: none\n// Output: bool - false if user quits to menu, true to continue\nbool Tutorial::lessonIntro() {"
+  },
+  {
+    "filePath": "src/tutorial.cpp",
+    "function": "Tutorial::lessonShop()",
+    "oldString": "// -----------------------------------------------------------------\n// Lesson 2: Shop System (with interactive practice)\n// -----------------------------------------------------------------\nbool Tutorial::lessonShop() {",
+    "newString": "// What: Lesson method\n// Purpose: Teach shop system mechanics and purchasing with interactive practice\n// Input: none\n// Output: bool - false if user quits to menu, true to continue\nbool Tutorial::lessonShop() {"
+  },
+  {
+    "filePath": "src/tutorial.cpp",
+    "function": "Tutorial::lessonUnits()",
+    "oldString": "// -----------------------------------------------------------------\n// Lesson 3: Units and Attributes\n// -----------------------------------------------------------------\nbool Tutorial::lessonUnits() {",
+    "newString": "// What: Lesson method\n// Purpose: Teach unit attributes, classes, abilities, and star levels\n// Input: none\n// Output: bool - false if user quits to menu, true to continue\nbool Tutorial::lessonUnits() {"
+  },
+  {
+    "filePath": "src/tutorial.cpp",
+    "function": "Tutorial::lessonPlacement()",
+    "oldString": "// -----------------------------------------------------------------\n// Lesson 4: Board Placement (with interactive practice)\n// -----------------------------------------------------------------\nbool Tutorial::lessonPlacement() {",
+    "newString": "// What: Lesson method\n// Purpose: Teach unit deployment and formation strategy with practice\n// Input: none\n// Output: bool - false if user quits to menu, true to continue\nbool Tutorial::lessonPlacement() {"
+  },
+  {
+    "filePath": "src/main.cpp",
+    "function": "displayMainMenu()",
+    "oldString": "//displayMainMenu\n// Purpose: Display main menu with game options to player\n// Input: None\n// Output: None (prints formatted menu to stdout)\nvoid displayMainMenu() {",
+    "newString": "// What: Display function\n// Purpose: Display main menu with game options to player\n// Input: none\n// Output: none (prints formatted menu to stdout)\nvoid displayMainMenu() {"
+  },
+  {
+    "filePath": "src/main.cpp",
+    "function": "selectPlayerName()",
+    "oldString": "// selctPlayerName\n// Purpose: Prompt and get player name for new game session\n// Input: None\n// Output: std::string - player name (defaults to \"Player\" if empty)\nstd::string selectPlayerName() {",
+    "newString": "// What: Input function\n// Purpose: Prompt and get player name for new game session\n// Input: none\n// Output: std::string - player name (defaults to \"Player\" if empty)\nstd::string selectPlayerName() {"
+  },
+  {
+    "filePath": "src/main.cpp",
+    "function": "selectDifficulty()",
+    "oldString": "// selectDifficulty\n// Purpose: Prompt and get difficulty selection from player\n// Input: None\n// Output: Difficulty enum - EASY or HARD (defaults to EASY)\nDifficulty selectDifficulty() {",
+    "newString": "// What: Input function\n// Purpose: Prompt and get difficulty selection from player\n// Input: none\n// Output: Difficulty - EASY or HARD (defaults to EASY)\nDifficulty selectDifficulty() {"
+  },
+  {
+    "filePath": "src/main.cpp",
+    "function": "main()",
+    "oldString": "// main\n// Purpose: Program entry point - seed RNG and manage game main loop\n// Input: None (argc/argv not used)\n// Output: 0 on normal exit\nint main() {",
+    "newString": "// What: Main function\n// Purpose: Program entry point - seed RNG and manage game main loop\n// Input: none (argc/argv not used)\n// Output: int - 0 on normal exit\nint main() {"
+  },
+  {
+    "filePath": "src/game.cpp",
+    "function": "trim(const std::string&)",
+    "oldString": "// -----------------------------------------------------------------\n// trim - Remove leading and trailing whitespace from string\n// What it does : strips spaces, tabs, newlines from string edges\n// Input  : s - string to trim\n// Output : trimmed string without leading/trailing whitespace\n// -----------------------------------------------------------------\nstd::string trim(const std::string& s) {",
+    "newString": "// What: Utility function\n// Purpose: Remove leading and trailing whitespace from string\n// Input: s (const string&) - string to trim\n// Output: std::string - trimmed string without leading/trailing whitespace\nstd::string trim(const std::string& s) {"
+  },
+  {
+    "filePath": "src/game.cpp",
+    "function": "toLower(std::string)",
+    "oldString": "// -----------------------------------------------------------------\n// toLower - Convert string to lowercase\n// What it does : converts all uppercase letters to lowercase\n// Input  : s - string to convert\n// Output : string with all letters in lowercase\n// -----------------------------------------------------------------\nstd::string toLower(std::string s) {",
+    "newString": "// What: Utility function\n// Purpose: Convert string to lowercase\n// Input: s (std::string) - string to convert\n// Output: std::string - string with all letters in lowercase\nstd::string toLower(std::string s) {"
+  },
+  {
+    "filePath": "src/game.cpp",
+    "function": "Game::Game(Difficulty, const std::string&)",
+    "oldString": "// =====================================================================\n// Constructor - Initialize game with difficulty and player name\n// What it does: Sets up the game engine with difficulty and player name\n// Inputs: difficulty (Difficulty enum) - game difficulty (EASY or HARD)\n//         playerName (std::string) - name of the player (default: \"Player\")\n// Outputs: none (initializes member variables)\n// =====================================================================\nGame::Game(Difficulty difficulty, const std::string& playerName)",
+    "newString": "// What: Constructor\n// Purpose: Initialize game engine with difficulty level and player name\n// Input: difficulty (Difficulty) - game difficulty (EASY or HARD), playerName (const string&) - player name\n// Output: Fully initialized Game object ready for gameplay\nGame::Game(Difficulty difficulty, const std::string& playerName)"
+  },
+  {
+    "filePath": "src/game.cpp",
+    "function": "Game::showIntro()",
+    "oldString": "// =====================================================================\n// showIntro - Display narrative story introduction for new game sessions\n// Description: Shows the opening story of the war-torn realm of Aethoria,\n//              with formatted box display, narrative text, and prompts player\n//              to press Enter to begin their campaign.\n// Process: 1. Draw decorative box header with game title\n//          2. Display narrative text about the Dark Lord Malachar's invasion\n//          3. Explain player's mission: recruit heroes and survive waves\n//          4. Wait for player input (Enter key) to dismiss intro\n// Purpose: Set game atmosphere, explain story context, and confirm player readiness\n// =====================================================================\nvoid Game::showIntro() const {",
+    "newString": "// What: Display method\n// Purpose: Display narrative story introduction for new game sessions\n// Input: none\n// Output: none (displays formatted story box and waits for Enter key)\nvoid Game::showIntro() const {"
+  },
+  {
+    "filePath": "src/game.cpp",
+    "function": "Game::displayMilestoneAnimation(int)",
+    "oldString": "// =====================================================================\n// displayMilestoneAnimation - Show visual milestone celebration at round 5,10,15,20\n// Description: Displays animated celebration with pulsing frame, typewriter text,\n//              ribbon animation, and achievement message at milestone rounds.\n// Parameters: round - Current round number (checked against 5, 10, 15, 20)\n// Purpose: Provides visual feedback and encouragement at significant round milestones\n// =====================================================================\nvoid Game::displayMilestoneAnimation(int round) const {",
+    "newString": "// What: Display method\n// Purpose: Show visual milestone celebration at round 5, 10, 15, 20\n// Input: round (int) - current round number to check for milestone\n// Output: none (displays animated celebration with pulsing, typewriter, and ribbon effects)\nvoid Game::displayMilestoneAnimation(int round) const {"
+  },
+  {
+    "filePath": "src/game.cpp",
+    "function": "Game::run(bool)",
+    "oldString": "// =====================================================================\n// run - Main game loop orchestrating all phases until player loses\n// Game Flow: SHOP PHASE -> EVENT PHASE -> BATTLE PHASE -> RESULT PHASE -> REPEAT\n// Description: Main game loop that coordinates all gameplay phases:\n//              1. SHOP: Player buys/sells/places units, arranges formation\n//              2. EVENT: Random event effects (gold, discount, blessing, free unit)\n//              3. BATTLE: Auto-combat between player and AI armies\n//              4. RESULT: Process battle outcome, damage dealt, rewards earned\n//              5. REPEAT until player HP drops to 0 (game over)\n// Parameters: show_intro - Whether to display story intro (true for new games)\n// Returns: Final score = number of rounds survived before defeat\n// Purpose: Core game engine that manages game progression and win/lose conditions\n// =====================================================================\nint Game::run(bool show_intro) {",
+    "newString": "// What: Main game loop method\n// Purpose: Orchestrate all game phases (shop, event, battle, result) until player loses\n// Input: show_intro (bool) - whether to display story intro (true for new games)\n// Output: int - final score (number of rounds survived before defeat)\nint Game::run(bool show_intro) {"
+  }
+]

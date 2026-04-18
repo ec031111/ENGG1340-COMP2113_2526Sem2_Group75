@@ -44,12 +44,9 @@ static void boxLine(const std::string& text, int W) {
     std::cout << "  |" << s << "|" << std::endl;
 }
 
-// -----------------------------------------------------------------
-// displayMainMenu
-// What it does : prints the main menu options to stdout.
-// Input  : none
-// Output : none (prints to stdout)
-// -----------------------------------------------------------------
+// Purpose: Display main menu with game options to player
+// Input: None
+// Output: None (prints formatted menu to stdout)
 void displayMainMenu() {
     const int W = 43;
     std::cout << std::endl;
@@ -70,12 +67,9 @@ void displayMainMenu() {
     std::cout << BOLD << BR_YELLOW << "  Select > " << RESET;
 }
 
-// -----------------------------------------------------------------
-// selectPlayerName
-// What it does: Prompts user to input their player name for the game
-// Input: none
-// Output: player name as std::string (empty string defaults to "Player")
-// -----------------------------------------------------------------
+// Purpose: Prompt and get player name for new game session
+// Input: None
+// Output: std::string - player name (defaults to "Player" if empty)
 std::string selectPlayerName() {
     const int W = 43;
     std::cout << std::endl;
@@ -105,12 +99,9 @@ std::string selectPlayerName() {
     return playerName;
 }
 
-// -----------------------------------------------------------------
-// selectDifficulty
-// What it does : prompts the user to choose Easy or Hard difficulty.
-// Input  : none
-// Output : the chosen Difficulty enum value
-// -----------------------------------------------------------------
+// Purpose: Prompt and get difficulty selection from player
+// Input: None
+// Output: Difficulty enum - EASY or HARD (defaults to EASY)
 Difficulty selectDifficulty() {
     const int W = 43;
     std::cout << std::endl;
@@ -137,14 +128,9 @@ Difficulty selectDifficulty() {
     return EASY;
 }
 
-// -----------------------------------------------------------------
-// main
-// What it does : program entry point. Seeds the random number generator,
-//                displays the main menu, and dispatches to the
-//                appropriate function based on user input.
-// Input  : none (standard argc/argv not used)
-// Output : 0 on normal exit
-// -----------------------------------------------------------------
+// Purpose: Program entry point - seed RNG and manage game main loop
+// Input: None (argc/argv not used)
+// Output: 0 on normal exit
 int main() {
     // Seed the random number generator once at program start.
     srand((unsigned)time(nullptr));

@@ -42,9 +42,9 @@ Tutorial::Tutorial() {
 // -----------------------------------------------------------------
 Tutorial::~Tutorial() {}
 
-// -----------------------------------------------------------------
-// Helper: Clear screen
-// -----------------------------------------------------------------
+// Purpose: Clear terminal screen for clean tutorial display
+// Input: None
+// Output: None (clears screen - works on macOS/Linux and Windows)
 void Tutorial::clearScreen() const {
     // Works on both macOS/Linux and Windows
     #ifdef _WIN32
@@ -89,6 +89,9 @@ int Tutorial::getDisplayWidth(const std::string& str) const {
     return width;
 }
 
+// Purpose: Print formatted boxed text for tutorial UI
+// Input: text (const std::string&), width (int)
+// Output: None (prints formatted box to stdout)
 void Tutorial::printBox(const std::string& text, int width) {
     std::string line = text;
     int displayWidth = getDisplayWidth(text);
@@ -116,6 +119,9 @@ std::string Tutorial::getUserChoice() {
 // -----------------------------------------------------------------
 // Helper: Wait for user to press enter
 // -----------------------------------------------------------------
+// Purpose: Pause tutorial and wait for user input to continue
+// Input: None
+// Output: None (reads from stdin)
 void Tutorial::waitForInput() {
     std::string temp;
     std::getline(std::cin, temp);
@@ -929,6 +935,9 @@ bool Tutorial::lessonCompletion() {
 // -----------------------------------------------------------------
 // Main Tutorial Run
 // -----------------------------------------------------------------
+// Purpose: Execute tutorial sequence with all lessons
+// Input: None
+// Output: bool - true if completed successfully
 bool Tutorial::run() {
     clearScreen();
     std::cout << std::endl;

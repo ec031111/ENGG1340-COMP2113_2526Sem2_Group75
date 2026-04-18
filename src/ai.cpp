@@ -15,36 +15,25 @@
 #include <algorithm>
 #include <cstdlib>
 
-// -----------------------------------------------------------------
-// Constructor
-// What it does : stores the chosen difficulty level.
-// Input  : difficulty
-// Output : initialised AI with empty army
-// -----------------------------------------------------------------
+// What: Constructor
+// Purpose: Store the chosen difficulty level and initialize empty army
+// Input: difficulty (Difficulty) - AI difficulty level
+// Output: Initialized AI object with empty army
 AI::AI(Difficulty difficulty)
     : difficulty_(difficulty), gold_(0) {}
 
-// -----------------------------------------------------------------
-// Destructor
-// What it does : frees all remaining army units.
-// Input  : none
-// Output : none
-// -----------------------------------------------------------------
+// What: Destructor
+// Purpose: Free all remaining army units and clean up resources
+// Input: None
+// Output: None
 AI::~AI() {
     clearArmy();
 }
 
-// -----------------------------------------------------------------
-// generateArmy - Build AI army for current round based on difficulty
-// Description: Calculates AI gold budget (scales with round),
-//              creates temporary shop, and uses difficulty-specific
-//              buying strategy to purchase units for this round.
-// Parameters: round - Current game round (affects AI gold budget)
-// Process: 1. Clear previous army
-//          2. Calculate round-based AI gold budget
-//          3. Use EASY or HARD strategy to buy units
-// Purpose: Generate opponent army for this combat round
-// -----------------------------------------------------------------
+// What: Army generation
+// Purpose: Build AI army for current round based on difficulty strategy
+// Input: round (int) - current game round affecting gold budget
+// Output: None (populates army_ vector with purchased units)
 void AI::generateArmy(int round) {
     clearArmy();
 
@@ -70,17 +59,10 @@ void AI::generateArmy(int round) {
     }
 }
 
-// -----------------------------------------------------------------
-// buyEasyStrategy - Purchase units using simple cheapest-first approach
-// Description: Repeatedly refreshes shop and buys cheapest affordable
-//              units until gold runs out or max army size reached.
-//              Simple strategy = easier difficulty for player.
-// Parameters: shop - Temporary shop to purchase from
-// Process: 1. Refresh shop up to 5 times
-//          2. Find cheapest affordable unit each iteration
-//          3. Buy and add to army_ until gold runs out
-// Purpose: Implement EASY difficulty AI purchasing behavior
-// -----------------------------------------------------------------
+// What: Core AI strategy
+// Purpose: Implement EASY difficulty AI unit purchasing (cheapest-first strategy)
+// Input: shop (Shop&) - temporary shop reference to purchase units from
+// Output: None (populates army_ vector with purchased units)
 void AI::buyEasyStrategy(Shop& shop) {
     // Buy from multiple shop refreshes
     int maxUnits = 5;
@@ -111,21 +93,10 @@ void AI::buyEasyStrategy(Shop& shop) {
     }
 }
 
-// -----------------------------------------------------------------
-// buyHardStrategy - Purchase units using score-based optimization
-// Description: Evaluates each unit with formula: ATK*2 + HP/5.
-//              Buys highest-scoring affordable units each iteration.
-//              Smarter strategy = harder difficulty for player.
-// Parameters: shop - Temporary shop to purchase from
-// Process: 1. Refresh shop up to 5 times
-//          2. Score all affordable units (attack priority)
-//          3. Buy highest-scoring unit each iteration
-// Purpose: Implement HARD difficulty AI purchasing behavior (optimized team)
-// -----------------------------------------------------------------
-
-// Input  : shop
-// Output : none (adds units to army_)
-// -----------------------------------------------------------------
+// What: Core AI strategy
+// Purpose: Implement HARD difficulty AI unit purchasing (score-optimized strategy)
+// Input: shop (Shop&) - temporary shop reference to purchase units from
+// Output: None (populates army_ vector with high-value units)
 void AI::buyHardStrategy(Shop& shop) {
     int maxUnits = 5;
     int bought = 0;
@@ -159,13 +130,10 @@ void AI::buyHardStrategy(Shop& shop) {
     }
 }
 
-// -----------------------------------------------------------------
-// placeUnits - Position AI army on board according to difficulty strategy
-// Description: Delegates to difficulty-specific placement logic.
-//              Determines optimal formation for combat.
-// Parameters: board - Game board to place units on
-// Purpose: Dispatch to appropriate army placement strategy based on difficulty
-// -----------------------------------------------------------------
+// What: Army deployment
+// Purpose: Position AI army on board according to difficulty strategy
+// Input: board (Board&) - game board reference to place units on
+// Output: None (places all units on board via difficulty-specific strategies)
 void AI::placeUnits(Board& board) {
     if (difficulty_ == EASY) {
         placeEasy(board);
@@ -174,15 +142,10 @@ void AI::placeUnits(Board& board) {
     }
 }
 
-// -----------------------------------------------------------------
-// placeEasy - Place units in front column sequentially (simple formation)
-// Description: Places all AI units in front column (AI_MIN_COL),
-//              filling rows left-to-right. Spills to next column if full.
-//              No strategic positioning = easier for player.
-// Parameters: board - Game board to place units on
-// Process: Iterate through army_, place each unit in order
-// Purpose: Implement EASY difficulty unit placement (predictable)
-// -----------------------------------------------------------------
+// What: Deployment function
+// Purpose: Deploy AI units in simple sequential formation (EASY difficulty)
+// Input: board (Board&) - game board reference to place units on
+// Output: None (places all army_ units on board)
 void AI::placeEasy(Board& board) {
     int col = AI_MIN_COL;
     int row = 0;
@@ -203,17 +166,10 @@ void AI::placeEasy(Board& board) {
     }
 }
 
-// -----------------------------------------------------------------
-// placeHard - Place units in optimized formation (tanks front, damage back)
-// Description: Separates units by class: tanks/warriors in front,
-//              ranged/mages in back. Maximizes defensive and offensive
-//              positioning for harder challenge.
-// Parameters: board - Game board to place units on
-// Process: 1. Split army into tanks and damage dealers
-//          2. Place tanks in front (AI_MIN_COL)
-//          3. Place damage in back (right columns)
-// Purpose: Implement HARD difficulty unit placement (strategic formation)
-// -----------------------------------------------------------------
+// What: Deployment function
+// Purpose: Deploy AI units in optimized strategic formation (HARD difficulty)
+// Input: board (Board&) - game board reference to place units on
+// Output: None (places army_ units in strategic positions by class)
 void AI::placeHard(Board& board) {
     std::vector<Unit*> tanks;
     std::vector<Unit*> damage;
@@ -270,12 +226,10 @@ void AI::placeHard(Board& board) {
     }
 }
 
-// -----------------------------------------------------------------
-// clearArmy - Delete all units in AI army and reset inventory
-// Description: Safely deletes each Unit pointer and clears army_ vector.
-//              Prevents memory leaks before generating new army.
-// Purpose: Clean up AI army before next round generation
-// -----------------------------------------------------------------
+// What: Memory management
+// Purpose: Delete all units in AI army and reset inventory safely
+// Input: None
+// Output: None (clears and deallocates all units in army_)
 void AI::clearArmy() {
     for (size_t i = 0; i < army_.size(); ++i) {
         if (army_[i] != nullptr) {
@@ -286,20 +240,26 @@ void AI::clearArmy() {
     army_.clear();
 }
 
-// -----------------------------------------------------------------
-// releaseArmy - Clear AI army vector without deleting units (ownership transferred)
-// Description: Clears army_ vector without freeing memory.
-//              Used when units have been transferred to board/combat.
-// Purpose: Reset army list after units placed on board
-// -----------------------------------------------------------------
+// What: Memory management
+// Purpose: Clear AI army vector without deleting units (ownership transferred)
+// Input: None
+// Output: None (clears army_ vector without deallocating units)
 void AI::releaseArmy() {
     army_.clear();
 }
 
+// What: Getter function
+// Purpose: Get the number of units currently in AI army
+// Input: None
+// Output: int - size of army_ vector
 int AI::getArmySize() const {
     return (int)army_.size();
 }
 
+// What: Getter function
+// Purpose: Get the string representation of AI difficulty level
+// Input: None
+// Output: std::string - "Easy" or "Hard" based on difficulty_
 std::string AI::getDifficultyString() const {
     return (difficulty_ == EASY) ? "Easy" : "Hard";
 }

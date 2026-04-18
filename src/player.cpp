@@ -112,57 +112,42 @@ int  Player::getLossStreak() const    { return lossStreak_; }
 int  Player::getRoundsPlayed() const  { return roundsPlayed_; }
 bool Player::isAlive() const          { return hp_ > 0; }
 
-// -----------------------------------------------------------------
-// addGold
-// What it does : increases the player's gold.
-// Input  : amount (positive integer)
-// Output : none
-// -----------------------------------------------------------------
+// Purpose: Increase player's gold reserves by the given amount
+// Input: amount (int) - gold to add
+// Output: None
 void Player::addGold(int amount) {
     gold_ += amount;
 }
 
-// -----------------------------------------------------------------
-// spendGold
-// What it does : deducts gold if the player can afford it.
-// Input  : amount
-// Output : true if transaction succeeded, false if insufficient gold
-// -----------------------------------------------------------------
+// Purpose: Deduct gold from player's reserves if affordable
+// Input: amount (int) - gold amount to spend
+// Output: true if transaction succeeded, false if insufficient gold
 bool Player::spendGold(int amount) {
     if (gold_ < amount) return false;
     gold_ -= amount;
     return true;
 }
 
-// -----------------------------------------------------------------
-// takeDamage
-// What it does : reduces HP, floored at 0.
-// Input  : damage
-// Output : none
-// -----------------------------------------------------------------
+// Purpose: Reduce player HP by damage amount (minimum 0)
+// Input: damage (int) - damage to apply
+// Output: None
 void Player::takeDamage(int damage) {
     hp_ -= damage;
     if (hp_ < 0) hp_ = 0;
 }
 
-// -----------------------------------------------------------------
-// addToBench
-// What it does : appends a unit to the bench if space is available.
-// Input  : unit (caller transfers ownership)
-// Output : true on success, false if bench is full
-// -----------------------------------------------------------------
+// Purpose: Add a unit to player's bench if space is available
+// Input: unit (Unit*) - pointer to unit (ownership transferred)
+// Output: true if added successfully, false if bench is full
 bool Player::addToBench(Unit* unit) {
     if ((int)bench_.size() >= MAX_BENCH_SIZE) return false;
     bench_.push_back(unit);
     return true;
 }
 
-// -----------------------------------------------------------------
-// removeFromBench
-// What it does : removes and returns the unit at the given index.
-// Input  : index (0-based)
-// Output : Unit* (caller takes ownership), nullptr if invalid
-// -----------------------------------------------------------------
+// Purpose: Remove and return a unit from bench at given index
+// Input: index (int) - bench position (0-based)
+// Output: Unit pointer (ownership transferred to caller), nullptr if invalid index
 Unit* Player::removeFromBench(int index) {
     if (index < 0 || index >= (int)bench_.size()) return nullptr;
     Unit* unit = bench_[index];
@@ -170,12 +155,9 @@ Unit* Player::removeFromBench(int index) {
     return unit;
 }
 
-// -----------------------------------------------------------------
-// sellUnit
-// What it does : sells a bench unit — adds gold refund and deletes it.
-// Input  : index
-// Output : true on success
-// -----------------------------------------------------------------
+// Purpose: Sell a bench unit, award gold, and remove it
+// Input: index (int) - bench position of unit to sell
+// Output: true if sale succeeded, false if invalid index
 bool Player::sellUnit(int index) {
     if (index < 0 || index >= (int)bench_.size()) return false;
     Unit* unit = bench_[index];
@@ -198,12 +180,9 @@ Unit* Player::getBenchUnit(int index) const {
     return bench_[index];
 }
 
-// -----------------------------------------------------------------
-// displayBench
-// What it does : prints a formatted list of bench units.
-// Input  : none
-// Output : none (stdout)
-// -----------------------------------------------------------------
+// Purpose: Display all units on the player's bench with formatted details
+// Input: None
+// Output: None (prints formatted bench list to stdout)
 void Player::displayBench() const {
     std::cout << "\n  " << BOLD << BR_BLUE << "📦 Your Bench (" << bench_.size() << "/"
               << MAX_BENCH_SIZE << ")" << RESET << std::endl;
@@ -231,12 +210,9 @@ void Player::displayBench() const {
     }
 }
 
-// -----------------------------------------------------------------
-// displayStatus
-// What it does : prints the player's HP, gold, and streak info with colored output.
-// Input  : none
-// Output : none (stdout)
-// -----------------------------------------------------------------
+// Purpose: Display player status including HP, gold, round, and streak info
+// Input: None
+// Output: None (prints formatted status box to stdout with colors)
 void Player::displayStatus() const {
     const int W = 62;
     std::cout << std::endl;
@@ -273,13 +249,9 @@ void Player::displayStatus() const {
     std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
 }
 
-// -----------------------------------------------------------------
-// startNewRound
-// What it does : increments round counter and awards income.
-//                Income = base gold + 1 per win streak level.
-// Input  : none
-// Output : none
-// -----------------------------------------------------------------
+// Purpose: Start new round by incrementing counter and awarding income
+// Input: None
+// Output: None (updates roundsPlayed_, gold_ with income + bonuses)
 void Player::startNewRound() {
     roundsPlayed_++;
     int baseIncome = GOLD_PER_ROUND;

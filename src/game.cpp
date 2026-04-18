@@ -1682,10 +1682,10 @@ void Game::displayLeaderboard() {
 // =====================================================================
 // printHelp - Display comprehensive command reference
 // Sections: Shopping, Bags, Formation, Game, Class Abilities, Tips
-// Purpose: Educate new players on available commands and game mechanics
-
-// printHelp
-
+// =====================================================================
+// Purpose: Display in-game command help menu with all available actions
+// Input: none
+// Output: none (prints formatted help menu to console)
 // =====================================================================
 void Game::printHelp() const {
     const int W = 55;

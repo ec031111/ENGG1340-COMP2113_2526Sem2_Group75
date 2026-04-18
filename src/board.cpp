@@ -37,21 +37,17 @@ static std::pair<std::string, std::string> getClassColorEmoji(UnitClass cls) {
     }
 }
 
-// -----------------------------------------------------------------
-// Constructor
-// What it does : initialises a BOARD_ROWS x BOARD_COLS grid of nullptrs.
-// Input  : none
-// Output : a Board ready for unit placement
-// -----------------------------------------------------------------
+// What: Constructor
+// Purpose: Initialize a BOARD_ROWS x BOARD_COLS grid of nullptrs
+// Input: None
+// Output: A Board ready for unit placement
 Board::Board()
     : grid_(BOARD_ROWS, std::vector<Unit*>(BOARD_COLS, nullptr)) {}
 
-// -----------------------------------------------------------------
-// placeUnit
-// What it does : puts a unit on the grid if the cell is valid & empty.
-// Inputs : unit, row, col
-// Output : true on success, false otherwise
-// -----------------------------------------------------------------
+// What: Core placement
+// Purpose: Place a unit on the grid if the cell is valid and empty
+// Input: unit (Unit*), row (int), col (int)
+// Output: true if successful, false otherwise
 bool Board::placeUnit(Unit* unit, int row, int col) {
     if (!isValidPosition(row, col)) return false;
     if (grid_[row][col] != nullptr) return false;
@@ -60,70 +56,56 @@ bool Board::placeUnit(Unit* unit, int row, int col) {
     return true;
 }
 
-// -----------------------------------------------------------------
-// removeUnit
-// What it does : clears the cell at (row, col).
-// Inputs : row, col
-// Output : none
-// -----------------------------------------------------------------
+// What: Removal operation
+// Purpose: Clear the cell at (row, col) by removing the unit
+// Input: row (int), col (int)
+// Output: None
 void Board::removeUnit(int row, int col) {
     if (isValidPosition(row, col)) {
         grid_[row][col] = nullptr;
     }
 }
 
-// -----------------------------------------------------------------
-// getUnit
-// What it does : returns the unit pointer at (row, col).
-// Inputs : row, col
-// Output : Unit* or nullptr
-// -----------------------------------------------------------------
+// What: Getter
+// Purpose: Retrieve the unit pointer at the specified grid position
+// Input: row (int), col (int)
+// Output: Unit pointer if present, nullptr otherwise
 Unit* Board::getUnit(int row, int col) const {
     if (!isValidPosition(row, col)) return nullptr;
     return grid_[row][col];
 }
 
-// -----------------------------------------------------------------
-// isValidPosition
-// What it does : bounds-checks (row, col).
-// Inputs : row, col
-// Output : true if within grid
-// -----------------------------------------------------------------
+// What: Validation
+// Purpose: Verify if the given position is within valid grid bounds
+// Input: row (int), col (int)
+// Output: true if within bounds, false otherwise
 bool Board::isValidPosition(int row, int col) const {
     return row >= 0 && row < BOARD_ROWS && col >= 0 && col < BOARD_COLS;
 }
 
-// -----------------------------------------------------------------
-// isEmpty
-// What it does : checks whether a cell has no unit.
-// Inputs : row, col
-// Output : true if cell is empty or out of bounds
-// -----------------------------------------------------------------
+// What: Validation
+// Purpose: Check if a cell is empty (no unit present)
+// Input: row (int), col (int)
+// Output: true if cell is empty or out of bounds, false if occupied
 bool Board::isEmpty(int row, int col) const {
     if (!isValidPosition(row, col)) return true;
     return grid_[row][col] == nullptr;
 }
 
-// -----------------------------------------------------------------
-// clear
-// What it does : resets every cell to nullptr.
-// Input  : none
-// Output : none
-// -----------------------------------------------------------------
+// What: Reset
+// Purpose: Reset all grid cells to empty state
+// Input: None
+// Output: None
 void Board::clear() {
     for (int r = 0; r < BOARD_ROWS; ++r)
         for (int c = 0; c < BOARD_COLS; ++c)
             grid_[r][c] = nullptr;
 }
 
-// -----------------------------------------------------------------
-// display
-// What it does : prints the grid to stdout with a dividing bar between
-//                player (cols 0-3) and AI (cols 4-7) territory.
-//                Uses the unit's symbol or '.' for empty cells.
-// Input  : none
-// Output : none (prints to stdout)
-// -----------------------------------------------------------------
+// What: Display
+// Purpose: Display the full game board with player and AI armies
+// Input: None
+// Output: None (prints to stdout with ANSI colors and dividing bar)
 void Board::display() const {
     std::cout << std::endl;
     std::cout << ANSI_BOLD << ANSI_CYAN << "  +---------+---------+" << ANSI_RESET << std::endl;
@@ -150,13 +132,10 @@ void Board::display() const {
     std::cout << std::endl;
 }
 
-// -----------------------------------------------------------------
-// displayPlayerSide
-// What it does : prints only the player's half of the board (cols 0-3)
-//                so the player can see their formation while deploying.
-// Input  : none
-// Output : none (prints to stdout)
-// -----------------------------------------------------------------
+// What: Display
+// Purpose: Display only the player's side of the board during deployment
+// Input: None
+// Output: None (prints player formation to stdout)
 void Board::displayPlayerSide() const {
     std::cout << std::endl;
     std::cout << ANSI_BOLD << ANSI_CYAN << "  +---------------+" << ANSI_RESET << std::endl;
@@ -182,12 +161,10 @@ void Board::displayPlayerSide() const {
 }
 
 // -----------------------------------------------------------------
-// findNearestEnemy
-// What it does : iterates over the grid to find the closest enemy unit
-//                (by Manhattan distance). "Enemy" = different ownership.
-// Input  : unit - the unit searching for a target
-// Output : pointer to the nearest enemy, or nullptr if none exist
-// -----------------------------------------------------------------
+// What: Core combat
+// Purpose: Find the closest enemy unit using Manhattan distance
+// Input: unit (const Unit*) - unit searching for a target
+// Output: Pointer to nearest living enemy, or nullptr if none exist
 Unit* Board::findNearestEnemy(const Unit* unit) const {
     Unit* nearest = nullptr;
     int minDist = INT_MAX;
@@ -209,14 +186,10 @@ Unit* Board::findNearestEnemy(const Unit* unit) const {
     return nearest;
 }
 
-// -----------------------------------------------------------------
-// moveToward
-// What it does : moves a unit one cell closer to (targetRow, targetCol).
-//                Prefers row movement; falls back to column movement
-//                if row movement is blocked.
-// Inputs : unit, targetRow, targetCol
-// Output : none (modifies grid and unit position)
-// -----------------------------------------------------------------
+// What: Core movement
+// Purpose: Move a unit one cell closer to target, preferring row then column
+// Input: unit (Unit*), targetRow (int), targetCol (int)
+// Output: None (modifies grid state and unit position)
 void Board::moveToward(Unit* unit, int targetRow, int targetCol) {
     int curRow = unit->getRow();
     int curCol = unit->getCol();
@@ -251,12 +224,10 @@ void Board::moveToward(Unit* unit, int targetRow, int targetCol) {
     }
 }
 
-// -----------------------------------------------------------------
-// getPlayerUnits / getAIUnits / getAllUnits
-// What it does : collects unit pointers from the grid by ownership.
-// Input  : none
-// Output : vector of Unit*
-// -----------------------------------------------------------------
+// What: Getter
+// Purpose: Retrieve all player-owned units currently on the board
+// Input: None
+// Output: Vector of Unit pointers owned by the player
 std::vector<Unit*> Board::getPlayerUnits() const {
     std::vector<Unit*> units;
     for (int r = 0; r < BOARD_ROWS; ++r)
@@ -266,6 +237,10 @@ std::vector<Unit*> Board::getPlayerUnits() const {
     return units;
 }
 
+// What: Getter
+// Purpose: Retrieve all AI-owned units currently on the board
+// Input: None
+// Output: Vector of Unit pointers owned by the AI
 std::vector<Unit*> Board::getAIUnits() const {
     std::vector<Unit*> units;
     for (int r = 0; r < BOARD_ROWS; ++r)
@@ -275,6 +250,10 @@ std::vector<Unit*> Board::getAIUnits() const {
     return units;
 }
 
+// What: Getter
+// Purpose: Retrieve all units currently on the board
+// Input: None
+// Output: Vector of all Unit pointers on the board
 std::vector<Unit*> Board::getAllUnits() const {
     std::vector<Unit*> units;
     for (int r = 0; r < BOARD_ROWS; ++r)

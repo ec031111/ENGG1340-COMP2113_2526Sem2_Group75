@@ -45,9 +45,9 @@ static void printBoxTitle(const std::string& title, int W) {
               << std::string(W - pad - (int)title.size(), ' ') << "|" << std::endl;
 }
 
-// =====================================================================
-// Record::saveGame - save complete game state
-// =====================================================================
+// Purpose: Save complete game state to file for later resumption
+// Input: player, board, shop, ai, currentPhase, currentEvent, slot
+// Output: None (writes to save file)
 void Record::saveGame(const Player& player,
                       const Board& board,
                       const Shop& /* shop */,
@@ -124,6 +124,9 @@ void Record::saveGame(const Player& player,
 // =====================================================================
 // Record::loadGame - restore game state from save file
 // =====================================================================
+// Purpose: Load complete game state from save file
+// Input: player, board, shop, ai, currentPhase, currentEvent, shouldResumeShop, slot
+// Output: true if successful, false if file corrupted or invalid
 bool Record::loadGame(Player& player,
                       Board& board,
                       Shop& /* shop */,

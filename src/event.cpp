@@ -16,13 +16,9 @@
 #include <cstdlib>
 #include <unistd.h>
 
-// -----------------------------------------------------------------
-// rollEvent
-// What it does : 40% chance an event occurs each round (after round 1).
-//                Returns a random event type.
-// Input  : round number
-// Output : EventType
-// -----------------------------------------------------------------
+// Purpose: Randomly determine if event occurs this round (40% chance after round 1)
+// Input: round (int) - current game round number
+// Output: EventType - EVENT_NONE or random event type
 EventType Event::rollEvent(int round) {
     if (round <= 1) return EVENT_NONE;  // no events on round 1
     if (rand() % 100 >= 40) return EVENT_NONE;  // 60% chance nothing happens
@@ -32,16 +28,9 @@ EventType Event::rollEvent(int round) {
     return (EventType)roll;
 }
 
-// -----------------------------------------------------------------
-// applyEvent - Execute event effect and return description to player
-// Description: Processes random event occurrence (gold bonus, heal, etc).
-//              Modifies player state (gold, units) based on event type.
-//              Returns user-facing description of what happened.
-// Parameters: event - EventType enum (GOLD_BONUS, HEAL_ALL, SHOP_DISCOUNT, etc)
-//             player - Player object to modify
-// Returns: String describing event result for display
-// Purpose: Implement random event system for game variety and surprises
-// -----------------------------------------------------------------
+// Purpose: Apply event effect to player and return description
+// Input: event (EventType), player (Player&)
+// Output: String describing event result for player display
 std::string Event::applyEvent(EventType event, Player& player) {
     switch (event) {
         case EVENT_SHOP_DISCOUNT:

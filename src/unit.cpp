@@ -55,25 +55,16 @@ bool Unit::isAlive() const              { return hp_ > 0; }
 bool Unit::isPlayerUnit() const         { return playerOwned_; }
 bool Unit::isRaged() const              { return raged_; }
 
-// -----------------------------------------------------------------
-// getSymbol
-// What it does : returns display symbol for the board.
-//                Star 1: first char uppercase (e.g. 'W')
-//                Star 2: first char + '2' indicator
-//                Star 3: first char + '3' indicator
-// Input  : none
-// Output : char (first character of name)
-// -----------------------------------------------------------------
+// Purpose: Return display character for board representation
+// Input: None
+// Output: char - first character of unit's name
 char Unit::getSymbol() const {
     return baseName_[0];
 }
 
-// -----------------------------------------------------------------
-// getSymbolString
-// What it does : returns a 2-char display string for the board.
-// Input  : none
-// Output : string like "W ", "W2", "W3"
-// -----------------------------------------------------------------
+// Purpose: Return 2-character display string including star level indicator
+// Input: None
+// Output: string - "X " (star 1), "X2" (star 2), "X3" (star 3)
 std::string Unit::getSymbolString() const {
     std::string s;
     s += baseName_[0];
@@ -107,57 +98,40 @@ std::string Unit::getAbilityTag() const {
 void Unit::setPosition(int row, int col) { row_ = row; col_ = col; }
 void Unit::setPlayerUnit(bool isPlayer)  { playerOwned_ = isPlayer; }
 
-// -----------------------------------------------------------------
-// takeDamage - Reduce unit health by damage amount (floor at 0)
-// Description: Applies damage to the unit's current HP, preventing
-//              negative values. Dead units remain at 0 HP.
-// Parameters: damage - Amount of damage to apply (positive integer)
-// Purpose: Core combat mechanic for inflicting injuries
-// -----------------------------------------------------------------
+// Purpose: Apply damage to unit, reducing HP (minimum 0)
+// Input: damage (int) - damage amount to apply
+// Output: None (modifies hp_ state)
 void Unit::takeDamage(int damage) {
     hp_ -= damage;
     if (hp_ < 0) hp_ = 0;
 }
 
-// -----------------------------------------------------------------
-// heal - Restore unit health by amount (cap at maxHp)
-// Description: Increases current HP toward maximum, never exceeding it.
-//              Used for healing abilities and passive recovery.
-// Parameters: amount - Health to restore (positive integer)
-// Purpose: Support mechanic for healing and recovery effects
-// -----------------------------------------------------------------
+// Purpose: Restore unit health by amount (capped at maxHp)
+// Input: amount (int) - health to restore
+// Output: None (modifies hp_ state)
 void Unit::heal(int amount) {
     hp_ += amount;
     if (hp_ > maxHp_) hp_ = maxHp_;
 }
 
-// -----------------------------------------------------------------
-// healToFull - Instantly restore unit to maximum health
-// Description: Fully heals the unit to its maxHp value.
-//              Called before combat rounds and for special events.
-// Purpose: Reset unit state between battles (no resource cost)
-// -----------------------------------------------------------------
+// Purpose: Instantly restore unit to full health
+// Input: None
+// Output: None (sets hp_ to maxHp_)
 void Unit::healToFull() {
     hp_ = maxHp_;
 }
 
-// -----------------------------------------------------------------
-// getSellPrice
-// What it does : returns cost/2 * starLevel, minimum 1.
-// -----------------------------------------------------------------
+// Purpose: Calculate unit's sell value based on cost and star level
+// Input: None
+// Output: int - sell price (cost/2 * starLevel, minimum 1)
 int Unit::getSellPrice() const {
     int price = (cost_ / 2) * starLevel_;
     return (price < 1) ? 1 : price;
 }
 
-// -----------------------------------------------------------------
-// getDistanceTo - Calculate Manhattan distance to another unit
-// Description: Computes |row_diff| + |col_diff| for pathfinding
-//              and attack range checking during combat.
-// Parameters: other - Target unit to measure distance to
-// Returns: Integer distance (always >= 0)
-// Purpose: Core mechanic for determining attack viability and target selection
-// -----------------------------------------------------------------
+// Purpose: Calculate Manhattan distance to another unit
+// Input: other (const Unit*) - target unit for distance calculation
+// Output: int - distance value (always >= 0)
 int Unit::getDistanceTo(const Unit* other) const {
     return std::abs(row_ - other->getRow()) + std::abs(col_ - other->getCol());
 }
@@ -223,6 +197,9 @@ std::string Unit::getDisplayName() const {
 //   Star 2: HP * 1.8, ATK * 1.5
 //   Star 3: HP * 3.0, ATK * 2.5 (from original base)
 // -----------------------------------------------------------------
+// Purpose: Upgrade unit to next star level with enhanced stats
+// Input: None
+// Output: None (increases starLevel_, maxHp_, atk_)
 void Unit::upgrade() {
     if (starLevel_ >= MAX_STAR_LEVEL) return;
     starLevel_++;
@@ -237,13 +214,9 @@ void Unit::upgrade() {
     hp_ = maxHp_;  // full heal on upgrade
 }
 
-// -----------------------------------------------------------------
-// forceSetStarLevel - Manually set unit's star level (for testing/loading)
-// Description: Sets star level directly with bounds checking (1-3).
-//              Does NOT update stats; call upgrade() for stat scaling.
-// Parameters: level - Target star level (must be 1-3, otherwise ignored)
-// Purpose: Used for save game loading and debug/testing scenarios
-// -----------------------------------------------------------------
+// Purpose: Manually set unit's star level for testing and save loading
+// Input: level (int) - target star level (must be 1-3)
+// Output: None (sets starLevel_ if valid, ignores otherwise)
 void Unit::forceSetStarLevel(int level) {
     if (level < 1 || level > MAX_STAR_LEVEL) return;
     starLevel_ = level;
@@ -259,33 +232,24 @@ void Unit::forceSetStarLevel(int level) {
 void Unit::applyAtkBonus(int bonus)  { atkBonus_ += bonus; }
 void Unit::applyCritBonus(int bonus) { critBonusExtra_ += bonus; }
 
-// -----------------------------------------------------------------
-// resetBonuses - Clear all temporary stat bonuses from synergies
-// Description: Removes all synergy-granted bonuses (ATK, crit),
-//              resetting unit to base stats before recalculating.
-// Purpose: Clean synergy slate each round for proper recalculation
-// -----------------------------------------------------------------
+// Purpose: Clear all temporary stat bonuses from synergies
+// Input: None
+// Output: None (resets atkBonus_ and critBonusExtra_ to 0)
 void Unit::resetBonuses() {
     atkBonus_ = 0;
     critBonusExtra_ = 0;
 }
 
-// -----------------------------------------------------------------
-// clearRage - Reset unit's rage status flag
-// Description: Clears the raged_ flag at combat start/reset.
-//              Warriors use rage mode for double-turn mechanic.
-// Purpose: Reset rage state for new combat round
-// -----------------------------------------------------------------
+// Purpose: Reset unit's rage status flag
+// Input: None
+// Output: None (sets raged_ to false)
 void Unit::clearRage() {
     raged_ = false;
 }
 
-// -----------------------------------------------------------------
-// setRaged - Mark unit as currently in rage mode
-// Description: Sets raged_ flag to true when Warrior class activates.
-//              Enables special ability effects (double turn, etc).
-// Purpose: Activate Warrior class special ability state
-// -----------------------------------------------------------------
+// Purpose: Mark unit as currently in rage mode for special ability
+// Input: None
+// Output: None (sets raged_ to true)
 void Unit::setRaged() {
     raged_ = true;
 }
