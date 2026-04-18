@@ -206,6 +206,7 @@ void Shop::display() const {
 // Purpose: Retrieve unit from specified shop slot without removing it
 // Input: slotIndex (int) - shop slot position (0-based)
 // Output: Unit pointer if present, nullptr if invalid or empty
+//------------------------------------------------------------------
 Unit* Shop::getUnit(int slotIndex) const {
     if (slotIndex < 0 || slotIndex >= (int)slots_.size()) return nullptr;
     return slots_[slotIndex];

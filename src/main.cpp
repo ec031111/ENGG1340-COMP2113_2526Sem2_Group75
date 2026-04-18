@@ -44,6 +44,7 @@ static void boxLine(const std::string& text, int W) {
     std::cout << "  |" << s << "|" << std::endl;
 }
 
+//displayMainMenu
 // Purpose: Display main menu with game options to player
 // Input: None
 // Output: None (prints formatted menu to stdout)
@@ -67,6 +68,7 @@ void displayMainMenu() {
     std::cout << BOLD << BR_YELLOW << "  Select > " << RESET;
 }
 
+// selctPlayerName
 // Purpose: Prompt and get player name for new game session
 // Input: None
 // Output: std::string - player name (defaults to "Player" if empty)
@@ -99,28 +101,52 @@ std::string selectPlayerName() {
     return playerName;
 }
 
-// Purpose: Prompt and get difficulty selection from player
+// selectDifficulty
+// Purpose: Prompt and get difficulty selection from player with input validation
 // Input: None
-// Output: Difficulty enum - EASY or HARD (defaults to EASY)
+// Output: Difficulty enum - EASY or HARD (validates 1 or 2 input, retries on invalid)
 Difficulty selectDifficulty() {
     const int W = 43;
-    std::cout << std::endl;
-    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
-    boxLine(BOLD + std::string(BR_CYAN) + "  🎯 Select Difficulty" + RESET, W);
-    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
-    boxLine("  " + std::string(BR_GREEN) + "1. Easy  😊" + RESET, W);
-    boxLine("     - AI buys cheap units", W);
-    boxLine("     - Random placement", W);
-    boxLine("  " + std::string(BR_RED) + "2. Hard  😈" + RESET, W);
-    boxLine("     - AI uses smart strategy", W);
-    boxLine("     - Optimised formation", W);
-    std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
-    std::cout << BOLD << BR_YELLOW << "  Select > " << RESET;
+    int choice = -1;
+    
+    while (choice != 1 && choice != 2) {
+        std::cout << std::endl;
+        std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+        boxLine(BOLD + std::string(BR_CYAN) + "  🎯 Select Difficulty" + RESET, W);
+        std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+        boxLine("  " + std::string(BR_GREEN) + "1. Easy  😊" + RESET, W);
+        boxLine("     - AI buys cheap units", W);
+        boxLine("     - Random placement", W);
+        boxLine("  " + std::string(BR_RED) + "2. Hard  😈" + RESET, W);
+        boxLine("     - AI uses smart strategy", W);
+        boxLine("     - Optimised formation", W);
+        std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+        std::cout << BOLD << BR_YELLOW << "  Select > " << RESET;
 
-    std::string input;
-    std::getline(std::cin, input);
-
-    if (input == "2") {
+        // Read integer input
+        std::cin >> choice;
+        
+        // Check for input stream errors
+        if (std::cin.fail()) {
+            std::cin.clear();                           // Clear error flag
+            std::cin.ignore(10000, '\n');               // Discard invalid input
+            std::cout << BR_RED << "  ❌ Invalid input. Please enter 1 or 2." << RESET << std::endl;
+            choice = -1;
+            continue;
+        }
+        
+        // Discard any remaining characters in input buffer
+        std::cin.ignore(10000, '\n');
+        
+        // Validate range
+        if (choice != 1 && choice != 2) {
+            std::cout << BR_RED << "  ❌ Invalid input. Please enter 1 or 2." << RESET << std::endl;
+            choice = -1;
+            continue;
+        }
+    }
+    
+    if (choice == 2) {
         std::cout << BR_RED << "  Difficulty set to HARD. Good luck!" << RESET << std::endl;
         return HARD;
     }
@@ -128,6 +154,7 @@ Difficulty selectDifficulty() {
     return EASY;
 }
 
+// main
 // Purpose: Program entry point - seed RNG and manage game main loop
 // Input: None (argc/argv not used)
 // Output: 0 on normal exit

@@ -45,6 +45,7 @@ static void printBoxTitle(const std::string& title, int W) {
               << std::string(W - pad - (int)title.size(), ' ') << "|" << std::endl;
 }
 
+// Rcord::saveGame - serialize game state to file
 // Purpose: Save complete game state to file for later resumption
 // Input: player, board, shop, ai, currentPhase, currentEvent, slot
 // Output: None (writes to save file)

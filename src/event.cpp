@@ -16,9 +16,11 @@
 #include <cstdlib>
 #include <unistd.h>
 
+//----------------------------------------------------------------------------------
 // Purpose: Randomly determine if event occurs this round (40% chance after round 1)
 // Input: round (int) - current game round number
 // Output: EventType - EVENT_NONE or random event type
+//----------------------------------------------------------------------------------
 EventType Event::rollEvent(int round) {
     if (round <= 1) return EVENT_NONE;  // no events on round 1
     if (rand() % 100 >= 40) return EVENT_NONE;  // 60% chance nothing happens
@@ -27,10 +29,12 @@ EventType Event::rollEvent(int round) {
     int roll = (rand() % (NUM_EVENT_TYPES - 1)) + 1;
     return (EventType)roll;
 }
-
+//---------------------------------------------------------------------------------
+// applyEvent
 // Purpose: Apply event effect to player and return description
 // Input: event (EventType), player (Player&)
 // Output: String describing event result for player display
+//---------------------------------------------------------------------------------
 std::string Event::applyEvent(EventType event, Player& player) {
     switch (event) {
         case EVENT_SHOP_DISCOUNT:
