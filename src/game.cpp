@@ -1078,6 +1078,12 @@ void Game::shopPhase() {
         } else if (cmd == "settings") {
             settingsMenu();
 
+        } else if (cmd == "shop") {
+            shop_.setPlayerGold(player_.getGold());
+            std::cout << std::endl;
+            shop_.display();
+            std::cout << std::endl;
+
         } else if (cmd == "help") {
             printHelp();
 
@@ -1703,6 +1709,7 @@ void Game::printHelp() const {
     printBoxLine("  SHOPPING:", W);
     std::cout << RESET;
 
+    printBoxLine("    shop           Open the shop to buy units", W);
     printBoxLine("    buy 1-5        Buy unit from shop slot", W);
     printBoxLine("    sell 1-N       Sell unit from bench", W);
     printBoxLine("    refresh        Re-roll shop ($" + std::to_string(shop_.getRefreshCost()) + ")", W);
