@@ -161,7 +161,7 @@ Difficulty selectDifficulty() {
 // Input: None
 // Output: None (modifies files on disk, prints status to stdout)
 void clearDataMenu() {
-    const int W = 50;
+    const int W = 52;
     bool valid = false;
     
     while (!valid) {
@@ -169,15 +169,17 @@ void clearDataMenu() {
         std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
         boxLine(BOLD + std::string(BR_YELLOW) + "  🗑️  Clear Game Data" + RESET, W);
         std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
-        boxLine("  " + std::string(BR_RED) + "1. Delete Leaderboard Records" + RESET, W);
-        boxLine("     (Clear docs/records.txt)", W);
+        boxLine("  " + std::string(BR_RED) + "1. Delete Leaderboard Records (records.txt)" + RESET, W);
         boxLine("", W);
-        boxLine("  " + std::string(BR_RED) + "2. Delete All Save Files" + RESET, W);
-        boxLine("     (Clear all game saves 1-3)", W);
+        boxLine("  " + std::string(BR_RED) + "2. Delete Save Slot 1 (save1.dat)" + RESET, W);
         boxLine("", W);
-        boxLine("  " + std::string(BR_RED) + "3. Delete ALL Data (Records + Saves)" + RESET, W);
+        boxLine("  " + std::string(BR_RED) + "3. Delete Save Slot 2 (save2.dat)" + RESET, W);
         boxLine("", W);
-        boxLine("  " + std::string(BR_GREEN) + "4. Cancel (Return to Main Menu)" + RESET, W);
+        boxLine("  " + std::string(BR_RED) + "4. Delete Save Slot 3 (save3.dat)" + RESET, W);
+        boxLine("", W);
+        boxLine("  " + std::string(BR_RED) + "5. Delete ALL Data (Everything)" + RESET, W);
+        boxLine("", W);
+        boxLine("  " + std::string(BR_GREEN) + "6. Cancel" + RESET, W);
         std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
         std::cout << BOLD << BR_YELLOW << "  Select > " << RESET;
 
@@ -186,13 +188,13 @@ void clearDataMenu() {
 
         if (choice == "1") {
             // Delete records.txt
-            std::cout << BR_YELLOW << "  ⚠️  Are you sure? (yes/no) > " << RESET;
+            std::cout << BR_YELLOW << "  ⚠️  Clear leaderboard? (yes/no) > " << RESET;
             std::string confirm;
             std::getline(std::cin, confirm);
             
             if (confirm == "yes") {
                 if (remove("docs/records.txt") == 0) {
-                    std::cout << BR_GREEN << "  ✅ Leaderboard records deleted successfully." << RESET << std::endl;
+                    std::cout << BR_GREEN << "  ✅ Leaderboard records deleted." << RESET << std::endl;
                     // Recreate empty records file
                     std::ofstream file("docs/records.txt");
                     file.close();
@@ -204,29 +206,28 @@ void clearDataMenu() {
             }
             valid = true;
 
-        } else if (choice == "2") {
-            // Delete save files
-            std::cout << BR_YELLOW << "  ⚠️  Are you sure? (yes/no) > " << RESET;
+        } else if (choice == "2" || choice == "3" || choice == "4") {
+            // Delete specific save slot
+            int slot = std::stoi(choice) - 1;  // Convert 2->1, 3->2, 4->3
+            std::cout << BR_YELLOW << "  ⚠️  Delete save slot " << (slot + 1) << "? (yes/no) > " << RESET;
             std::string confirm;
             std::getline(std::cin, confirm);
             
             if (confirm == "yes") {
-                int deleted = 0;
-                for (int i = 1; i <= 3; ++i) {
-                    std::string filepath = getSaveFilePath(i);
-                    if (remove(filepath.c_str()) == 0) {
-                        deleted++;
-                    }
+                std::string filepath = getSaveFilePath(slot + 1);
+                if (remove(filepath.c_str()) == 0) {
+                    std::cout << BR_GREEN << "  ✅ Save slot " << (slot + 1) << " deleted." << RESET << std::endl;
+                } else {
+                    std::cout << BR_YELLOW << "  ℹ️  Save slot " << (slot + 1) << " is empty." << RESET << std::endl;
                 }
-                std::cout << BR_GREEN << "  ✅ Deleted " << deleted << " save file(s)." << RESET << std::endl;
             } else {
                 std::cout << BR_YELLOW << "  ⏭️  Cancelled." << RESET << std::endl;
             }
             valid = true;
 
-        } else if (choice == "3") {
+        } else if (choice == "5") {
             // Delete all data
-            std::cout << BR_RED << "  ⚠️⚠️⚠️  WARNING: Delete ALL data? (yes/no) > " << RESET;
+            std::cout << BR_RED << "  ⚠️⚠️⚠️  WARNING: Delete EVERYTHING? (yes/no) > " << RESET;
             std::string confirm;
             std::getline(std::cin, confirm);
             
@@ -241,18 +242,18 @@ void clearDataMenu() {
                     remove(getSaveFilePath(i).c_str());
                 }
                 
-                std::cout << BR_GREEN << "  ✅ All game data deleted successfully." << RESET << std::endl;
+                std::cout << BR_GREEN << "  ✅ All game data deleted." << RESET << std::endl;
             } else {
                 std::cout << BR_YELLOW << "  ⏭️  Cancelled." << RESET << std::endl;
             }
             valid = true;
 
-        } else if (choice == "4") {
+        } else if (choice == "6") {
             std::cout << BR_YELLOW << "  Returning to main menu..." << RESET << std::endl;
             valid = true;
 
         } else {
-            std::cout << BR_RED << "  ❌ Invalid option. Please enter 1, 2, 3, or 4." << RESET << std::endl;
+            std::cout << BR_RED << "  ❌ Invalid option. Please enter 1-6." << RESET << std::endl;
         }
     }
 }
@@ -343,13 +344,13 @@ int main() {
             // Clear Data - open data management menu
             clearDataMenu();
 
-        } else if (choice == "6" || choice == "quit" || choice == "exit") {
+        } else if (choice == "5" || choice == "quit" || choice == "exit") {
             std::cout << "\n  Thanks for playing Auto-Battler Arena! Goodbye.\n"
                       << std::endl;
             running = false;
 
         } else {
-            std::cout << "  Invalid option. Please enter 1, 2, 3, 4, 5, or 6." << std::endl;
+            std::cout << "  Invalid option. Please enter 1-6." << std::endl;
         }
     }
 
