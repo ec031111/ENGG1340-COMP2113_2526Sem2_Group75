@@ -18,6 +18,7 @@
 #include <ctime>
 #include <string>
 #include <sstream>
+#include <cstdio>
 
 static int visibleWidth(const std::string& text) {
     int width = 0;
@@ -61,7 +62,8 @@ void displayMainMenu() {
     boxLine("  " + std::string(BR_BLUE) + "2.  📚 Tutorial" + RESET, W);
     boxLine("  " + std::string(BR_YELLOW) + "3.  🏅 Leaderboard" + RESET, W);
     boxLine("  " + std::string(BR_RED) + "4.  💾 Load Game" + RESET, W);
-    boxLine("  " + std::string(BR_WHITE) + "5.  🚪 Quit" + RESET, W);
+    boxLine("  " + std::string(BR_YELLOW) + "5.  🗑️  Clear Data" + RESET, W);
+    boxLine("  " + std::string(BR_WHITE) + "6.  🚪 Quit" + RESET, W);
     boxLine("", W);
     std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
     std::cout << std::endl;
@@ -154,6 +156,107 @@ Difficulty selectDifficulty() {
     return EASY;
 }
 
+// clearDataMenu
+// Purpose: Display data clearing options and handle deletion of game records and saves
+// Input: None
+// Output: None (modifies files on disk, prints status to stdout)
+void clearDataMenu() {
+    const int W = 50;
+    bool valid = false;
+    
+    while (!valid) {
+        std::cout << std::endl;
+        std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+        boxLine(BOLD + std::string(BR_YELLOW) + "  🗑️  Clear Game Data" + RESET, W);
+        std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+        boxLine("  " + std::string(BR_RED) + "1. Delete Leaderboard Records" + RESET, W);
+        boxLine("     (Clear docs/records.txt)", W);
+        boxLine("", W);
+        boxLine("  " + std::string(BR_RED) + "2. Delete All Save Files" + RESET, W);
+        boxLine("     (Clear all game saves 1-3)", W);
+        boxLine("", W);
+        boxLine("  " + std::string(BR_RED) + "3. Delete ALL Data (Records + Saves)" + RESET, W);
+        boxLine("", W);
+        boxLine("  " + std::string(BR_GREEN) + "4. Cancel (Return to Main Menu)" + RESET, W);
+        std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
+        std::cout << BOLD << BR_YELLOW << "  Select > " << RESET;
+
+        std::string choice;
+        std::getline(std::cin, choice);
+
+        if (choice == "1") {
+            // Delete records.txt
+            std::cout << BR_YELLOW << "  ⚠️  Are you sure? (yes/no) > " << RESET;
+            std::string confirm;
+            std::getline(std::cin, confirm);
+            
+            if (confirm == "yes") {
+                if (remove("docs/records.txt") == 0) {
+                    std::cout << BR_GREEN << "  ✅ Leaderboard records deleted successfully." << RESET << std::endl;
+                    // Recreate empty records file
+                    std::ofstream file("docs/records.txt");
+                    file.close();
+                } else {
+                    std::cout << BR_RED << "  ❌ Error deleting records file." << RESET << std::endl;
+                }
+            } else {
+                std::cout << BR_YELLOW << "  ⏭️  Cancelled." << RESET << std::endl;
+            }
+            valid = true;
+
+        } else if (choice == "2") {
+            // Delete save files
+            std::cout << BR_YELLOW << "  ⚠️  Are you sure? (yes/no) > " << RESET;
+            std::string confirm;
+            std::getline(std::cin, confirm);
+            
+            if (confirm == "yes") {
+                int deleted = 0;
+                for (int i = 1; i <= 3; ++i) {
+                    std::string filepath = getSaveFilePath(i);
+                    if (remove(filepath.c_str()) == 0) {
+                        deleted++;
+                    }
+                }
+                std::cout << BR_GREEN << "  ✅ Deleted " << deleted << " save file(s)." << RESET << std::endl;
+            } else {
+                std::cout << BR_YELLOW << "  ⏭️  Cancelled." << RESET << std::endl;
+            }
+            valid = true;
+
+        } else if (choice == "3") {
+            // Delete all data
+            std::cout << BR_RED << "  ⚠️⚠️⚠️  WARNING: Delete ALL data? (yes/no) > " << RESET;
+            std::string confirm;
+            std::getline(std::cin, confirm);
+            
+            if (confirm == "yes") {
+                // Delete records
+                remove("docs/records.txt");
+                std::ofstream file("docs/records.txt");
+                file.close();
+                
+                // Delete all saves
+                for (int i = 1; i <= 3; ++i) {
+                    remove(getSaveFilePath(i).c_str());
+                }
+                
+                std::cout << BR_GREEN << "  ✅ All game data deleted successfully." << RESET << std::endl;
+            } else {
+                std::cout << BR_YELLOW << "  ⏭️  Cancelled." << RESET << std::endl;
+            }
+            valid = true;
+
+        } else if (choice == "4") {
+            std::cout << BR_YELLOW << "  Returning to main menu..." << RESET << std::endl;
+            valid = true;
+
+        } else {
+            std::cout << BR_RED << "  ❌ Invalid option. Please enter 1, 2, 3, or 4." << RESET << std::endl;
+        }
+    }
+}
+
 // main
 // Purpose: Program entry point - seed RNG and manage game main loop
 // Input: None (argc/argv not used)
@@ -236,13 +339,17 @@ int main() {
                 std::cout << "  Save file is corrupted." << std::endl;
             }
 
-        } else if (choice == "5" || choice == "quit" || choice == "exit") {
+        } else if (choice == "5") {
+            // Clear Data - open data management menu
+            clearDataMenu();
+
+        } else if (choice == "6" || choice == "quit" || choice == "exit") {
             std::cout << "\n  Thanks for playing Auto-Battler Arena! Goodbye.\n"
                       << std::endl;
             running = false;
 
         } else {
-            std::cout << "  Invalid option. Please enter 1, 2, 3, or 4." << std::endl;
+            std::cout << "  Invalid option. Please enter 1, 2, 3, 4, 5, or 6." << std::endl;
         }
     }
 
