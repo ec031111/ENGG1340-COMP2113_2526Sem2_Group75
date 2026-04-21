@@ -1296,8 +1296,8 @@ bool Game::resolveCombat(std::vector<Unit*>& deadUnits) {
         if (!playerAlive || !aiAlive) break;
         lastTick = tick;
 
-        // Clear screen before each tick (except first) and redisplay battle header
-        if (!skipCombat_ && tick > 1) {
+        // Clear screen before each tick and redisplay battle header
+        if (!skipCombat_) {
             #ifdef _WIN32
                 system("cls");
             #else
