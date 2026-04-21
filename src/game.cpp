@@ -776,7 +776,6 @@ void Game::shopPhase() {
             } else {
                 std::cout << GREEN << " ✅ Sold successfully!" << RESET << std::endl;
             }
-            player_.displayStatus();
             shouldShow = true;  // Refresh display after successful sell
 
         } else if (cmd == "place") {
@@ -893,7 +892,6 @@ void Game::shopPhase() {
             }
             shop_.refresh();
             std::cout << GREEN << "  ✅ Shop refreshed!" << RESET << std::endl;
-            player_.displayStatus();
             shouldShow = true;  // Refresh display after successful refresh
 
 
