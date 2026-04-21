@@ -763,11 +763,11 @@ void Game::shopPhase() {
                 continue;
             }
             //selling confirmation
-            std::cout << UNDERLINE << BLUE << " Sure you want to sell " << WHITE << Sold->getName() << BLUE << "? (yes/no) > " << RESET;
+            std::cout << UNDERLINE << BLUE << " Sure you want to sell " << WHITE << Sold->getName() << BLUE << "? (y/n) > " << RESET;
             std::string confirm;
             std::getline(std::cin, confirm);
             std::string c = toLower(trim(confirm));
-            if (c != "yes" && c != "y") {
+            if (c != "y") {
                 std::cout << YELLOW << " Sell cancelled." << RESET << std::endl;
                 continue;
             }
