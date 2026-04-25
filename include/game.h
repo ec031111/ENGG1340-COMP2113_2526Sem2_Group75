@@ -136,7 +136,9 @@ public:
     void setShouldResumeShop(bool resume) { shouldResumeShopPhase_ = resume; }
     void setDifficulty(Difficulty difficulty) { ai_.setDifficulty(difficulty); }
     int  getAiHp() const { return aiHp_; }
+    void setAiHp(int hp) { aiHp_ = hp; }
     void takeAiDamage(int dmg) { aiHp_ -= dmg; if (aiHp_ < 0) aiHp_ = 0; }
+    void clearAllSynergiesOnLoad();  // Clear synergies from all loaded units to prevent double-bonus
 
 private:
     Board   board_;                      // 5x8 battlefield grid

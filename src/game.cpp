@@ -198,6 +198,22 @@ Game::Game(Difficulty difficulty, const std::string& playerName)
 Game::~Game() {}
 
 // =====================================================================
+// clearAllSynergiesOnLoad - Clear synergies from all loaded units
+// Called after loading a saved game to prevent double synergy bonuses
+// (saved units have synergy bonuses baked in, so we need to clear them)
+// =====================================================================
+void Game::clearAllSynergiesOnLoad() {
+    std::vector<Unit*> allPlayerUnits = player_.getBench();
+    for (int r = 0; r < BOARD_ROWS; ++r)
+        for (int c = 0; c <= PLAYER_MAX_COL; ++c) {
+            Unit* u = board_.getUnit(r, c);
+            if (u != nullptr && u->isPlayerUnit())
+                allPlayerUnits.push_back(u);
+        }
+    Synergy::clearSynergies(allPlayerUnits);
+}
+
+// =====================================================================
 // showIntro - Display narrative story introduction for new game sessions
 // Description: Shows the opening story of the war-torn realm of Aethoria,
 //              with formatted box display, narrative text, and prompts player
@@ -725,16 +741,16 @@ int Game::run(bool show_intro) {
     }
 
     while (running_ && player_.isAlive()) {
-        // Check victory BEFORE incrementing round counter
-        if (!shouldResumeShopPhase_ && player_.getRoundsPlayed() >= MAX_ROUNDS) {
-            showVictoryScreen();
-            Record::saveRecord(player_, ai_);
-            return player_.getRoundsPlayed();
-        }
-
         // Handle resuming from saved game
         if (!shouldResumeShopPhase_) {
             player_.startNewRound();
+            // Check victory AFTER incrementing roundsPlayed_
+            // If we've completed MAX_ROUNDS rounds, show victory before starting next round
+            if (player_.getRoundsPlayed() > MAX_ROUNDS) {
+                showVictoryScreen();
+                Record::saveRecord(player_, ai_);
+                return player_.getRoundsPlayed();
+            }
 
             // --- Round flavor text ---
             {
@@ -982,6 +998,19 @@ void Game::shopPhase() {
     bool shouldShow = true;  // Flag to control when to clear and show full screen
     bool isFirstDisplay = true;  // Don't clear screen on first display
 
+    // Clear all synergy bonuses from all player units (bench + board)
+    // This must happen BEFORE returning units to bench, so dead units on board are also cleared
+    {
+        std::vector<Unit*> allPlayerUnits = player_.getBench();
+        for (int r = 0; r < BOARD_ROWS; ++r)
+            for (int c = 0; c <= PLAYER_MAX_COL; ++c) {
+                Unit* u = board_.getUnit(r, c);
+                if (u != nullptr && u->isPlayerUnit())
+                    allPlayerUnits.push_back(u);
+            }
+        Synergy::clearSynergies(allPlayerUnits);
+    }
+
     // Return board units to bench for repositioning
     for (int r = 0; r < BOARD_ROWS; ++r)
         for (int c = 0; c <= PLAYER_MAX_COL; ++c) {
@@ -1213,15 +1242,11 @@ void Game::shopPhase() {
             int placed = 0;
             for (int i = 0; i < benchSize; ++i) {
                 if (currentUnits + placed >= maxUnits) {
-                    // Put remaining units back on bench
-                    Unit* unit = player_.removeFromBench(0);
-                    if (unit != nullptr) {
-                        player_.addToBench(unit);
-                    }
+                    // Deployment limit reached, stop placing
                     break;
                 }
                 Unit* unit = player_.removeFromBench(0);
-                if (unit == nullptr) continue;
+                if (unit == nullptr) break;
                 if (smartPlaceUnit(board_, unit)) {
                     placed++;
                 } else {
@@ -1272,29 +1297,29 @@ void Game::shopPhase() {
                 std::getline(std::cin, ans);
                 std::string choice = toLower(trim(ans)); 
                 if (choice == "yes" || choice == "y") {
-            // Auto-place bench leftovers (when no champions on board)
+                    // Auto-place bench leftovers (when no champions on board)
                     int maxUnits = getMaxDeployUnits();
                     int benchSize = player_.getBenchSize();
                     int placed = 0;
                     for (int i = 0; i < benchSize; ++i) {
-                       if (placed >= maxUnits) break;  // deploy limit reached, stop placing
-                       Unit* unit = player_.removeFromBench(0);
-                       if (unit == nullptr) break;
-                       bool ok = false;
-                       for (int c = PLAYER_MAX_COL; c >= 0 && !ok; --c) {
-                           for (int r = 0; r < BOARD_ROWS && !ok; ++r) {
-                               if (board_.isEmpty(r, c)) {
-                                   board_.placeUnit(unit, r, c);
-                                   ok = true;
-                                   placed++;
-                               }
-                           }
-                       }
-                       if (!ok) { player_.addToBench(unit); break; }
+                        if (placed >= maxUnits) break;
+                        Unit* unit = player_.removeFromBench(0);
+                        if (unit == nullptr) break;
+                        bool ok = false;
+                        for (int c = PLAYER_MAX_COL; c >= 0 && !ok; --c) {
+                            for (int r = 0; r < BOARD_ROWS && !ok; ++r) {
+                                if (board_.isEmpty(r, c)) {
+                                    board_.placeUnit(unit, r, c);
+                                    ok = true;
+                                    placed++;
+                                }
+                            }
+                        }
+                        if (!ok) { player_.addToBench(unit); break; }
                     }
                     std::cout << GREEN << " Auto-placed " << placed << " units!" << RESET << std::endl;
                     board_.displayPlayerSide();
-                }   else {
+                } else {
                     // if no
                     std::cout << YELLOW << " Please place your units manually, then type 'ready' again." << RESET << std::endl;
                     continue;
@@ -1314,16 +1339,9 @@ void Game::shopPhase() {
                 continue;
             }
             for (int i = 0; i < benchSize; ++i) {
-                if (currentUnits >= maxUnits) {
-                    // Put remaining units back on bench
-                    Unit* unit = player_.removeFromBench(0);
-                    if (unit != nullptr) {
-                        player_.addToBench(unit);
-                    }
-                    continue;
-                }
+                if (currentUnits >= maxUnits) break;
                 Unit* unit = player_.removeFromBench(0);
-                if (unit == nullptr) continue;
+                if (unit == nullptr) break;
                 if (!smartPlaceUnit(board_, unit)) {
                     player_.addToBench(unit);
                     break;
@@ -1570,9 +1588,9 @@ bool Game::battlePhase() {
     // Count surviving AI units before cleanup (needed for loss damage calculation)
     lastBattleAISurvivors_ = (int)board_.getAIUnits().size();
 
-    // Clear synergy bonuses
-    pUnits = board_.getPlayerUnits();
-    Synergy::clearSynergies(pUnits);
+    // Clear synergy bonuses (done at start of shopPhase instead)
+    // pUnits = board_.getPlayerUnits();
+    // Synergy::clearSynergies(pUnits);
 
     // Process all units on board: delete AI units, return alive player units to bench
     // Dead player units are LEFT ON BOARD for revival in shopPhase

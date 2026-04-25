@@ -330,13 +330,16 @@ int main() {
             EventType event = EVENT_NONE;
             bool shouldResumeShop = false;
             Difficulty loadedDifficulty = EASY;
+            int loadedAiHp = 100;
 
             if (Record::loadGame(game.getPlayer(), game.getBoard(), game.getShop(),
-                                 phase, event, shouldResumeShop, loadedDifficulty, slot)) {
+                                 phase, event, shouldResumeShop, loadedDifficulty, loadedAiHp, slot)) {
                 game.setCurrentPhase(phase);
                 game.setCurrentEvent(event);
                 game.setShouldResumeShop(shouldResumeShop);
                 game.setDifficulty(loadedDifficulty);
+                game.setAiHp(loadedAiHp);
+                game.clearAllSynergiesOnLoad();  // Prevent double synergy on loaded units
                 game.run(false);
             } else {
                 std::cout << "  Save file is corrupted." << std::endl;
