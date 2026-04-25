@@ -41,7 +41,7 @@ void playEnterAnimation(int round, bool colorEnabled, bool animEnabled) {
     std::string yellow = COLOR_CODE(C_YELLOW);
     std::string reset = COLOR_CODE(C_RESET);
 
-    // Frame 1: Draw border box
+    // Draw border box and flash highlight (non-blocking print)
     std::cout << "\n";
     std::cout << green << "╔══════════════════════════════════════╗" << reset << "\n";
     std::cout << green << "║          ROUND " << round << " BEGINS!            ║" << reset << "\n";
@@ -49,14 +49,11 @@ void playEnterAnimation(int round, bool colorEnabled, bool animEnabled) {
     std::cout << green << "║    ⚔️  Prepare your units!  ⚔️        ║" << reset << "\n";
     std::cout << green << "╚══════════════════════════════════════╝" << reset << "\n";
     std::cout << "\n";
-
-    ANIM_DELAY(500000);
-
-    // Frame 2: Flash highlight
     std::cout << yellow << ">>> Units are entering the battlefield! <<<" << reset << "\n";
     std::cout << "\n";
 
-    ANIM_DELAY(300000);
+    // Delay AFTER all text is printed (non-blocking to user input)
+    ANIM_DELAY(500000);
 }
 
 //----------------------------------------------------------------------------------
@@ -270,12 +267,12 @@ void printTickAction(ActionType action, Unit* unit, int value, bool colorEnabled
 
         case CRIT:
             std::cout << yellow << "[" << "💥" << "]" << reset << " " << name
-                      << " 💥 Backstab crit! " << value << " damage!";
+                      << " 💥 CRITICAL HIT! " << value << " damage!";
             break;
 
         case ABILITY:
             std::cout << blue << "[" << "✨" << "]" << reset << " " << name
-                      << " ✨ casts AOE! Hits " << value << " enemies for 10 each!";
+                      << " ✨ activates ability!";
             break;
 
         case EVADE:

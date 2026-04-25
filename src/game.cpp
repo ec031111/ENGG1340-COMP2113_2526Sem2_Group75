@@ -1845,7 +1845,7 @@ void Game::performAbility(Unit* attacker, Unit* defender, std::vector<Unit*>& al
                         }
                     }
                 }
-                if (!skipCombat_) {
+                if (!skipCombat_ && splashCount > 0) {
                     playSkillEffect(MAGE, settings_.colorEnabled, settings_.animationsEnabled);
                     printTickAction(ABILITY, attacker, splashCount, settings_.colorEnabled);
                 }
