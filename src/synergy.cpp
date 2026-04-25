@@ -80,12 +80,12 @@ std::vector<SynergyBonus> Synergy::calculateSynergies(std::vector<Unit*>& units)
         b.count = classCount[TANK];
         if (classCount[TANK] >= 3) {
             b.tier = 2;
-            b.description = "Tank(3): All units heal +15% HP";
+            b.description = "Tank(3): All units heal +15% HP (battle start)";
             for (size_t i = 0; i < units.size(); ++i)
                 units[i]->heal(units[i]->getMaxHp() * 15 / 100);
         } else {
             b.tier = 1;
-            b.description = "Tank(2): All Tanks heal +20% HP";
+            b.description = "Tank(2): All Tanks heal +20% HP (battle start)";
             for (size_t i = 0; i < units.size(); ++i)
                 if (units[i]->getClass() == TANK)
                     units[i]->heal(units[i]->getMaxHp() * 20 / 100);

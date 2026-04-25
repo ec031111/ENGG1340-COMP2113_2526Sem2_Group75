@@ -68,7 +68,8 @@ void Record::saveGame(const Player& player,
     // Save player state
     file << player.getHp() << " " << player.getGold() << " "
          << player.getRoundsPlayed() << " " << player.getWinStreak() << " "
-         << player.getLossStreak() << std::endl;
+         << player.getLossStreak() << " " << player.getWinCount() << " "
+         << player.getLossCount() << std::endl;
 
     // Save bench units
     const std::vector<Unit*>& bench = player.getBench();
@@ -131,10 +132,10 @@ void Record::saveGame(const Player& player,
 bool Record::loadGame(Player& player,
                       Board& board,
                       Shop& /* shop */,
-                      AI& /* ai */,
                       GamePhase& currentPhase,
                       EventType& currentEvent,
                       bool& shouldResumeShopPhase,
+                      Difficulty& loadedDifficulty,
                       int slot) {
     // Check if save file exists before attempting to load
     std::string saveFilePath = getSaveFilePath(slot);
@@ -154,6 +155,10 @@ bool Record::loadGame(Player& player,
         return false;
     }
 
+    // Declare here (outside try) so catch block can clean up on parse failure
+    std::vector<Unit*> loadedUnits;
+    std::vector<std::tuple<int, int, Unit*>> boardUnits;
+
     try {
         // Read game phase
         int phaseInt;
@@ -167,12 +172,20 @@ bool Record::loadGame(Player& player,
         shouldResumeShopPhase = (currentPhase == PHASE_SHOP);
 
         // Read player state
-        int hp, gold, rounds, winStreak, lossStreak;
+        int hp, gold, rounds, winStreak, lossStreak, winCount = 0, lossCount = 0;
         if (!(file >> hp >> gold >> rounds >> winStreak >> lossStreak)) {
             throw std::runtime_error("Failed to read player state");
         }
+        // Try reading win/loss counts (backward compat: default to 0 for old saves)
+        file >> winCount >> lossCount;
+        if (file.fail()) {
+            winCount = 0;
+            lossCount = 0;
+            file.clear();
+        }
         // Validate player state values
-        if (hp < 0 || gold < 0 || rounds < 0 || winStreak < 0 || lossStreak < 0) {
+        if (hp < 0 || gold < 0 || rounds < 0 || winStreak < 0 || lossStreak < 0
+            || winCount < 0 || lossCount < 0) {
             throw std::runtime_error("Invalid player state values");
         }
 
@@ -185,7 +198,6 @@ bool Record::loadGame(Player& player,
             throw std::runtime_error("Invalid bench unit count");
         }
 
-        std::vector<Unit*> loadedUnits;
         for (int i = 0; i < benchCount; ++i) {
             std::string name;
             int cls, maxHp, atk, cost, critBonus, range, starLevel;
@@ -218,7 +230,6 @@ bool Record::loadGame(Player& player,
         }
 
         // Store board units temporarily (will apply after player state)
-        std::vector<std::tuple<int, int, Unit*>> boardUnits;
         for (int i = 0; i < boardUnitCount; ++i) {
             int r, c;
             std::string name;
@@ -250,6 +261,11 @@ bool Record::loadGame(Player& player,
         if (!(file >> diff)) {
             // Difficulty is optional, continue
         }
+        if (diff == "Hard" || diff == "HARD") {
+            loadedDifficulty = HARD;
+        } else {
+            loadedDifficulty = EASY;  // default
+        }
         
         // Read current event
         int eventInt;
@@ -264,7 +280,7 @@ bool Record::loadGame(Player& player,
         file.close();
 
         // Apply loaded state to player
-        player.loadState(hp, gold, rounds, winStreak, lossStreak);
+        player.loadState(hp, gold, rounds, winStreak, lossStreak, winCount, lossCount);
 
         // Add loaded units to bench
         for (size_t i = 0; i < loadedUnits.size(); ++i) {
@@ -286,19 +302,25 @@ bool Record::loadGame(Player& player,
 
     } catch (const std::exception& e) {
         file.close();
-        
+        // Clean up any partially loaded units to prevent memory leak
+        for (size_t i = 0; i < loadedUnits.size(); ++i) delete loadedUnits[i];
+        for (size_t i = 0; i < boardUnits.size(); ++i) delete std::get<2>(boardUnits[i]);
+
         std::cout << "\n  " << BOLD << BR_RED << "Save file corrupted" << RESET << std::endl;
         std::cout << "  Details: " << e.what() << std::endl;
         std::cout << "  This save file cannot be loaded. Please try another slot." << std::endl;
-        
+
         return false;
     } catch (...) {
         file.close();
-        
+        // Clean up any partially loaded units to prevent memory leak
+        for (size_t i = 0; i < loadedUnits.size(); ++i) delete loadedUnits[i];
+        for (size_t i = 0; i < boardUnits.size(); ++i) delete std::get<2>(boardUnits[i]);
+
         std::cout << "\n  " << BOLD << BR_RED << "Save file corrupted" << RESET << std::endl;
         std::cout << "  Unknown error occurred while reading the save file." << std::endl;
         std::cout << "  This save file cannot be loaded. Please try another slot." << std::endl;
-        
+
         return false;
     }
 }
@@ -489,14 +511,22 @@ bool Record::showSavePreview(int slot) {
             throw std::runtime_error("Invalid game phase value");
         }
 
-        // Read player state: HP, Gold, RoundsPlayed, WinStreak, LossStreak
-        int hp, gold, rounds, winStreak, lossStreak;
+        // Read player state: HP, Gold, RoundsPlayed, WinStreak, LossStreak, WinCount, LossCount
+        int hp, gold, rounds, winStreak, lossStreak, winCount = 0, lossCount = 0;
         if (!(file >> hp >> gold >> rounds >> winStreak >> lossStreak)) {
             throw std::runtime_error("Failed to read player state");
         }
-        
+        // Read win/loss counts (backward compat: optional in new saves)
+        file >> winCount >> lossCount;
+        if (file.fail()) {
+            winCount = 0;
+            lossCount = 0;
+            file.clear();
+        }
+
         // Validate values
-        if (hp < 0 || gold < 0 || rounds < 0 || winStreak < 0 || lossStreak < 0) {
+        if (hp < 0 || gold < 0 || rounds < 0 || winStreak < 0 || lossStreak < 0
+            || winCount < 0 || lossCount < 0) {
             throw std::runtime_error("Invalid player state values");
         }
 
@@ -556,13 +586,21 @@ void Record::displayAllSlots() {
                     throw std::runtime_error("Invalid phase value");
                 }
                 
-                int hp, gold, rounds, winStreak, lossStreak;
+                int hp, gold, rounds, winStreak, lossStreak, winCount = 0, lossCount = 0;
                 if (!(file >> hp >> gold >> rounds >> winStreak >> lossStreak)) {
                     throw std::runtime_error("Failed to read player state");
                 }
-                
+                // Read win/loss counts (backward compat: optional in new saves)
+                file >> winCount >> lossCount;
+                if (file.fail()) {
+                    winCount = 0;
+                    lossCount = 0;
+                    file.clear();
+                }
+
                 // Validate player data
-                if (hp < 0 || gold < 0 || rounds < 0 || winStreak < 0 || lossStreak < 0) {
+                if (hp < 0 || gold < 0 || rounds < 0 || winStreak < 0 || lossStreak < 0
+                    || winCount < 0 || lossCount < 0) {
                     throw std::runtime_error("Invalid player state values");
                 }
                 

@@ -52,15 +52,15 @@ public:
                         int slot = 1);
 
     // Purpose: Load game state from file and restore board/shop
-    // Input: player, board, shop, ai, currentPhase, currentEvent, shouldResumeShopPhase (references), slot (int)
-    // Output: bool - true if load successful
+    // Input: player, board, shop, currentPhase, currentEvent, shouldResumeShopPhase (references), slot (int)
+    // Output: bool - true if load successful, difficulty output via parameter
     static bool loadGame(Player& player,
                          Board& board,
                          Shop& shop,
-                         AI& ai,
                          GamePhase& currentPhase,
                          EventType& currentEvent,
                          bool& shouldResumeShopPhase,
+                         Difficulty& loadedDifficulty,
                          int slot = 1);
 
     // Purpose: Append game result to leaderboard file

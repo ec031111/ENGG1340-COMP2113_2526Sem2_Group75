@@ -184,7 +184,7 @@ void Shop::display() const {
                  << std::setw(9) << slots_[i]->getClassString()
                  << "HP:" << std::setw(4) << slots_[i]->getMaxHp()
                  << "ATK:" << std::setw(3) << slots_[i]->getAtk()
-                 << "R:" << slots_[i]->getAttackRange()
+                 << "R:" << std::setw(2) << slots_[i]->getAttackRange()
                  << " [" << slots_[i]->getAbilityTag() << "]"
                  << " " << (canAfford ? ANSI_GREEN : ANSI_RED) << "$" << slots_[i]->getCost() << ANSI_RESET;
         } else {

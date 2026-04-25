@@ -325,16 +325,18 @@ int main() {
 
             Difficulty diff = EASY;
             Game game(diff);
-            
+
             GamePhase phase = PHASE_ROUND_START;
             EventType event = EVENT_NONE;
             bool shouldResumeShop = false;
-            
-            if (Record::loadGame(game.getPlayer(), game.getBoard(), game.getShop(), 
-                                 const_cast<AI&>(game.getAI()), phase, event, shouldResumeShop, slot)) {
+            Difficulty loadedDifficulty = EASY;
+
+            if (Record::loadGame(game.getPlayer(), game.getBoard(), game.getShop(),
+                                 phase, event, shouldResumeShop, loadedDifficulty, slot)) {
                 game.setCurrentPhase(phase);
                 game.setCurrentEvent(event);
                 game.setShouldResumeShop(shouldResumeShop);
+                game.setDifficulty(loadedDifficulty);
                 game.run(false);
             } else {
                 std::cout << "  Save file is corrupted." << std::endl;

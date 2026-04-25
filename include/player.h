@@ -26,8 +26,8 @@ const int MAX_BENCH_SIZE = 8;
 const int STARTING_HP   = 100;
 const int STARTING_GOLD = 10;
 const int GOLD_PER_ROUND = 5;
-const int WIN_STREAK_BONUS = 3;   // 3 extra gold per consecutive win (only if streak >= 3)
-const int LOSS_STREAK_BONUS = 2;  // 2 extra gold per consecutive loss (only if streak >= 3)
+const int WIN_STREAK_BONUS = 3;   // +3 gold flat bonus when win streak >= 3
+const int LOSS_STREAK_BONUS = 2;  // +2 gold flat bonus when loss streak >= 3
 const int INTEREST_PER_10 = 1;    // earn 1 gold per 10 gold saved, max 5
 
 // ---------------------------------------------------------------------
@@ -79,6 +79,16 @@ public:
     // Input: none
     // Output: int - loss streak count
     int  getLossStreak() const;
+
+    // Purpose: Get total number of wins
+    // Input: none
+    // Output: int - total win count
+    int  getWinCount() const { return winCount_; }
+
+    // Purpose: Get total number of losses
+    // Input: none
+    // Output: int - total loss count
+    int  getLossCount() const { return lossCount_; }
 
     // Purpose: Get total rounds played
     // Input: none
@@ -156,9 +166,10 @@ public:
     const std::vector<Unit*>& getBench() const;
 
     // Purpose: Restore player state from saved values (clears bench first)
-    // Input: hp, gold, rounds, winStreak, lossStreak (int) - saved state values
+    // Input: hp, gold, rounds, winStreak, lossStreak, winCount, lossCount (int) - saved state values
     // Output: none
-    void loadState(int hp, int gold, int rounds, int winStreak, int lossStreak);
+    void loadState(int hp, int gold, int rounds, int winStreak, int lossStreak,
+                   int winCount = 0, int lossCount = 0);
 
 private:
     std::string name_;           // Player's display name
@@ -166,6 +177,8 @@ private:
     int gold_;                   // Current gold amount
     int winStreak_;              // Consecutive wins
     int lossStreak_;             // Consecutive losses
+    int winCount_;               // Total wins
+    int lossCount_;              // Total losses
     int roundsPlayed_;           // Total rounds survived
     std::vector<Unit*> bench_;   // Dynamically allocated units
 };

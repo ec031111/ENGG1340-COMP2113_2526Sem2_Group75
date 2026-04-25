@@ -87,7 +87,7 @@ static std::pair<std::string, std::string> getClassColorEmoji(UnitClass cls) {
 // -----------------------------------------------------------------
 Player::Player(const std::string& name)
     : name_(name), hp_(STARTING_HP), gold_(STARTING_GOLD),
-      winStreak_(0), lossStreak_(0), roundsPlayed_(0) {}
+      winStreak_(0), lossStreak_(0), winCount_(0), lossCount_(0), roundsPlayed_(0) {}
 
 // -----------------------------------------------------------------
 // Destructor
@@ -255,9 +255,9 @@ void Player::displayStatus() const {
 void Player::startNewRound() {
     roundsPlayed_++;
     int baseIncome = GOLD_PER_ROUND;
-    // Win streak bonus: 3 gold per win, only if streak >= 3
+    // Win streak bonus: +3 gold flat when win streak >= 3
     int winStreakGold = (winStreak_ >= 3) ? WIN_STREAK_BONUS : 0;
-    // Loss streak bonus: 2 gold per loss, only if streak >= 3
+    // Loss streak bonus: +2 gold flat when loss streak >= 3
     int lossStreakGold = (lossStreak_ >= 3) ? LOSS_STREAK_BONUS : 0;
     // Interest: 1 gold per 10 saved, max 5 gold (25 gold earned, only at start of round)
     int interest = std::min(gold_ / 10, 5) * INTEREST_PER_10;
@@ -294,11 +294,13 @@ void Player::startNewRound() {
 void Player::recordWin() {
     winStreak_++;
     lossStreak_ = 0;
+    winCount_++;
 }
 
 void Player::recordLoss() {
     lossStreak_++;
     winStreak_ = 0;
+    lossCount_++;
 }
 
 const std::vector<Unit*>& Player::getBench() const {
@@ -308,13 +310,16 @@ const std::vector<Unit*>& Player::getBench() const {
 // -----------------------------------------------------------------
 // loadState
 // What it does : restores player state from saved values.
-// Inputs : hp, gold, rounds, winStreak, lossStreak
+// Inputs : hp, gold, rounds, winStreak, lossStreak, winCount, lossCount
 // Output : none
 // -----------------------------------------------------------------
-void Player::loadState(int hp, int gold, int rounds, int winStreak, int lossStreak) {
+void Player::loadState(int hp, int gold, int rounds, int winStreak, int lossStreak,
+                       int winCount, int lossCount) {
     hp_ = hp;
     gold_ = gold;
     roundsPlayed_ = rounds;
     winStreak_ = winStreak;
     lossStreak_ = lossStreak;
+    winCount_ = winCount;
+    lossCount_ = lossCount;
 }

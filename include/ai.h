@@ -78,6 +78,11 @@ public:
     // Output: string - "Easy" or "Hard"
     std::string getDifficultyString() const;
 
+    // Purpose: Set AI difficulty level (used when loading saved games)
+    // Input: difficulty (Difficulty) - EASY or HARD
+    // Output: none
+    void setDifficulty(Difficulty difficulty);
+
 private:
     Difficulty difficulty_;              // AI difficulty level (EASY/HARD)
     std::vector<Unit*> army_;            // Dynamically allocated unit army

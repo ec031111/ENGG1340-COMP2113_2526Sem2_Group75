@@ -44,8 +44,8 @@
 #define BR_WHITE    "\033[97m"
 
 // Damage dealt to the losing player after each battle round.
-const int LOSS_DAMAGE_BASE = 5;
-const int LOSS_DAMAGE_PER_SURVIVING = 2;
+const int LOSS_DAMAGE_BASE = 10;
+const int LOSS_DAMAGE_PER_SURVIVING = 4;
 
 // Maximum units player can deploy per round
 // Round 1: 3, Round 2: 4, Round 3: 5, Round 4+: 6
@@ -66,19 +66,8 @@ enum GamePhase {
     PHASE_BATTLE
 };
 
-// Round type enum - determines what type of round this is
-enum RoundType {
-    ROUND_TYPE_PVE,      // Round 1,2,3,5 - Fight weak monsters
-    ROUND_TYPE_EVENT,    // Round 7 - Special event with rewards, no combat
-    ROUND_TYPE_PVP       // Normal rounds - Fight AI opponent
-};
-
-// PVE Round constants
-const int PVE_ROUNDS[] = {1, 2, 3, 5};
-const int EVENT_ROUNDS[] = {7};
-const int PVE_DAMAGE_ON_LOSS = 3;      // Damage taken if lose PVE round
-const int PVE_GOLD_REWARD = 20;        // Gold gained if win PVE round
-const int PVE_EQUIPMENT_REWARD = 1;    // Number of random units given as reward
+// Maximum rounds in the game (victory condition)
+const int MAX_ROUNDS = 20;
 
 // =====================================================================
 // Settings - Structure to manage game display and audio preferences
@@ -117,11 +106,6 @@ public:
     // Output: int - rounds survived
     int run(bool showIntro = true);
 
-    // Purpose: Save final score and game stats to leaderboard
-    // Input: none
-    // Output: none
-    void saveRecord() const;
-
     // Purpose: Save complete game state for later resumption
     // Input: none
     // Output: none
@@ -149,6 +133,7 @@ public:
     void setCurrentEvent(EventType event) { currentEvent_ = event; }
     bool shouldResumeShop() const { return shouldResumeShopPhase_; }
     void setShouldResumeShop(bool resume) { shouldResumeShopPhase_ = resume; }
+    void setDifficulty(Difficulty difficulty) { ai_.setDifficulty(difficulty); }
 
 private:
     Board   board_;                      // 5x8 battlefield grid
@@ -161,6 +146,8 @@ private:
     int     combatPace_;                 // Battle display pace (0-3)
     GamePhase currentPhase_;             // Current phase in the round
     bool shouldResumeShopPhase_;         // Flag to resume shop phase from saved game
+    int lastBattleAISurvivors_;          // Number of AI units surviving last battle (for damage calc)
+    bool lastBattleWasDraw_;            // Whether last battle ended in a draw (time limit)
 
     // --- Phase handlers ---
     // Purpose: Handle player shopping and formation setup phase
@@ -248,6 +235,16 @@ private:
     // Output: none (prints to stdout)
     void showIntro() const;
 
+    // Purpose: Display celebratory victory animation when player survives all rounds
+    // Input: none
+    // Output: none (prints animated victory screen to stdout)
+    void showVictoryScreen() const;
+
+    // Purpose: Display animated game over screen when player HP reaches 0
+    // Input: none
+    // Output: none (prints animated defeat screen to stdout)
+    void showDefeatScreen() const;
+
     // Purpose: Set battle display pace level
     // Input: pace (int) - 0=SLOW, 1=NORMAL, 2=FAST, 3=FASTEST
     // Output: none
@@ -262,46 +259,6 @@ private:
     // Input: none
     // Output: int - maximum units allowed this round
     int getMaxDeployUnits() const;
-
-    // Purpose: Display colored rewards information after battle
-    // Input: playerWon (bool) - whether player won the battle
-    // Output: none (prints to stdout)
-    void showBattleRewards(bool playerWon);
-
-    // Purpose: Determine the type of round (PVE/EVENT/PVP)
-    // Input: round (int) - round number (1-indexed)
-    // Output: RoundType - enum indicating round type
-    RoundType getRoundType(int round) const;
-
-    // Purpose: Handle PVE battle against weak monsters
-    // Input: none
-    // Output: bool - true if player won the PVE battle
-    bool pvePhase();
-
-    // Purpose: Handle special event round with direct rewards
-    // Input: none
-    // Output: none
-    void eventPhase();
-
-    // Purpose: Create array of weak monsters for PVE round
-    // Input: round (int) - current round number (affects scale)
-    // Output: vector of Unit* - monster units to fight
-    std::vector<Unit*> createPveMonsters(int round);
-
-    // Purpose: Initialize battle log file for this game session
-    // Input: none
-    // Output: none
-    void initializeLog();
-
-    // Purpose: Write round information to the battle log file
-    // Input: round, won (bool), gold, winStreak, eventTriggered (bool)
-    // Output: none
-    void writeToLog(int round, bool won, int gold, int winStreak, bool eventTriggered);
-
-    // Purpose: Display battle report and log side by side
-    // Input: none
-    // Output: none (prints to stdout)
-    void displayLogWithBattleReport();
 
     // Purpose: Automatically save game to slot 1 after each round
     // Input: none
@@ -320,8 +277,6 @@ private:
     bool isColorEnabled() const { return settings_.colorEnabled; }
 
 private:
-    RoundType currentRoundType_;         // Type of current round (PVE/EVENT/PVP)
-    std::string logFilename_;            // Path to the battle log file
     Settings settings_;                  // Game display and audio preferences
 };
 

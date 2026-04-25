@@ -192,7 +192,7 @@ static std::string abilityDesc(UnitClass cls) {
 Game::Game(Difficulty difficulty, const std::string& playerName)
     : player_(playerName), ai_(difficulty), running_(true), skipCombat_(false),
       currentEvent_(EVENT_NONE), combatPace_(1), currentPhase_(PHASE_ROUND_START),
-      shouldResumeShopPhase_(false), currentRoundType_(ROUND_TYPE_PVP), logFilename_("") {}
+      shouldResumeShopPhase_(false), lastBattleAISurvivors_(0), lastBattleWasDraw_(false) {}
 
 Game::~Game() {}
 
@@ -227,6 +227,334 @@ void Game::showIntro() const {
     printBoxLine("", W);
     std::cout << BOLD << BR_CYAN << "  +" << std::string(W, '=') << "+" << RESET << std::endl;
     std::cout << "\n  " << BOLD << BR_YELLOW << "[Press Enter to begin your campaign...]" << RESET;
+    std::string dummy;
+    std::getline(std::cin, dummy);
+}
+
+// =====================================================================
+// showVictoryScreen - Display celebratory victory animation
+// Description: Multi-stage animation showing triumphant victory screen
+//              with golden borders, ASCII art, stats, and narrative.
+// =====================================================================
+void Game::showVictoryScreen() const {
+    const int W = 58;
+    int rounds = player_.getRoundsPlayed();
+    int gold = player_.getGold();
+    int hp = player_.getHp();
+    int maxHp = STARTING_HP;
+    int winStreak = player_.getWinStreak();
+    int winCount = player_.getWinCount();
+    int lossCount = player_.getLossCount();
+
+    // ── Stage 1: Golden frame reveal ──
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+
+    for (int pulse = 0; pulse < 3; ++pulse) {
+        std::string bar(W + 2, '*');
+        std::cout << "\n  " << BOLD << BR_YELLOW << bar << RESET << "\n";
+        usleep(120000);
+    }
+
+    // ── Stage 2: ASCII Crown & Title ──
+    std::cout << "\n  " << BOLD << BR_YELLOW
+              << "              __                   __" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_YELLOW
+              << "             /  |                 |  \\" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_YELLOW
+              << "            /   |    VICTORY!     |   \\" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_YELLOW
+              << "           /    |   The Dark Army   |    \\" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_YELLOW
+              << "          |     |   Has Fallen!   |     |" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_YELLOW
+              << "           \\    |_________________|    /" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_YELLOW
+              << "            \\  |    |     |    |  /" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_YELLOW
+              << "             \\_|____|     |____|_/" << RESET << "\n\n";
+
+    usleep(300000);
+
+    // ── Stage 3: Golden banner ──
+    std::cout << "  " << BOLD << BR_YELLOW << "  +" << std::string(W, '=') << "+" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_YELLOW << "  |" << RESET;
+    std::cout << BOLD << BR_GREEN << "  ★ ★ ★  THE DARKNESS IS VANQUISHED  ★ ★ ★  " << RESET;
+    std::cout << BOLD << BR_YELLOW << "|" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_YELLOW << "  +" << std::string(W, '=') << "+" << RESET << "\n";
+
+    usleep(200000);
+
+    // ── Stage 4: Stats box ──
+    std::cout << "\n";
+    std::cout << "  " << BOLD << BR_YELLOW << "  +-" << std::string(W - 2, '-') << "-+" << RESET << "\n";
+
+    std::ostringstream ss;
+    ss << "  " << BOLD << BR_YELLOW << "  | " << RESET
+       << BOLD << BR_CYAN << "Rounds Survived: " << RESET << std::left << std::setw(8) << rounds
+       << "  " << BR_GREEN << "Wins: " << RESET << std::left << std::setw(6) << winCount
+       << "  " << BR_RED << "Losses: " << RESET << std::left << std::setw(6) << lossCount
+       << BOLD << BR_YELLOW << "|" << RESET;
+    std::cout << ss.str() << "\n";
+
+    std::cout << "  " << BOLD << BR_YELLOW << "  +-" << std::string(W - 2, '-') << "-+" << RESET << "\n";
+
+    usleep(200000);
+
+    // ── Stage 5: HP bar (gold colored) ──
+    int barWidth = 30;
+    int filled = (hp * barWidth) / maxHp;
+    std::ostringstream hpLine;
+    hpLine << "  " << BOLD << BR_YELLOW << "  | " << RESET
+           << BR_GREEN << "HP: " << RESET << std::left << std::setw(5) << (std::to_string(hp) + "/" + std::to_string(maxHp))
+           << "[";
+    for (int i = 0; i < barWidth; ++i) {
+        if (i < filled) hpLine << BR_GREEN << "=" << RESET;
+        else hpLine << BR_YELLOW << "-" << RESET;
+    }
+    hpLine << "]";
+    std::cout << hpLine.str() << "  " << BOLD << BR_YELLOW << "|" << RESET << "\n\n";
+
+    usleep(200000);
+
+    // ── Stage 6: Gold earned ──
+    std::ostringstream goldLine;
+    goldLine << "  " << BOLD << BR_YELLOW << "  +" << std::string(W - 2, '~') << "+" << RESET << "\n";
+    goldLine << "  " << BOLD << BR_YELLOW << "  | " << RESET
+             << BOLD << BR_YELLOW << "Final Gold: " << RESET << std::left << std::setw(12) << gold
+             << BOLD << BR_YELLOW << "  Win Streak: " << RESET << std::left << std::setw(8) << winStreak
+             << BOLD << BR_YELLOW << "           |" << RESET;
+    std::cout << goldLine.str() << "\n";
+    std::cout << "  " << BOLD << BR_YELLOW << "  +" << std::string(W - 2, '~') << "+" << RESET << "\n";
+
+    usleep(300000);
+
+    // ── Stage 7: Narrative ──
+    std::cout << "\n";
+    std::cout << "  " << BOLD << BR_YELLOW << "  +" << std::string(W - 2, '*') << "+" << RESET << "\n";
+
+    std::cout << "  " << BOLD << BR_YELLOW << "  |" << RESET;
+    std::cout << "  " << BOLD << BR_GREEN
+              << "The prophecy was true. You are the Chosen One." << RESET;
+    std::cout << "  " << BOLD << BR_YELLOW << "|" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_YELLOW << "  |" << RESET;
+    std::cout << "  " << BOLD << BR_CYAN
+              << "Malachar's citadel crumbles to dust." << RESET;
+    std::cout << "  " << BOLD << BR_YELLOW << "|" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_YELLOW << "  |" << RESET;
+    std::cout << "  " << BOLD << BR_GREEN
+              << "Aethoria breathes again... because of YOU." << RESET;
+    std::cout << "  " << BOLD << BR_YELLOW << "|" << RESET << "\n";
+
+    std::cout << "  " << BOLD << BR_YELLOW << "  +" << std::string(W - 2, '*') << "+" << RESET << "\n";
+
+    usleep(400000);
+
+    // ── Stage 8: Final sparkle animation ──
+    std::string stars[3] = {".  ✦  .", "*  ✧  *", ".  ★  ."};
+    for (int i = 0; i < 5; ++i) {
+        #ifdef _WIN32
+            system("cls");
+        #else
+            system("clear");
+        #endif
+        std::cout << "\n\n";
+        std::cout << "          " << BOLD << BR_YELLOW << stars[i % 3] << RESET << "\n\n";
+        std::cout << "  " << BOLD << BR_YELLOW << "  =========================================================" << RESET << "\n";
+        std::cout << "  " << BOLD << BR_GREEN << "                  ***  V I C T O R Y  ***" << RESET << "\n";
+        std::cout << "  " << BOLD << BR_YELLOW << "  =========================================================" << RESET << "\n";
+        std::cout << "\n";
+        std::cout << "  " << BOLD << BR_CYAN << "  You have saved the realm of Aethoria!" << RESET << "\n";
+        std::cout << "  " << BOLD << BR_YELLOW << "  Rounds: " << RESET << rounds
+                  << "   " << BR_GREEN << "Wins: " << RESET << winCount
+                  << "   " << BR_RED << "Losses: " << RESET << lossCount << "\n";
+        std::cout << "\n          " << BOLD << BR_YELLOW << stars[(i + 1) % 3] << RESET << "\n\n";
+        usleep(300000);
+    }
+
+    // ── Stage 9: Final clean screen ──
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+
+    // Final trophy display
+    std::cout << "\n";
+    std::cout << "  " << BOLD << BR_YELLOW << "  +" << std::string(W, '=') << "+" << RESET << "\n";
+    printBoxLine("", W);
+    printBoxLine("  " + std::string(BR_YELLOW) + "    ___________" + RESET, W);
+    printBoxLine("  " + std::string(BR_YELLOW) + "   '._==_==_=_.'" + RESET, W);
+    printBoxLine("  " + std::string(BR_YELLOW) + "   .-\\:      /-. " + RESET, W);
+    printBoxLine("  " + std::string(BR_YELLOW) + "  | (|:.     |) |" + RESET, W);
+    printBoxLine("  " + std::string(BR_YELLOW) + "   '-|:.     |-' " + RESET, W);
+    printBoxLine("  " + std::string(BR_YELLOW) + "     \\::.    /  " + RESET, W);
+    printBoxLine("  " + std::string(BR_YELLOW) + "      '::. .'    " + RESET, W);
+    printBoxLine("  " + std::string(BR_YELLOW) + "        ) (      " + RESET, W);
+    printBoxLine("  " + std::string(BR_YELLOW) + "      _.' '._   " + RESET, W);
+    printBoxLine("  " + std::string(BR_YELLOW) + "     '-------'" + RESET, W);
+    printBoxLine("", W);
+    std::cout << "  " << BOLD << BR_YELLOW << "  +" << std::string(W, '=') << "+" << RESET << "\n";
+
+    usleep(500000);
+
+    std::cout << "\n  " << BOLD << BR_YELLOW << "[Press Enter to continue...]" << RESET;
+    std::string dummy;
+    std::getline(std::cin, dummy);
+}
+
+// =====================================================================
+// showDefeatScreen - Display animated game over screen
+// Description: Multi-stage animation showing defeat screen with
+//              tombstone art, stats, and narrative based on rounds.
+// =====================================================================
+void Game::showDefeatScreen() const {
+    const int W = 58;
+    int rounds = player_.getRoundsPlayed();
+    int gold = player_.getGold();
+    int maxHp = STARTING_HP;
+    int winCount = player_.getWinCount();
+    int lossCount = player_.getLossCount();
+
+    // ── Stage 1: Dark fade in ──
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+
+    for (int i = 0; i < 2; ++i) {
+        std::cout << "\n";
+        usleep(150000);
+    }
+
+    // ── Stage 2: ASCII Tombstone ──
+    std::cout << "\n  " << BOLD << BR_RED
+              << "              _____________________" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_RED
+              << "            /                     \\" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_RED
+              << "           /   R  I  P             \\" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_RED
+              << "          |    Commander            |" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_RED
+              << "          |                        |" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_RED
+              << "          |   Aethoria remembers    |" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_RED
+              << "          |   you in glory.       |" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_RED
+              << "          |________________________|" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_RED
+              << "           \\                    /" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_RED
+              << "            \\__________________/" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_RED
+              << "               |    |" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_RED
+              << "               |    |" << RESET << "\n\n";
+
+    usleep(400000);
+
+    // ── Stage 3: Game Over banner ──
+    std::cout << "  " << BOLD << BR_RED << "  +" << std::string(W, '=') << "+" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_RED << "  |" << RESET;
+    std::cout << BOLD << RED << "  GAME OVER  " << RESET;
+    std::cout << "   " << BOLD << BR_RED << "Malachar's forces were too strong." << RESET;
+    std::cout << "  " << BOLD << BR_RED << "|" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_RED << "  +" << std::string(W, '=') << "+" << RESET << "\n";
+
+    usleep(300000);
+
+    // ── Stage 4: Stats ──
+    std::cout << "\n";
+    std::cout << "  " << BOLD << BR_RED << "  +-" << std::string(W - 2, '-') << "-+" << RESET << "\n";
+
+    std::ostringstream ss;
+    ss << "  " << BOLD << BR_RED << "  | " << RESET
+       << BOLD << BR_CYAN << "Rounds Survived: " << RESET << std::left << std::setw(8) << rounds
+       << "  " << BR_GREEN << "Wins: " << RESET << std::left << std::setw(6) << winCount
+       << "  " << BR_RED << "Losses: " << RESET << std::left << std::setw(6) << lossCount
+       << BOLD << BR_RED << "|" << RESET;
+    std::cout << ss.str() << "\n";
+
+    std::cout << "  " << BOLD << BR_RED << "  +-" << std::string(W - 2, '-') << "-+" << RESET << "\n";
+
+    usleep(200000);
+
+    // ── Stage 5: HP bar (red) ──
+    int barWidth = 30;
+    int filled = 0;  // Always 0 since player is dead
+    std::ostringstream hpLine;
+    hpLine << "  " << BOLD << BR_RED << "  | " << RESET
+           << BR_RED << "HP: " << RESET << std::left << std::setw(5) << ("0/" + std::to_string(maxHp))
+           << "[";
+    for (int i = 0; i < barWidth; ++i) {
+        if (i < filled) hpLine << BR_RED << "=" << RESET;
+        else hpLine << RED << "-" << RESET;
+    }
+    hpLine << "]";
+    std::cout << hpLine.str() << "  " << BOLD << BR_RED << "|" << RESET << "\n\n";
+
+    usleep(200000);
+
+    // ── Stage 6: Narrative ──
+    std::cout << "\n";
+    std::cout << "  " << BOLD << BR_RED << "  +" << std::string(W - 2, '*') << "+" << RESET << "\n";
+
+    std::string narrative;
+    if (rounds < 5) {
+        narrative = "The Dark Army crushed you in battle. Rise again, Commander.";
+    } else if (rounds < 10) {
+        narrative = "You fought bravely, but Malachar's army proved too powerful.";
+    } else if (rounds < 15) {
+        narrative = "A valiant effort! Your name will echo through the ages.";
+    } else if (rounds < 20) {
+        narrative = "LEGENDARY! You held out longer than anyone imagined!";
+    } else {
+        narrative = "IMMORTAL! The bards will sing of your deeds forever!";
+    }
+
+    std::cout << "  " << BOLD << BR_RED << "  |" << RESET;
+    std::cout << "  " << BOLD << BR_YELLOW << narrative << RESET;
+    std::cout << "  " << BOLD << BR_RED << "|" << RESET << "\n";
+
+    std::cout << "  " << BOLD << BR_RED << "  +" << std::string(W - 2, '*') << "+" << RESET << "\n";
+
+    usleep(400000);
+
+    // ── Stage 7: Final display ──
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+
+    std::cout << "\n";
+    std::cout << "  " << BOLD << BR_RED << "  +" << std::string(W, '=') << "+" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_RED << "  |" << RESET;
+    std::cout << "  " << BOLD << RED << "G A M E   O V E R" << RESET;
+    std::cout << "  " << BOLD << BR_RED << "|" << RESET << "\n";
+    std::cout << "  " << BOLD << BR_RED << "  +" << std::string(W, '=') << "+" << RESET << "\n";
+
+    usleep(200000);
+
+    std::cout << "\n  " << BOLD << BR_YELLOW << "  Rounds Survived: " << RESET << BOLD << BR_CYAN
+              << rounds << RESET << "\n";
+    std::cout << "  " << BOLD << BR_GREEN << "  Victories: " << RESET << BOLD << BR_GREEN
+              << winCount << RESET << "\n";
+    std::cout << "  " << BOLD << BR_RED << "  Defeats: " << RESET << BOLD << BR_RED
+              << lossCount << RESET << "\n";
+    std::cout << "  " << BOLD << BR_YELLOW << "  Final Gold: " << RESET << BOLD << BR_YELLOW
+              << gold << RESET << "\n";
+
+    usleep(300000);
+
+    std::cout << "\n  " << BOLD << BR_RED << narrative << RESET << "\n";
+    std::cout << "\n  " << BOLD << BR_YELLOW << "[Press Enter to continue...]" << RESET;
     std::string dummy;
     std::getline(std::cin, dummy);
 }
@@ -396,6 +724,13 @@ int Game::run(bool show_intro) {
     }
 
     while (running_ && player_.isAlive()) {
+        // Check victory BEFORE incrementing round counter
+        if (!shouldResumeShopPhase_ && player_.getRoundsPlayed() >= MAX_ROUNDS) {
+            showVictoryScreen();
+            Record::saveRecord(player_, ai_);
+            return player_.getRoundsPlayed();
+        }
+
         // Handle resuming from saved game
         if (!shouldResumeShopPhase_) {
             player_.startNewRound();
@@ -485,8 +820,8 @@ int Game::run(bool show_intro) {
                                       << u->getMaxHp() << "/" << u->getMaxHp() << ")!" << std::endl;
                         }
                         if (!player_.addToBench(u)) {
-                            std::cerr << "  ERROR: Bench full! Unit " << u->getName() << " lost!" << std::endl;
-                            delete u;
+                            // Bench full - put back on board instead of deleting
+                            board_.placeUnit(u, r, c);
                         }
                     }
                 }
@@ -522,11 +857,15 @@ int Game::run(bool show_intro) {
                 BOLD YELLOW "  >> 🥳 A glorious victory! The Allied Forces stand strong! 🥳 <<" RESET
             };
             std::cout << "\n" << victoryMessages[rand() % 3] << std::endl;
-            
+
+        } else if (lastBattleWasDraw_) {
+            std::cout << BOLD << YELLOW << "\n  >> ⚖️ The battle ends in a draw! No damage taken. <<" << RESET << std::endl;
+            // No win/loss streak change, no damage
+
         } else {
             player_.recordLoss();
             int damage = LOSS_DAMAGE_BASE
-                + (ai_.getArmySize() * LOSS_DAMAGE_PER_SURVIVING);
+                + (lastBattleAISurvivors_ * LOSS_DAMAGE_PER_SURVIVING);
             player_.takeDamage(damage);
             const std::string defeatMessages[] = {
                 BOLD RED "  >> ☠️ Your forces fall... the Dark Army advances. ☠️ <<" RESET,
@@ -541,41 +880,10 @@ int Game::run(bool show_intro) {
         currentPhase_ = PHASE_ROUND_START;  // Ready for next round
 
         if (!player_.isAlive()) {
-            const int GW = 50;
-            int rounds = player_.getRoundsPlayed();
-            int maxHp = STARTING_HP;  // From player.h
-            
-            std::cout << std::endl;
-            std::cout << "  +" << std::string(GW, '=') << "+" << std::endl;
-            printBoxTitle("GAME OVER", GW);
-            std::string t2 = "You survived " + std::to_string(rounds) + " rounds!";
-            printBoxTitle(t2, GW);
-            std::cout << "  +" << std::string(GW, '-') << "+" << std::endl;
-
-            // Narrative text based on rounds survived
-            std::string narrative;
-            if (rounds < 5) {
-                narrative = BOLD BR_RED "The Dark Lord's forces overwhelmed you..." RESET;
-            } else if (rounds < 10) {
-                narrative = BOLD RED "You fought bravely, but Malachar's army was too strong." RESET;
-            } else if (rounds < 15) {
-                narrative = BOLD BR_YELLOW "A valiant effort! Your name will be remembered." RESET;
-            } else if (rounds < 20) {
-                narrative = BOLD BR_GREEN "Legendary commander! You held the line longer than anyone." RESET;
-            } else {
-                narrative = BOLD BR_CYAN "IMMORTAL! The bards will sing of your deeds forever!" RESET;
-            }
-            printBoxLine("  " + narrative, GW);
-            std::cout << "  +" << std::string(GW, '-') << "+" << std::endl;
-            
-            // Final HP display with blood bar
-            std::ostringstream hpLine;
-            hpLine << "  Final HP: 0/" << maxHp << " [";
-            hpLine << std::string(20, ' ');  // Empty bar since HP is 0
-            hpLine << "]";
-            printBoxLine(hpLine.str(), GW);
-            
-            std::cout << "  +" << std::string(GW, '=') << "+" << std::endl;
+            showDefeatScreen();
+            running_ = false;
+            Record::saveRecord(player_, ai_);
+            return player_.getRoundsPlayed();
         } else {
             // Autosave to slot 1 after round completes
             performAutosave();
@@ -672,8 +980,8 @@ void Game::shopPhase() {
                               << u->getMaxHp() << "/" << u->getMaxHp() << ")!" << std::endl;
                 }
                 if (!player_.addToBench(u)) {
-                    std::cerr << "  ERROR: Bench full! Unit " << u->getName() << " lost!" << std::endl;
-                    delete u;
+                    // Bench full - put back on board instead of deleting
+                    board_.placeUnit(u, r, c);
                 }
             }
         }
@@ -950,9 +1258,11 @@ void Game::shopPhase() {
                 std::string choice = toLower(trim(ans)); 
                 if (choice == "yes" || choice == "y") {
             // Auto-place bench leftovers (when no champions on board)
+                    int maxUnits = getMaxDeployUnits();
                     int benchSize = player_.getBenchSize();
                     int placed = 0;
                     for (int i = 0; i < benchSize; ++i) {
+                       if (placed >= maxUnits) break;  // deploy limit reached, stop placing
                        Unit* unit = player_.removeFromBench(0);
                        if (unit == nullptr) break;
                        bool ok = false;
@@ -1240,6 +1550,9 @@ bool Game::battlePhase() {
     std::vector<Unit*> deadUnits;
     bool playerWon = resolveCombat(deadUnits);
 
+    // Count surviving AI units before cleanup (needed for loss damage calculation)
+    lastBattleAISurvivors_ = (int)board_.getAIUnits().size();
+
     // Clear synergy bonuses
     pUnits = board_.getPlayerUnits();
     Synergy::clearSynergies(pUnits);
@@ -1260,8 +1573,8 @@ bool Game::battlePhase() {
                 board_.removeUnit(r, c);
                 u->healToFull();
                 if (!player_.addToBench(u)) {
-                    std::cerr << "  ERROR: Bench full! Unit " << u->getName() << " lost!" << std::endl;
-                    delete u;
+                    // Bench full - put back on board instead of deleting
+                    board_.placeUnit(u, r, c);
                 } else {
                     std::cout << "  [HEALED] " << u->getName() << " returns with full HP ("
                               << u->getMaxHp() << "/" << u->getMaxHp() << ")!" << std::endl;
@@ -1399,6 +1712,12 @@ bool Game::resolveCombat(std::vector<Unit*>& deadUnits) {
     std::vector<Unit*> aUnits = board_.getAIUnits();
     bool playerWon = !pUnits.empty() && aUnits.empty();
 
+    // Detect draw (stalemate after max ticks with both sides surviving)
+    lastBattleWasDraw_ = (lastTick == MAX_COMBAT_TICKS && !pUnits.empty() && !aUnits.empty());
+    if (lastBattleWasDraw_) {
+        playerWon = false;  // Not a win, but no damage either (handled in run())
+    }
+
     const int BW = 39;
     std::cout << std::endl;
     std::cout << "  +" << std::string(BW, '=') << "+" << std::endl;
@@ -1494,7 +1813,7 @@ void Game::performAbility(Unit* attacker, Unit* defender, std::vector<Unit*>& al
         case MAGE: {
             // AOE: 30% chance to deal 50% splash to adjacent enemies
             if (rand() % 100 < 30) {
-                int splash = attacker->getAtk() / 2;
+                int splash = (attacker->getAtk() * 50) / 100;
                 for (size_t i = 0; i < allUnits.size(); ++i) {
                     Unit* u = allUnits[i];
                     if (u == defender || !u->isAlive()) continue;
@@ -1594,25 +1913,6 @@ void Game::cleanupDeadUnits(std::vector<Unit*>& deadUnits) {
         }
 }
 
-// =====================================================================
-// saveRecord - Append game result to gameplay records
-// Format: PlayerName RoundsCompleted FinalGold DifficultyLevel
-// File: docs/records.txt (append mode)
-// Purpose: Build leaderboard history, track player performance statistics
-// =====================================================================
-void Game::saveRecord() const {
-    std::ofstream file(RECORD_FILE, std::ios::app);
-    if (!file.is_open()) {
-        std::cerr << "  Warning: could not write to " << RECORD_FILE << std::endl;
-        return;
-    }
-    file << player_.getName() << " "
-         << player_.getRoundsPlayed() << " "
-         << player_.getGold() << " "
-         << ai_.getDifficultyString() << std::endl;
-    file.close();
-    std::cout << "\n  Record saved." << std::endl;
-}
 
 // =====================================================================
 // saveGame - Serialize complete game state to binary file
@@ -1639,7 +1939,10 @@ void Game::saveGame() const {
 bool Game::loadGame() {
     // Deprecated: Use Record::loadGame(game, player, slot) instead
     // This function kept for backwards compatibility only
-    return Record::loadGame(player_, board_, shop_, ai_, currentPhase_, currentEvent_, shouldResumeShopPhase_, 1);  // Default to slot 1
+    Difficulty loadedDifficulty = EASY;
+    bool ok = Record::loadGame(player_, board_, shop_, currentPhase_, currentEvent_, shouldResumeShopPhase_, loadedDifficulty, 1);  // Default to slot 1
+    ai_.setDifficulty(loadedDifficulty);
+    return ok;
 }
 
 // =====================================================================
@@ -1942,111 +2245,6 @@ int Game::getCombatPace() const {
     return combatPace_;
 }
 
-// =====================================================================
-// initializeLog - Create and initialize battle log file for this game session
-// What it does: Creates/overwrites a fixed log file (only keeps last battle)
-// Returns: void
-// =====================================================================
-void Game::initializeLog() {
-    logFilename_ = "docs/last_battle_log.txt";
-    
-    // Create/open file and write header (overwrite mode)
-    std::ofstream file(logFilename_);
-    if (file.is_open()) {
-        file << "========================================" << std::endl;
-        file << "AUTO-BATTLER ARENA - LAST BATTLE LOG" << std::endl;
-        file << "========================================" << std::endl << std::endl;
-        file.close();
-    }
-}
-
-// =====================================================================
-// writeToLog - Write round result information to the battle log file
-// Parameters:
-//   round - Current round number
-//   won - Whether the player won this round
-//   gold - Current player gold amount
-//   winStreak - Current win streak count
-//   eventTriggered - Whether an event was triggered
-// Returns: void
-// =====================================================================
-void Game::writeToLog(int round, bool won, int gold, int winStreak, bool eventTriggered) {
-    if (logFilename_.empty()) return;
-    
-    std::ofstream file(logFilename_, std::ios::app);
-    if (!file.is_open()) return;
-    
-    file << "--- Round " << round << " ---" << std::endl;
-    file << "Result: " << (won ? "WIN" : "LOSS") << std::endl;
-    file << "Gold: " << gold << std::endl;
-    file << "Win Streak: " << winStreak << std::endl;
-    file << "Event Triggered: " << (eventTriggered ? "YES" : "NO") << std::endl;
-    file << std::endl;
-    
-    file.close();
-}
-
-// =====================================================================
-// displayLogWithBattleReport - Show battle log for current round in terminal
-// What it does: Displays a formatted log of the current round's results
-// Includes: Round number, result (WIN/LOSS), player stats, event info
-// Returns: void
-// =====================================================================
-void Game::displayLogWithBattleReport() {
-    const int LW = 39;  // Log width
-    
-    int round = player_.getRoundsPlayed();
-    int gold = player_.getGold();
-    int hp = player_.getHp();
-    int maxHp = STARTING_HP;
-    int winStreak = player_.getWinStreak();
-    int lossStreak = player_.getLossStreak();
-    
-    std::cout << std::endl;
-    std::cout << "  +" << std::string(LW, '=') << "+" << std::endl;
-    printBoxTitle("ROUND LOG", LW);
-    std::cout << "  +" << std::string(LW, '-') << "+" << std::endl;
-    
-    // Round info
-    printBoxLine("  Round: " + std::to_string(round), LW);
-    printBoxLine("  Gold: " + std::to_string(gold) + " " + BOLD BR_YELLOW "💰" RESET, LW);
-    
-    // HP display
-    std::ostringstream hpLine;
-    hpLine << "  HP: " << hp << "/" << maxHp;
-    int barLength = 15;
-    int filledBars = (hp * barLength) / maxHp;
-    hpLine << " [";
-    for (int i = 0; i < barLength; ++i) {
-        if (i < filledBars) {
-            if (hp > maxHp * 0.6) hpLine << BR_GREEN "█" RESET;
-            else if (hp > maxHp * 0.3) hpLine << BR_YELLOW "█" RESET;
-            else hpLine << BR_RED "█" RESET;
-        } else {
-            hpLine << "░";
-        }
-    }
-    hpLine << "]";
-    printBoxLine(hpLine.str(), LW);
-    
-    // Streak info
-    if (winStreak > 0) {
-        std::string streakLine = std::string("  ") + BOLD BR_GREEN "Win Streak: " + std::to_string(winStreak) + RESET;
-        printBoxLine(streakLine, LW);
-    }
-    if (lossStreak > 0) {
-        std::string streakLine = std::string("  ") + BOLD BR_RED "Loss Streak: " + std::to_string(lossStreak) + RESET;
-        printBoxLine(streakLine, LW);
-    }
-    
-    // Event info
-    if (currentEvent_ != EVENT_NONE) {
-        std::string eventLine = std::string("  ") + BOLD MAGENTA "EVENT TRIGGERED! 🎁" RESET;
-        printBoxLine(eventLine, LW);
-    }
-    
-    std::cout << "  +" << std::string(LW, '=') << "+" << std::endl;
-}
 
 // =====================================================================
 // performAutosave - Automatically save game to slot 1 after each round

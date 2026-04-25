@@ -287,3 +287,7 @@ int AI::getArmySize() const {
 std::string AI::getDifficultyString() const {
     return (difficulty_ == EASY) ? "Easy" : "Hard";
 }
+
+void AI::setDifficulty(Difficulty difficulty) {
+    difficulty_ = difficulty;
+}

@@ -244,10 +244,10 @@ bool Tutorial::lessonShop() {
         BOLD BR_CYAN "KEY ACTIONS:" RESET,
         "  • " BR_YELLOW "buy <1-5>" RESET "      - Purchase a unit using gold",
         "  • " BR_YELLOW "sell <1-8>" RESET "     - Sell a unit from your bench",
-        "  • " BR_YELLOW "refresh <cost>" RESET " - Refresh shop (costs " BR_YELLOW "2 gold" RESET ")",
+        "  • " BR_YELLOW "refresh" RESET " - Refresh shop (costs " BR_YELLOW "2 gold" RESET ")",
         "",
         BOLD BR_GREEN "GOLD MANAGEMENT:" RESET,
-        "  • Start with " BR_YELLOW "15 gold" RESET " per game",
+        "  • Start with " BR_YELLOW "10 gold" RESET " (get 5 income at round start = 15 after round 1)",
         "  • Earn " BR_YELLOW "5 gold" RESET " at the start of each new round",
         "  • Interest: Every " BR_YELLOW "10 gold" RESET " gives " BR_YELLOW "1 bonus gold" RESET,
         "  • Winning/losing streaks give " BR_YELLOW "bonus gold" RESET,
@@ -276,7 +276,7 @@ bool Tutorial::lessonShop() {
         printProgressBar(2, 9);  // Show progress at top
         std::cout << std::endl;
         std::cout << "  Let's practice with a sample shop!" << std::endl;
-        std::cout << "  (You have 15 gold to spend)" << std::endl;
+        std::cout << "  (You have 10 gold to spend)" << std::endl;
         std::cout << std::endl;
         
         // Display shop in EXACT format matching game.cpp
@@ -296,58 +296,58 @@ bool Tutorial::lessonShop() {
         int playerGold = 15;
         
         // Unit 1: Warrior - can afford
-        std::cout << "  |" << (playerGold >= 5 ? GREEN "  ✓ " RESET : RED "  ✗ " RESET)
+        std::cout << "  |" << (playerGold >= 3 ? GREEN "  ✓ " RESET : RED "  ✗ " RESET)
                   << "[1] " << "⚔️ " << std::left << std::setw(10) << "Warrior"
                   << std::setw(9) << "Warrior"
-                  << "HP:" << std::setw(4) << "20"
-                  << "ATK:" << std::setw(3) << "8"
+                  << "HP:" << std::setw(4) << "120"
+                  << "ATK:" << std::setw(4) << "18"
                   << "R:" << "1"
                   << " [Rage] "
-                  << (playerGold >= 5 ? GREEN : RED) << "$5" << RESET
+                  << (playerGold >= 3 ? GREEN : RED) << "$3" << RESET
                   << std::string(W - 60, ' ') << "|" << std::endl;
-        
+
         // Unit 2: Mage - can afford
-        std::cout << "  |" << (playerGold >= 6 ? GREEN "  ✓ " RESET : RED "  ✗ " RESET)
+        std::cout << "  |" << (playerGold >= 4 ? GREEN "  ✓ " RESET : RED "  ✗ " RESET)
                   << "[2] " << "✨ " << std::left << std::setw(10) << "Mage"
                   << std::setw(9) << "Mage"
-                  << "HP:" << std::setw(4) << "15"
-                  << "ATK:" << std::setw(3) << "12"
-                  << "R:" << "3"
+                  << "HP:" << std::setw(4) << "70"
+                  << "ATK:" << std::setw(4) << "28"
+                  << "R:" << "2"
                   << " [AOE]  "
-                  << (playerGold >= 6 ? GREEN : RED) << "$6" << RESET
+                  << (playerGold >= 4 ? GREEN : RED) << "$4" << RESET
                   << std::string(W - 60, ' ') << "|" << std::endl;
-        
+
         // Unit 3: Tank - can afford
-        std::cout << "  |" << (playerGold >= 7 ? GREEN "  ✓ " RESET : RED "  ✗ " RESET)
+        std::cout << "  |" << (playerGold >= 3 ? GREEN "  ✓ " RESET : RED "  ✗ " RESET)
                   << "[3] " << "🛡️ " << std::left << std::setw(10) << "Tank"
                   << std::setw(9) << "Tank"
-                  << "HP:" << std::setw(4) << "30"
-                  << "ATK:" << std::setw(3) << "5"
+                  << "HP:" << std::setw(4) << "180"
+                  << "ATK:" << std::setw(4) << "10"
                   << "R:" << "1"
                   << " [Block] "
-                  << (playerGold >= 7 ? GREEN : RED) << "$7" << RESET
+                  << (playerGold >= 3 ? GREEN : RED) << "$3" << RESET
                   << std::string(W - 60, ' ') << "|" << std::endl;
-        
+
         // Unit 4: Assassin - can afford
-        std::cout << "  |" << (playerGold >= 6 ? GREEN "  ✓ " RESET : RED "  ✗ " RESET)
+        std::cout << "  |" << (playerGold >= 4 ? GREEN "  ✓ " RESET : RED "  ✗ " RESET)
                   << "[4] " << "🗡️ " << std::left << std::setw(10) << "Assassin"
                   << std::setw(9) << "Assassin"
-                  << "HP:" << std::setw(4) << "14"
-                  << "ATK:" << std::setw(3) << "11"
+                  << "HP:" << std::setw(4) << "85"
+                  << "ATK:" << std::setw(4) << "26"
                   << "R:" << "1"
                   << " [Crit]  "
-                  << (playerGold >= 6 ? GREEN : RED) << "$6" << RESET
+                  << (playerGold >= 4 ? GREEN : RED) << "$4" << RESET
                   << std::string(W - 60, ' ') << "|" << std::endl;
-        
+
         // Unit 5: Archer - can afford
-        std::cout << "  |" << (playerGold >= 4 ? GREEN "  ✓ " RESET : RED "  ✗ " RESET)
+        std::cout << "  |" << (playerGold >= 3 ? GREEN "  ✓ " RESET : RED "  ✗ " RESET)
                   << "[5] " << "🏹 " << std::left << std::setw(10) << "Archer"
                   << std::setw(9) << "Archer"
-                  << "HP:" << std::setw(4) << "16"
-                  << "ATK:" << std::setw(3) << "9"
+                  << "HP:" << std::setw(4) << "90"
+                  << "ATK:" << std::setw(4) << "20"
                   << "R:" << "3"
                   << " [DblShot]"
-                  << (playerGold >= 4 ? GREEN : RED) << "$4" << RESET
+                  << (playerGold >= 3 ? GREEN : RED) << "$3" << RESET
                   << std::string(W - 60, ' ') << "|" << std::endl;
         
         std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
@@ -572,7 +572,7 @@ bool Tutorial::lessonPlacement() {
             
             if (iss >> cmd >> idx >> row >> col && 
                 cmd == "place" && idx >= 1 && idx <= 2 && 
-                row >= 0 && row <= 4 && col >= 0 && col <= 7) {
+                row >= 0 && row <= 4 && col >= 0 && col <= 3) {
                 validCmd = true;
             }
             
@@ -617,7 +617,7 @@ bool Tutorial::lessonCombat() {
         "  • " BR_GREEN "All enemy units are defeated" RESET " (you " BR_GREEN "win" RESET ")",
         "  • " BR_YELLOW "200 ticks have passed" RESET " (tie, you take minimal damage)",
         "",
-        "⚠ " BOLD BR_RED "LOSING DAMAGE:" RESET " " BR_YELLOW "5 + (num surviving enemies * 2)" RESET,
+        "⚠ " BOLD BR_RED "LOSING DAMAGE:" RESET " " BR_YELLOW "10 + (num surviving enemies * 4)" RESET,
         "",
         "You can watch the combat and press " BR_YELLOW "[Enter]" RESET " to skip"
     };
@@ -776,18 +776,18 @@ void Tutorial::demonstrateFullGameplay() {
     std::cout << BOLD << BR_YELLOW << "    • Gold: 15" << RESET << std::endl;
     std::cout << std::endl;
     std::cout << BOLD << CYAN << "  +" << std::string(58, '-') << "+" << RESET << std::endl;
-    std::cout << BOLD << CYAN << "  |" << std::string(16, ' ') << "SHOP  (refresh: $1)" << std::string(17, ' ') << "|" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "  |" << std::string(16, ' ') << "SHOP  (refresh: $2)" << std::string(16, ' ') << "|" << RESET << std::endl;
     std::cout << BOLD << CYAN << "  +" << std::string(58, '-') << "+" << RESET << std::endl;
-    std::cout << "  |  [1] Warrior   WarriorHP:20  ATK:8  R:1 [Rage] $5        |" << std::endl;
-    std::cout << "  |  [2] Mage      MageHP:15  ATK:12 R:3 [AOE] $6            |" << std::endl;
-    std::cout << "  |  [3] Tank      TankHP:30  ATK:5  R:1 [Block] $7          |" << std::endl;
-    std::cout << "  |  [4] Archer    ArcherHP:16  ATK:9  R:3 [DblShot] $4      |" << std::endl;
-    std::cout << "  |  [5] Assassin  AssassinHP:14  ATK:11 R:1 [Crit] $6       |" << std::endl;
+    std::cout << "  |  [1] Warrior   HP:120  ATK:18  R:1 [Rage]    $3          |" << std::endl;
+    std::cout << "  |  [2] Mage      HP:70   ATK:28  R:3 [AOE]     $4          |" << std::endl;
+    std::cout << "  |  [3] Tank      HP:180  ATK:10  R:1 [Block]   $3          |" << std::endl;
+    std::cout << "  |  [4] Archer    HP:90   ATK:20  R:3 [DblShot] $4          |" << std::endl;
+    std::cout << "  |  [5] Assassin  HP:85   ATK:26  R:1 [Crit]    $5          |" << std::endl;
     std::cout << BOLD << CYAN << "  +" << std::string(58, '-') << "+" << RESET << std::endl;
     std::cout << std::endl;
     std::cout << "  Buying: Warrior, Tank, Archer" << std::endl;
-    std::cout << "  Total Cost: 5 + 7 + 4 = 16 gold" << std::endl;
-    std::cout << "  Remaining Gold: 15 + 5 (interest) = 20 -> 4 gold after purchase" << std::endl;
+    std::cout << "  Total Cost: 3 + 3 + 4 = 10 gold" << std::endl;
+    std::cout << "  Remaining Gold: 10 -> 0 gold after purchase" << std::endl;
     std::cout << std::endl;
     std::cout << BOLD << BR_YELLOW << "  Press Enter to continue..." << RESET << std::endl;
     waitForInput();

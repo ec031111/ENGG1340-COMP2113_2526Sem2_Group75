@@ -187,7 +187,6 @@ std::string Unit::getStarString() const {
 // What it does : returns "Name*" / "Name**" / "Name***"
 // -----------------------------------------------------------------
 std::string Unit::getDisplayName() const {
-    if (starLevel_ <= 1) return baseName_;
     return baseName_ + getStarString();
 }
 
