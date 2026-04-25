@@ -49,10 +49,11 @@ public:
                         const AI& ai,
                         GamePhase currentPhase,
                         EventType currentEvent,
+                        int aiHp,
                         int slot = 1);
 
     // Purpose: Load game state from file and restore board/shop
-    // Input: player, board, shop, currentPhase, currentEvent, shouldResumeShopPhase (references), slot (int)
+    // Input: player, board, shop, currentPhase, currentEvent, shouldResumeShopPhase (references), loadedAiHp (reference), slot (int)
     // Output: bool - true if load successful, difficulty output via parameter
     static bool loadGame(Player& player,
                          Board& board,
@@ -61,6 +62,7 @@ public:
                          EventType& currentEvent,
                          bool& shouldResumeShopPhase,
                          Difficulty& loadedDifficulty,
+                         int& loadedAiHp,
                          int slot = 1);
 
     // Purpose: Append game result to leaderboard file

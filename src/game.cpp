@@ -192,7 +192,8 @@ static std::string abilityDesc(UnitClass cls) {
 Game::Game(Difficulty difficulty, const std::string& playerName)
     : player_(playerName), ai_(difficulty), running_(true), skipCombat_(false),
       currentEvent_(EVENT_NONE), combatPace_(1), currentPhase_(PHASE_ROUND_START),
-      shouldResumeShopPhase_(false), lastBattleAISurvivors_(0), lastBattleWasDraw_(false) {}
+      shouldResumeShopPhase_(false), lastBattleAISurvivors_(0), lastBattleWasDraw_(false),
+      aiHp_(100) {}
 
 Game::~Game() {}
 
@@ -847,16 +848,30 @@ int Game::run(bool show_intro) {
         currentPhase_ = PHASE_BATTLE;
         std::cout << BOLD << RED << "\n  ⚔️ ========== BATTLE PHASE ========== ⚔️" << RESET << std::endl;
         skipCombat_ = false;
+        // Save player unit count before battle (needed for AI damage calc after board cleanup)
+        int playerSurvivorsBeforeBattle = (int)board_.getPlayerUnits().size();
         bool playerWon = battlePhase();
 
         if (playerWon) {
             player_.recordWin();
+            // Deal damage to AI (same formula as player damage on loss)
+            int aiDamage = LOSS_DAMAGE_BASE
+                + (playerSurvivorsBeforeBattle * LOSS_DAMAGE_PER_SURVIVING);
+            takeAiDamage(aiDamage);
             const std::string victoryMessages[] = {
                 BOLD RED "  >> 🌟 The enemy retreats! Victory is yours! 🌟 <<" RESET,
                 BOLD CYAN "  >> 💥 Your forces prevail! The Dark Army scatters! 💥 <<" RESET,
                 BOLD YELLOW "  >> 🥳 A glorious victory! The Allied Forces stand strong! 🥳 <<" RESET
             };
             std::cout << "\n" << victoryMessages[rand() % 3] << std::endl;
+            std::cout << "  Enemy takes " << aiDamage << " damage! (HP: " << aiHp_ << "/100)" << std::endl;
+
+            // Check if AI HP reached 0 (immediate victory)
+            if (aiHp_ <= 0) {
+                showVictoryScreen();
+                Record::saveRecord(player_, ai_);
+                return player_.getRoundsPlayed();
+            }
 
         } else if (lastBattleWasDraw_) {
             std::cout << BOLD << YELLOW << "\n  >> ⚖️ The battle ends in a draw! No damage taken. <<" << RESET << std::endl;
@@ -1245,7 +1260,7 @@ void Game::shopPhase() {
                 std::cout << "  Invalid slot. Using slot 1." << std::endl;
             }
             
-            Record::saveGame(player_, board_, shop_, ai_, currentPhase_, currentEvent_, slot);
+            Record::saveGame(player_, board_, shop_, ai_, currentPhase_, currentEvent_, aiHp_, slot);
             std::cout << BOLD << BR_GREEN << "  ✅ Game saved to slot " << slot << "!" << RESET << std::endl;
 
         } else if (cmd == "ready") {
@@ -1433,7 +1448,7 @@ void Game::shopPhase() {
             std::getline(std::cin, ans);
             std::string c = toLower(trim(ans));
             if (c == "y" || c == "yes") {
-                Record::saveGame(player_, board_, shop_, ai_, currentPhase_, currentEvent_);
+                Record::saveGame(player_, board_, shop_, ai_, currentPhase_, currentEvent_, aiHp_, 1);
             }
             std::cout << BLUE << " 👋 Game exiting..." << RESET << std::endl;
             running_ = false;
@@ -1953,7 +1968,7 @@ void Game::cleanupDeadUnits(std::vector<Unit*>& deadUnits) {
 void Game::saveGame() const {
     // Deprecated: Use Record::saveGame(player, board, shop, ai, phase, event, slot) instead
     // This function kept for backwards compatibility only
-    Record::saveGame(player_, board_, shop_, ai_, currentPhase_, currentEvent_, 1);  // Default to slot 1
+    Record::saveGame(player_, board_, shop_, ai_, currentPhase_, currentEvent_, aiHp_, 1);  // Default to slot 1
 }
 
 // =====================================================================
@@ -1968,8 +1983,10 @@ bool Game::loadGame() {
     // Deprecated: Use Record::loadGame(game, player, slot) instead
     // This function kept for backwards compatibility only
     Difficulty loadedDifficulty = EASY;
-    bool ok = Record::loadGame(player_, board_, shop_, currentPhase_, currentEvent_, shouldResumeShopPhase_, loadedDifficulty, 1);  // Default to slot 1
+    int loadedAiHp = 100;
+    bool ok = Record::loadGame(player_, board_, shop_, currentPhase_, currentEvent_, shouldResumeShopPhase_, loadedDifficulty, loadedAiHp, 1);  // Default to slot 1
     ai_.setDifficulty(loadedDifficulty);
+    aiHp_ = loadedAiHp;
     return ok;
 }
 
@@ -2194,6 +2211,36 @@ void Game::printStatusBar() const {
     if ((int)s2.size() < W) s2 += std::string(W - s2.size(), ' ');
     std::cout << "  |" << s2 << "|" << std::endl;
 
+    // Line 3: AI HP with bar
+    int aiHp = aiHp_;
+    int aiMaxHp = 100;
+    int aiFilled = (aiHp * HP_BAR_WIDTH) / aiMaxHp;
+    if (aiFilled < 0) aiFilled = 0;
+    if (aiFilled > HP_BAR_WIDTH) aiFilled = HP_BAR_WIDTH;
+
+    std::string aiHpBar;
+    if (aiHp > aiMaxHp * 0.5) {
+        aiHpBar = "[" + std::string(BOLD) + std::string(BR_PURPLE)
+              + std::string(aiFilled, '=')
+              + std::string(RESET)
+              + std::string(HP_BAR_WIDTH - aiFilled, ' ')
+              + "]";
+    } else {
+        aiHpBar = "[" + std::string(BOLD) + std::string(BR_RED)
+              + std::string(aiFilled, '=')
+              + std::string(RESET)
+              + std::string(HP_BAR_WIDTH - aiFilled, ' ')
+              + "]";
+    }
+
+    std::ostringstream line3;
+    line3 << BOLD << BR_PURPLE << "  Enemy HP: " << RESET
+          << std::left << std::setw(3) << aiHp
+          << "/" << aiMaxHp << " " << aiHpBar;
+    std::string s3 = line3.str();
+    if ((int)s3.size() < W) s3 += std::string(W - s3.size(), ' ');
+    std::cout << "  |" << s3 << "|" << std::endl;
+
     std::cout << BOLD << CYAN << "  +" << std::string(W, '-') << "+" << RESET << std::endl;
 }
 
@@ -2282,7 +2329,7 @@ int Game::getCombatPace() const {
 // =====================================================================
 void Game::performAutosave() {
     try {
-        Record::saveGame(player_, board_, shop_, ai_, currentPhase_, currentEvent_, 1);
+        Record::saveGame(player_, board_, shop_, ai_, currentPhase_, currentEvent_, aiHp_, 1);
         
         // Subtle autosave indicator (optional - can comment out for completely silent save)
         std::cout << GRAY << "  [autosave]" << RESET << std::endl;

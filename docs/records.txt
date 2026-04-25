@@ -1,4 +1,4 @@
 rrrrcf 1 16 Easy
 Sam 1 11 Easy
-Oscar 9 8 Easy
-Player 10 9 Easy
+Oscar 20 95 Easy
+Player 20 95 Easy

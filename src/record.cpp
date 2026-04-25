@@ -55,6 +55,7 @@ void Record::saveGame(const Player& player,
                       const AI& ai,
                       GamePhase currentPhase,
                       EventType currentEvent,
+                      int aiHp,
                       int slot) {
     std::ofstream file(getSaveFilePath(slot));
     if (!file.is_open()) {
@@ -118,7 +119,10 @@ void Record::saveGame(const Player& player,
     
     // Save current event
     file << (int)currentEvent << std::endl;
-    
+
+    // Save AI HP
+    file << aiHp << std::endl;
+
     file.close();
     std::cout << GREEN << "  ✅ Game saved!" << RESET << std::endl;
 }
@@ -136,6 +140,7 @@ bool Record::loadGame(Player& player,
                       EventType& currentEvent,
                       bool& shouldResumeShopPhase,
                       Difficulty& loadedDifficulty,
+                      int& loadedAiHp,
                       int slot) {
     // Check if save file exists before attempting to load
     std::string saveFilePath = getSaveFilePath(slot);
@@ -276,7 +281,17 @@ bool Record::loadGame(Player& player,
             eventInt = EVENT_NONE;
         }
         currentEvent = (EventType)eventInt;
-        
+
+        // Read AI HP (backward compat: default to 100 for old saves without this field)
+        int aiHpRead;
+        if (!(file >> aiHpRead)) {
+            aiHpRead = 100;  // Old save without AI HP
+        }
+        if (aiHpRead < 0 || aiHpRead > 1000) {
+            aiHpRead = 100;  // Invalid value
+        }
+        loadedAiHp = aiHpRead;
+
         file.close();
 
         // Apply loaded state to player

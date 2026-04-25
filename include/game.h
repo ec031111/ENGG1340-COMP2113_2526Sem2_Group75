@@ -135,6 +135,8 @@ public:
     bool shouldResumeShop() const { return shouldResumeShopPhase_; }
     void setShouldResumeShop(bool resume) { shouldResumeShopPhase_ = resume; }
     void setDifficulty(Difficulty difficulty) { ai_.setDifficulty(difficulty); }
+    int  getAiHp() const { return aiHp_; }
+    void takeAiDamage(int dmg) { aiHp_ -= dmg; if (aiHp_ < 0) aiHp_ = 0; }
 
 private:
     Board   board_;                      // 5x8 battlefield grid
@@ -149,6 +151,7 @@ private:
     bool shouldResumeShopPhase_;         // Flag to resume shop phase from saved game
     int lastBattleAISurvivors_;          // Number of AI units surviving last battle (for damage calc)
     bool lastBattleWasDraw_;            // Whether last battle ended in a draw (time limit)
+    int  aiHp_;                         // AI opponent's HP (starts at 100)
 
     // --- Phase handlers ---
     // Purpose: Handle player shopping and formation setup phase
