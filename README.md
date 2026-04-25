@@ -1,3 +1,5 @@
+<img src="logo.png" width="400"/>
+
 # Auto-Battler Arena
 
 A text-based auto-chess strategy game built in C++ for the Linux terminal.
