@@ -1930,13 +1930,13 @@ void Game::cleanupDeadUnits(std::vector<Unit*>& deadUnits) {
         for (int c = 0; c < BOARD_COLS; ++c) {
             Unit* u = board_.getUnit(r, c);
             if (u != nullptr && !u->isAlive()) {
-                board_.removeUnit(r, c);
-                // Only collect AI dead units for deletion; player dead units stay for revival
                 if (!u->isPlayerUnit()) {
+                    // AI dead unit: remove from board and collect for deletion
+                    board_.removeUnit(r, c);
                     deadUnits.push_back(u);
-                } else {
-                    // Keep dead player unit on board (will be revived when returning to bench)
                 }
+                // Dead player units: keep on board at (r,c) with 0 HP for shopPhase revival
+                // They are automatically skipped in the tick loop via isAlive() check
             }
         }
 }
