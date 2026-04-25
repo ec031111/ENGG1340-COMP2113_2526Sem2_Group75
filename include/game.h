@@ -19,6 +19,7 @@
 #include "ai.h"
 #include "synergy.h"
 #include "event.h"
+#include "effects.h"
 #include <string>
 #include <vector>
 //---- word type ----

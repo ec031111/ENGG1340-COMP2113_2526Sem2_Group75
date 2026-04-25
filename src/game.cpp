@@ -1547,6 +1547,8 @@ bool Game::battlePhase() {
     std::getline(std::cin, input);
     if (input == "s" || input == "S") skipCombat_ = true;
 
+    playEnterAnimation(player_.getRoundsPlayed(), settings_.colorEnabled, settings_.animationsEnabled);
+
     std::vector<Unit*> deadUnits;
     bool playerWon = resolveCombat(deadUnits);
 
@@ -1690,6 +1692,7 @@ bool Game::resolveCombat(std::vector<Unit*>& deadUnits) {
                 if (!skipCombat_) {
                     std::cout << "  " << unit->getName()
                               << " moves toward " << enemy->getName() << std::endl;
+                    printTickAction(MOVE, unit, dist, settings_.colorEnabled);
                 }
             }
         }
@@ -1711,6 +1714,9 @@ bool Game::resolveCombat(std::vector<Unit*>& deadUnits) {
     std::vector<Unit*> pUnits = board_.getPlayerUnits();
     std::vector<Unit*> aUnits = board_.getAIUnits();
     bool playerWon = !pUnits.empty() && aUnits.empty();
+
+    bool isLastKill = (lastBattleAISurvivors_ == 0);
+    playExitAnimation(playerWon, settings_.colorEnabled, settings_.animationsEnabled, isLastKill);
 
     // Detect draw (stalemate after max ticks with both sides surviving)
     lastBattleWasDraw_ = (lastTick == MAX_COMBAT_TICKS && !pUnits.empty() && !aUnits.empty());
@@ -1775,6 +1781,7 @@ int Game::performAttack(Unit* attacker, Unit* defender) {
         if (!skipCombat_) {
             std::cout << "  [BLOCK] " << defender->getName()
                       << " blocks " << blocked << " dmg!" << std::endl;
+            printTickAction(SHIELD, defender, blocked, settings_.colorEnabled);
         }
     }
 
@@ -1784,12 +1791,18 @@ int Game::performAttack(Unit* attacker, Unit* defender) {
         if (crit) {
             std::cout << "  ** " << attacker->getName() << " CRITS "
                       << defender->getName() << " for " << damage << " dmg!";
+            printTickAction(CRIT, attacker, damage, settings_.colorEnabled);
         } else {
             std::cout << "  " << attacker->getName() << " -> "
                       << defender->getName() << " " << damage << " dmg";
+            printTickAction(ATTACK, attacker, damage, settings_.colorEnabled);
         }
-        if (!defender->isAlive()) std::cout << "  << KILLED >>";
-        else std::cout << "  [" << defender->getHp() << " HP]";
+        if (!defender->isAlive()) {
+            std::cout << "  << KILLED >>";
+            printTickAction(KILL, attacker, 0, settings_.colorEnabled);
+        } else {
+            std::cout << "  [" << defender->getHp() << " HP]";
+        }
         std::cout << std::endl;
     }
 
@@ -1814,18 +1827,24 @@ void Game::performAbility(Unit* attacker, Unit* defender, std::vector<Unit*>& al
             // AOE: 30% chance to deal 50% splash to adjacent enemies
             if (rand() % 100 < 30) {
                 int splash = (attacker->getAtk() * 50) / 100;
+                int splashCount = 0;
                 for (size_t i = 0; i < allUnits.size(); ++i) {
                     Unit* u = allUnits[i];
                     if (u == defender || !u->isAlive()) continue;
                     if (u->isPlayerUnit() == attacker->isPlayerUnit()) continue;
                     if (attacker->getDistanceTo(u) <= 2) {
                         u->takeDamage(splash);
+                        splashCount++;
                         if (!skipCombat_) {
                             std::cout << "  [AOE] " << attacker->getName()
                                       << " splashes " << u->getName()
                                       << " for " << splash << " dmg!" << std::endl;
                         }
                     }
+                }
+                if (!skipCombat_) {
+                    playSkillEffect(MAGE, settings_.colorEnabled, settings_.animationsEnabled);
+                    printTickAction(ABILITY, attacker, splashCount, settings_.colorEnabled);
                 }
             }
             break;
@@ -1838,6 +1857,8 @@ void Game::performAbility(Unit* attacker, Unit* defender, std::vector<Unit*>& al
                 if (!skipCombat_) {
                     std::cout << "  [BACKSTAB] " << attacker->getName()
                               << " strikes again for " << bonus << " dmg!" << std::endl;
+                    playSkillEffect(ASSASSIN, settings_.colorEnabled, settings_.animationsEnabled);
+                    printTickAction(ABILITY, attacker, bonus, settings_.colorEnabled);
                 }
             }
             break;
@@ -1851,6 +1872,8 @@ void Game::performAbility(Unit* attacker, Unit* defender, std::vector<Unit*>& al
                 if (!skipCombat_) {
                     std::cout << "  [RAGE] " << attacker->getName()
                               << " enters a berserker rage! +" << rageBonus << " ATK!" << std::endl;
+                    playSkillEffect(WARRIOR, settings_.colorEnabled, settings_.animationsEnabled);
+                    printTickAction(ABILITY, attacker, rageBonus, settings_.colorEnabled);
                 }
             }
             break;
@@ -1883,6 +1906,8 @@ void Game::performAbility(Unit* attacker, Unit* defender, std::vector<Unit*>& al
                         std::cout << "  [DOUBLE SHOT] " << attacker->getName()
                                   << " fires again for " << dmg2 << " dmg!" << std::endl;
                     }
+                    playSkillEffect(ARCHER, settings_.colorEnabled, settings_.animationsEnabled);
+                    printTickAction(ABILITY, attacker, dmg2, settings_.colorEnabled);
                 }
             }
             break;
