@@ -344,7 +344,7 @@ int main() {
             // Clear Data - open data management menu
             clearDataMenu();
 
-        } else if (choice == "5" || choice == "quit" || choice == "exit") {
+        } else if (choice == "6" || choice == "quit" || choice == "exit") {
             std::cout << "\n  Thanks for playing Auto-Battler Arena! Goodbye.\n"
                       << std::endl;
             running = false;

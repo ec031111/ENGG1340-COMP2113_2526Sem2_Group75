@@ -471,7 +471,26 @@ int Game::run(bool show_intro) {
             // Resuming from saved shop phase
             std::cout << BLUE << "\n  === Resuming Round " << player_.getRoundsPlayed() << " (Shop Phase) ===" << RESET << std::endl;
             shouldResumeShopPhase_ = false;  // Only do this once
-            
+
+            // Return board units to bench (they may have survived from previous battle)
+            for (int r = 0; r < BOARD_ROWS; ++r)
+                for (int c = 0; c <= PLAYER_MAX_COL; ++c) {
+                    Unit* u = board_.getUnit(r, c);
+                    if (u != nullptr) {
+                        board_.removeUnit(r, c);
+                        if (!u->isAlive() && u->isPlayerUnit()) {
+                            // Dead player unit: revive to full HP before adding to bench
+                            u->healToFull();
+                            std::cout << "  [REVIVED] " << u->getName() << " returns with full HP ("
+                                      << u->getMaxHp() << "/" << u->getMaxHp() << ")!" << std::endl;
+                        }
+                        if (!player_.addToBench(u)) {
+                            std::cerr << "  ERROR: Bench full! Unit " << u->getName() << " lost!" << std::endl;
+                            delete u;
+                        }
+                    }
+                }
+
             // Refresh shop for this round if not already set
             if (currentPhase_ == PHASE_SHOP) {
                 // Shop states were saved, don't refresh
@@ -646,7 +665,16 @@ void Game::shopPhase() {
             Unit* u = board_.getUnit(r, c);
             if (u != nullptr) {
                 board_.removeUnit(r, c);
-                player_.addToBench(u);
+                if (!u->isAlive() && u->isPlayerUnit()) {
+                    // Dead player unit: revive to full HP before adding to bench
+                    u->healToFull();
+                    std::cout << "  [REVIVED] " << u->getName() << " returns with full HP ("
+                              << u->getMaxHp() << "/" << u->getMaxHp() << ")!" << std::endl;
+                }
+                if (!player_.addToBench(u)) {
+                    std::cerr << "  ERROR: Bench full! Unit " << u->getName() << " lost!" << std::endl;
+                    delete u;
+                }
             }
         }
 
@@ -1216,44 +1244,39 @@ bool Game::battlePhase() {
     pUnits = board_.getPlayerUnits();
     Synergy::clearSynergies(pUnits);
 
-    // UNIT PERSISTENCE: Only SURVIVING player units return to bench
-    // Dead units are permanently deleted (no resurrection)
+    // Process all units on board: delete AI units, return alive player units to bench
+    // Dead player units are LEFT ON BOARD for revival in shopPhase
     for (int r = 0; r < BOARD_ROWS; ++r) {
         for (int c = 0; c < BOARD_COLS; ++c) {
             Unit* u = board_.getUnit(r, c);
-            if (u != nullptr) {
+            if (u == nullptr) continue;
+
+            if (!u->isPlayerUnit()) {
+                // AI unit - remove and delete (dead ones already in deadUnits)
                 board_.removeUnit(r, c);
-                if (u->isPlayerUnit()) {
-                    if (!u->isAlive()) {
-                        // Dead unit - permanently delete it
-                        std::cout << "  [PERMANENT LOSS] " << u->getName() << " has fallen in battle!" << std::endl;
-                        delete u;
-                    } else {
-                        // Surviving unit - heal to full HP and return to bench
-                        u->healToFull();
-                        if (!player_.addToBench(u)) {
-                            std::cerr << "  ERROR: Bench full! Unit " << u->getName() << " lost!" << std::endl;
-                            delete u;  
-                        } else {
-                            std::cout << "  [HEALED] " << u->getName() << " returns with full HP ("
-                                      << u->getMaxHp() << "/" << u->getMaxHp() << ")!" << std::endl;
-                        }
-                    }
-                } else {
-                    // AI unit - always delete
+                delete u;
+            } else if (u->isAlive()) {
+                // Surviving player unit - heal to full HP and return to bench
+                board_.removeUnit(r, c);
+                u->healToFull();
+                if (!player_.addToBench(u)) {
+                    std::cerr << "  ERROR: Bench full! Unit " << u->getName() << " lost!" << std::endl;
                     delete u;
+                } else {
+                    std::cout << "  [HEALED] " << u->getName() << " returns with full HP ("
+                              << u->getMaxHp() << "/" << u->getMaxHp() << ")!" << std::endl;
                 }
             }
+            // Dead player units: keep on board at (r,c) with 0 HP for shopPhase revival
         }
     }
 
     // Check for auto-merges after returning units
     checkAndMerge();
 
-    // Delete all dead units collected during combat
+    // Delete all dead AI units collected during combat
     for (size_t i = 0; i < deadUnits.size(); ++i) {
-        Unit* u = deadUnits[i];
-        delete u;  // All dead units are permanently deleted
+        delete deadUnits[i];
     }
 
     return playerWon;
@@ -1561,7 +1584,12 @@ void Game::cleanupDeadUnits(std::vector<Unit*>& deadUnits) {
             Unit* u = board_.getUnit(r, c);
             if (u != nullptr && !u->isAlive()) {
                 board_.removeUnit(r, c);
-                deadUnits.push_back(u);
+                // Only collect AI dead units for deletion; player dead units stay for revival
+                if (!u->isPlayerUnit()) {
+                    deadUnits.push_back(u);
+                } else {
+                    // Keep dead player unit on board (will be revived when returning to bench)
+                }
             }
         }
 }
