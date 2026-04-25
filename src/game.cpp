@@ -1611,6 +1611,8 @@ bool Game::battlePhase() {
 // Purpose: Core combat AI - handles all attack logic, abilities, and battlefield state
 // =====================================================================
 bool Game::resolveCombat(std::vector<Unit*>& deadUnits) {
+    // Save initial AI count before combat to avoid stale data
+    int initialAICount = (int)board_.getAIUnits().size();
     int totalPlayerKills = 0, totalAIKills = 0;
     int totalPlayerDmg = 0, totalAIDmg = 0;
     int lastTick = 0;
@@ -1715,7 +1717,7 @@ bool Game::resolveCombat(std::vector<Unit*>& deadUnits) {
     std::vector<Unit*> aUnits = board_.getAIUnits();
     bool playerWon = !pUnits.empty() && aUnits.empty();
 
-    bool isLastKill = (lastBattleAISurvivors_ == 0);
+    bool isLastKill = (playerWon && totalPlayerKills >= initialAICount && initialAICount > 0);
     playExitAnimation(playerWon, settings_.colorEnabled, settings_.animationsEnabled, isLastKill);
 
     // Detect draw (stalemate after max ticks with both sides surviving)
@@ -1782,6 +1784,7 @@ int Game::performAttack(Unit* attacker, Unit* defender) {
             std::cout << "  [BLOCK] " << defender->getName()
                       << " blocks " << blocked << " dmg!" << std::endl;
             printTickAction(SHIELD, defender, blocked, settings_.colorEnabled);
+            playSkillEffect(TANK, settings_.colorEnabled, settings_.animationsEnabled);
         }
     }
 

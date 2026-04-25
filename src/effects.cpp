@@ -88,7 +88,7 @@ void playExitAnimation(bool playerWon, bool colorEnabled, bool animEnabled, bool
         std::cout << color << "╔══════════════════════════════════════╗" << reset << "\n";
         std::cout << color << "║          VICTORY!                     ║" << reset << "\n";
         std::cout << color << "║                                      ║" << reset << "\n";
-        std::cout << color << "║     ✓ 3 enemies eliminated!           ║" << reset << "\n";
+        std::cout << color << "║     ✓ Enemies eliminated!           ║" << reset << "\n";
         std::cout << color << "║                                      ║" << reset << "\n";
         std::cout << color << "╚══════════════════════════════════════╝" << reset << "\n";
         std::cout << "\n";
@@ -98,7 +98,7 @@ void playExitAnimation(bool playerWon, bool colorEnabled, bool animEnabled, bool
         std::cout << color << "╔══════════════════════════════════════╗" << reset << "\n";
         std::cout << color << "║          DEFEAT!                      ║" << reset << "\n";
         std::cout << color << "║                                      ║" << reset << "\n";
-        std::cout << color << "║     ✗ 1 unit fell in battle...       ║" << reset << "\n";
+        std::cout << color << "║     ✗ Units fell in battle...        ║" << reset << "\n";
         std::cout << color << "║                                      ║" << reset << "\n";
         std::cout << color << "╚══════════════════════════════════════╝" << reset << "\n";
         std::cout << "\n";
