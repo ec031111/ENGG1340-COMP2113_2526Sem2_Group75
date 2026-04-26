@@ -66,9 +66,9 @@ public:
                          int slot = 1);
 
     // Purpose: Append game result to leaderboard file
-    // Input: player, ai (const references)
+    // Input: player, ai (const references), isVictory (bool - true if player defeated AI, false if player defeated)
     // Output: none
-    static void saveRecord(const Player& player, const AI& ai);
+    static void saveRecord(const Player& player, const AI& ai, bool isVictory = false);
 
     // Purpose: Display all records sorted by rounds played
     // Input: none

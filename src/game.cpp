@@ -885,7 +885,7 @@ int Game::run(bool show_intro) {
             // Check if AI HP reached 0 (immediate victory)
             if (aiHp_ <= 0) {
                 showVictoryScreen();
-                Record::saveRecord(player_, ai_);
+                Record::saveRecord(player_, ai_, true);  // true = victory
                 return player_.getRoundsPlayed();
             }
 
@@ -913,7 +913,7 @@ int Game::run(bool show_intro) {
         if (!player_.isAlive()) {
             showDefeatScreen();
             running_ = false;
-            Record::saveRecord(player_, ai_);
+            Record::saveRecord(player_, ai_, false);  // false = defeat
             return player_.getRoundsPlayed();
         } else {
             // Autosave to slot 1 after round completes
@@ -925,7 +925,8 @@ int Game::run(bool show_intro) {
         }
     }
 
-    Record::saveRecord(player_, ai_);
+    // Game ended by user quit - save as defeat
+    Record::saveRecord(player_, ai_, false);  // false = quit/defeat
     return player_.getRoundsPlayed();
 }
 

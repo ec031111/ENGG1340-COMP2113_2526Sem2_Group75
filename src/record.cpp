@@ -349,13 +349,14 @@ bool Record::loadGame(Player& player,
 //         ai (AI&) - AI opponent with difficulty info
 // Outputs: none (writes to RECORD_FILE, prints status to stdout)
 // =====================================================================
-void Record::saveRecord(const Player& player, const AI& ai) {
+void Record::saveRecord(const Player& player, const AI& ai, bool isVictory) {
     const int MAX_RECORDS = 50;
     
     std::string playerName = player.getName();
     int roundsPlayed = player.getRoundsPlayed();
     int finalGold = player.getGold();
     std::string difficulty = ai.getDifficultyString();
+    std::string result = isVictory ? "WIN" : "LOSS";
     
     // Read all existing records and find if this player exists
     std::vector<std::string> allRecords;
@@ -369,9 +370,13 @@ void Record::saveRecord(const Player& player, const AI& ai) {
             std::istringstream iss(line);
             std::string name;
             int rounds, gold;
-            std::string diff;
+            std::string diff, res;
             
             if (iss >> name >> rounds >> gold >> diff) {
+                // Handle both old format (without result) and new format (with result)
+                res = "LOSS";  // default to loss for old records
+                iss >> res;
+                
                 if (name == playerName) {
                     playerFound = true;
                     highestRounds = rounds;
@@ -394,9 +399,9 @@ void Record::saveRecord(const Player& player, const AI& ai) {
         inFile.close();
     }
     
-    // Add the new record for this player
+    // Add the new record for this player with result info
     std::ostringstream newRecord;
-    newRecord << playerName << " " << roundsPlayed << " " << finalGold << " " << difficulty;
+    newRecord << playerName << " " << roundsPlayed << " " << finalGold << " " << difficulty << " " << result;
     allRecords.push_back(newRecord.str());
     
     // If total records exceed MAX_RECORDS, remove oldest records from the beginning
@@ -417,12 +422,13 @@ void Record::saveRecord(const Player& player, const AI& ai) {
     
     outFile.close();
     
+    std::string resultStr = isVictory ? "VICTORY" : "DEFEAT";
     if (playerFound && roundsPlayed > highestRounds) {
         std::cout << "\n  🎉 New personal best! " << playerName << ": " 
-                  << roundsPlayed << " rounds (was " << highestRounds << ")" << std::endl;
+                  << roundsPlayed << " rounds " << resultStr << " (was " << highestRounds << ")" << std::endl;
     } else if (!playerFound) {
         std::cout << "\n  ✅ Record saved! " << playerName << ": " 
-                  << roundsPlayed << " rounds." << std::endl;
+                  << roundsPlayed << " rounds " << resultStr << "." << std::endl;
     }
 }
 
@@ -440,6 +446,7 @@ void Record::displayLeaderboard() {
         std::string name;
         int rounds, gold;
         std::string difficulty;
+        std::string result;  // WIN or LOSS
     };
 
     std::vector<RecordEntry> records;
@@ -447,8 +454,11 @@ void Record::displayLeaderboard() {
     while (std::getline(file, line)) {
         std::istringstream iss(line);
         RecordEntry rec;
-        if (iss >> rec.name >> rec.rounds >> rec.gold >> rec.difficulty)
+        rec.result = "LOSS";  // default for old records without result field
+        if (iss >> rec.name >> rec.rounds >> rec.gold >> rec.difficulty) {
+            iss >> rec.result;  // try to read result field
             records.push_back(rec);
+        }
     }
     file.close();
 
@@ -457,12 +467,26 @@ void Record::displayLeaderboard() {
         return;
     }
 
-    // Sort by rounds (descending)
-    for (size_t i = 0; i < records.size(); ++i)
-        for (size_t j = i + 1; j < records.size(); ++j)
-            if (records[j].rounds > records[i].rounds) {
-                RecordEntry t = records[i]; records[i] = records[j]; records[j] = t;
-            }
+    // Separate WIN and LOSS records
+    std::vector<RecordEntry> winRecords, lossRecords;
+    for (const auto& rec : records) {
+        if (rec.result == "WIN") {
+            winRecords.push_back(rec);
+        } else {
+            lossRecords.push_back(rec);
+        }
+    }
+
+    // Sort each by rounds (descending)
+    auto sortByRounds = [](std::vector<RecordEntry>& recs) {
+        for (size_t i = 0; i < recs.size(); ++i)
+            for (size_t j = i + 1; j < recs.size(); ++j)
+                if (recs[j].rounds > recs[i].rounds) {
+                    RecordEntry t = recs[i]; recs[i] = recs[j]; recs[j] = t;
+                }
+    };
+    sortByRounds(winRecords);
+    sortByRounds(lossRecords);
 
     const int W = 43;
     std::cout << std::endl;
@@ -479,16 +503,31 @@ void Record::displayLeaderboard() {
     }
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
 
-    int show = std::min((int)records.size(), 10);
-    for (int i = 0; i < show; ++i) {
+    // Display WIN records first, then LOSS records
+    int rank = 1;
+    for (const auto& rec : winRecords) {
         std::ostringstream row;
-        row << "  " << std::left << std::setw(6) << (i + 1)
-            << std::setw(12) << records[i].name
-            << std::setw(8) << records[i].rounds
-            << std::setw(7) << records[i].gold
-            << std::setw(6) << records[i].difficulty;
+        row << "  " << std::left << std::setw(6) << rank
+            << std::setw(12) << rec.name
+            << std::setw(8) << rec.rounds
+            << std::setw(7) << rec.gold
+            << std::setw(6) << rec.difficulty;
         printBoxLine(row.str(), W);
+        rank++;
     }
+
+    // Display LOSS records
+    for (const auto& rec : lossRecords) {
+        std::ostringstream row;
+        row << "  " << std::left << std::setw(6) << rank
+            << std::setw(12) << rec.name
+            << std::setw(8) << rec.rounds
+            << std::setw(7) << rec.gold
+            << std::setw(6) << rec.difficulty;
+        printBoxLine(row.str(), W);
+        rank++;
+    }
+
     std::cout << "  +" << std::string(W, '-') << "+" << std::endl;
 }
 
