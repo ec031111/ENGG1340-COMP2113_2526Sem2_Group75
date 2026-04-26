@@ -66,7 +66,12 @@ Each round alternates between two phases:
 
 - **Battle Phase**: All units on both sides fight automatically on the 5x8 grid. Each tick, every unit finds the nearest enemy and either attacks (if in range) or moves one step closer. Class abilities such as Mage AOE splash, Assassin backstab, Tank damage blocking, and Archer double shot trigger randomly during combat. The battle ends when one side is completely eliminated.
 
-The player loses HP for each lost battle. The game ends when HP reaches zero, and the final score (rounds survived) is saved to a leaderboard. Players can save their game mid-session and load it later from the main menu.
+**Symmetric Combat System**: Both the player and AI have HP (100). With each battle:
+- If the **player wins**: AI loses HP (5 + surviving player units × 2)
+- If the **player loses**: Player loses HP (5 + surviving AI units × 2)  
+- If it's a **draw** (stalemate after 200 ticks): Neither side takes damage
+
+The game ends when either the **AI is defeated (player victory)** or the **player's HP reaches zero (player defeat)**. The outcome (WIN/LOSS) is recorded to the leaderboard. Players can save their game mid-session and load it later from the main menu.
 
 ## Features and Coding Elements
 
@@ -104,31 +109,45 @@ Dynamic memory allocation is a core part of the game's unit lifecycle:
 
 The game uses file I/O for both persistence and record-keeping:
 
-- **Leaderboard** (`records.txt`): After each game ends, the player's name, rounds survived, remaining gold, and difficulty are appended to `records.txt` using `std::ofstream` with `std::ios::app`. The leaderboard reads this file with `std::ifstream`, parses each line with `std::istringstream`, sorts records, and displays the top 10.
-- **Save/Load system** (`savegame.dat`): The `save` command (or quit prompt) writes the full game state to file: player HP, gold, round number, win/loss streaks, and all bench units with their base name, class, stats, and star level. The `loadGame()` function reads this file, reconstructs all `Unit` objects with `new`, restores player state via `loadState()`, and resumes the game from the saved round.
+- **Leaderboard** (`records.txt`): After each game ends, the player's name, rounds survived, remaining gold, difficulty, and **game outcome (WIN/LOSS)** are appended to `records.txt` using `std::ofstream`. The leaderboard reads this file with `std::ifstream`, parses each line with `std::istringstream`, separates WIN and LOSS records, sorts each category by rounds (descending), and displays them in priority order (victories first, defeats second).
+- **Save/Load system** (`save1.dat/save2.dat/save3.dat`): The `save` command (or quit prompt) writes the full game state to file: player HP, gold, round number, win/loss streaks, and all bench units with their base name, class, stats, and star level. The `loadGame()` function reads this file, reconstructs all `Unit` objects with `new`, restores player state via `loadState()`, and resumes the game from the saved round.
 
-Implementation: `saveGame()` and `loadGame()` in `game.cpp`, `saveRecord()` and `displayLeaderboard()` in `game.cpp`.
+Implementation: `saveGame()` and `loadGame()` in `game.cpp`, `saveRecord()` (with `isVictory` parameter) and `displayLeaderboard()` in `record.cpp`.
 
 ### 5. Program Codes in Multiple Files
 
-The project is organized into 18 source files across 9 modules:
+The project is organized into 11 modules with separate header and implementation files:
 
 ```
-auto-battler-arena/
-├── main.cpp                 Entry point, main menu, difficulty selection
-├── unit.h / unit.cpp        Unit class: stats, star levels, upgrade, synergy bonuses
-├── board.h / board.cpp      Board class: 5x8 grid, display, pathfinding, placement
-├── shop.h / shop.cpp        Shop: random generation, purchase, affordability display
-├── player.h / player.cpp    Player: HP, gold, bench management, win/loss streaks
-├── ai.h / ai.cpp            AI opponent: Easy/Hard buying and placement strategies
-├── game.h / game.cpp        Game loop: combat engine, abilities, merging, events, I/O
-├── synergy.h / synergy.cpp  Synergy system: class-based team bonuses
-├── event.h / event.cpp      Random event system: 6 event types between rounds
-├── Makefile                 Build automation with dependency tracking
-└── README.MD
+project/
+├── include/                     Header files (.h)
+│   ├── unit.h                   Unit class: stats, star levels, upgrade, synergy bonuses
+│   ├── board.h                  Board class: 5x8 grid, display, pathfinding, placement
+│   ├── shop.h                   Shop: random generation, purchase, affordability display
+│   ├── player.h                 Player: HP, gold, bench management, win/loss streaks
+│   ├── ai.h                     AI opponent: Easy/Hard buying and placement strategies
+│   ├── game.h                   Game loop: combat engine, abilities, merging, events
+│   ├── synergy.h                Synergy system: class-based team bonuses
+│   ├── event.h                  Event system: 6 event types between rounds
+│   ├── record.h                 Record system: leaderboard, save/load game state
+│   └── tutorial.h               Tutorial mode: interactive game guide
+├── src/                         Implementation files (.cpp)
+│   ├── main.cpp                 Entry point, main menu, difficulty selection
+│   ├── unit.cpp
+│   ├── board.cpp
+│   ├── shop.cpp
+│   ├── player.cpp
+│   ├── ai.cpp
+│   ├── game.cpp
+│   ├── synergy.cpp
+│   ├── event.cpp
+│   ├── record.cpp               Leaderboard display, game save/load with WIN/LOSS tracking
+│   └── tutorial.cpp
+├── Makefile                     Build automation with dependency tracking
+└── README.md
 ```
 
-Each `.h` file declares classes and interfaces; each `.cpp` file implements them. The `Makefile` tracks header dependencies so that changing a header recompiles only affected files.
+Each module has a `.h` header file in `include/` that declares classes and interfaces, with corresponding `.cpp` implementation files in `src/`. The `Makefile` tracks header dependencies so that changing a header recompiles only affected files. The `record.cpp` module handles both leaderboard I/O (with WIN/LOSS categorization) and game state persistence.
 
 ### 6. Multiple Difficulty Levels
 
@@ -190,6 +209,15 @@ Players can manually position units on their half of the board (rows 0-4, column
 
 Strategic tip: Place Tanks in column 3 (frontline, first to engage enemies) and ranged units like Archers and Mages in columns 0-1 (backline, protected).
 
+### Win/Loss Tracking and Leaderboard
+
+Every game's outcome is tracked and recorded:
+
+- **Victory (WIN)**: Achieved when the AI's HP is reduced to 0 or below
+- **Defeat (LOSS)**: Occurs when the player's HP is reduced to 0 or below
+- **Recording**: Game outcomes (WIN/LOSS), rounds survived, remaining gold, and difficulty are saved to `records.txt`
+- **Leaderboard Display**: Victories are prioritized and displayed first, sorted by rounds in descending order. Defeats follow, also sorted by rounds. This reflects the new symmetric combat system where defeating the AI is the primary goal.
+
 ### Random Events
 
 Starting from round 2, there is a 40% chance of a random event:
@@ -214,9 +242,9 @@ Starting from round 2, there is a 40% chance of a random event:
 
 **None.** This project uses only standard C/C++ libraries:
 
-`<iostream>` `<vector>` `<string>` `<fstream>` `<sstream>` `<iomanip>` `<algorithm>` `<cstdlib>` `<ctime>` `<cmath>` `<climits>`
+`<iostream>` `<vector>` `<string>` `<fstream>` `<sstream>` `<iomanip>` `<algorithm>` `<cstdlib>` `<ctime>` `<cmath>` `<climits>` `<cctype>` `<thread>` `<chrono>`
 
-No additional installation is required on the grader's side.
+No additional installation is required on the grader's side. All libraries are included in the standard C++11 library.
 
 ## Compilation and Execution Instructions
 
