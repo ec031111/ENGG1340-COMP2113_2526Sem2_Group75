@@ -1,5 +1,0 @@
-rrrrcf 1 16 Easy
-Sam 1 11 Easy
-Oscar 20 95 Easy
-Player 20 95 Easy
-God 5 5 Easy
