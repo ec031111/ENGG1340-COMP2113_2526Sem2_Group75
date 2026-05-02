@@ -4,6 +4,8 @@
 
 <video src="video.mov" poster="video-cover.jpg" controls></video>
 
+**YouTube Demo Link**: https://www.youtube.com/watch?v=QIBhIWE3lAY
+
 # Auto-Battler Arena
 
 A text-based auto-chess strategy game built in C++ for the Linux terminal.
