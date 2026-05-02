@@ -104,6 +104,7 @@ Dynamic memory allocation is a core part of the game's unit lifecycle:
 - **Deallocation with `delete`**: Units are freed when killed in battle (`cleanupDeadUnits()` in `game.cpp`), sold by the player (`sellUnit()` in `player.cpp`), or consumed during star merges.
 - **Star merge system**: When 3 identical units are detected on the bench, 2 are deleted and 1 is upgraded in place (`checkAndMerge()` in `game.cpp`). This demonstrates meaningful create-use-destroy memory lifecycle.
 - **Ownership transfer**: Units move between shop -> player bench -> board -> destruction, with clear ownership semantics. The AI's `releaseArmy()` method transfers ownership to the board without double-freeing.
+- **Data cleanup**: Players can manually delete game records and save files from the main menu (option 5: "Clear Data") to free disk space. The system allows selective deletion of leaderboard records (`records.txt`) or individual save slots (`save1.dat/save2.dat/save3.dat`), or clearing all data at once using `remove()` function (`clearDataMenu()` in `main.cpp`).
 
 ### 4. File Input/Output
 
@@ -161,6 +162,10 @@ The game offers two difficulty levels, selectable at the start of each new game:
 The difficulty affects the AI's purchasing intelligence and tactical formation, creating a meaningful difference in challenge.
 
 ## Additional Features
+
+### Interactive Tutorial Mode
+
+A comprehensive 8-lesson tutorial guides new players through all game mechanics: shop system, unit classes, placement strategy, combat rules, synergies, gold management, and unit upgrades. Accessible from the main menu, it provides hands-on learning without pressure.
 
 ### Star Upgrade System (3-to-1 Merge)
 
@@ -246,56 +251,46 @@ Starting from round 2, there is a 40% chance of a random event:
 
 No additional installation is required on the grader's side. All libraries are included in the standard C++11 library.
 
-## Compilation and Execution Instructions
-
-### Compile
-
-```bash
-make game
-```
-
-### Run
-
-```bash
-./game
-```
-
-### Clean
-
-```bash
-make clean
-```
-
-## Controls
+## Basic commands
 
 ### Main Menu
 
 | Input | Action |
 |:------|:-------|
-| 1 | New Game (select difficulty) |
-| 2 | View Leaderboard |
-| 3 | Load Game |
-| 4 | Quit |
+| 1 | 🎮 New Game (select difficulty) |
+| 2 | 📚 Tutorial (interactive gameplay guide) |
+| 3 | 🏅 Leaderboard (view HIGH scores) |
+| 4 | 💾 Load Game (resume saved session) |
+| 5 | 🗑️ Clear Data (reset save files) |
+| 6 | 🚪 Quit (exit game) |
 
 ### Shop Phase
 
 | Command | Action |
 |:--------|:-------|
-| buy 1-5 | Purchase unit from shop slot |
-| sell 1-N | Sell unit from bench for gold |
-| place 1 2 3 | Place bench unit #1 at row 2, col 3 |
-| remove 2 3 | Pick up unit at row 2, col 3 |
-| auto | Auto-place all bench units |
-| formation | View current formation |
-| refresh | Re-roll shop ($2) |
-| save | Save game to file |
-| ready | Start the battle |
-| help | Show all commands |
-| quit | Exit (prompts to save) |
+| `buy 1-5` | Purchase unit from shop slot (1-5) |
+| `sell 1-N` | Sell unit from bench by index |
+| `place 1 2 3` | Deploy bench unit #1 to row 2, col 3 |
+| `remove 2 3` | Pick up unit at row 2, col 3 back to bench |
+| `auto` | Auto-place remaining bench units |
+| `formation` or `form` or `f` | Display current board formation |
+| `refresh` | Re-roll shop for $2 |
+| `status` | Show player HP, gold, stats |
+| `gold` | Display current gold amount |
+| `info <bench#>` | Show detailed info for bench unit |
+| `info shop <slot#>` | Show detailed info for shop unit |
+| `pace 0-3` | Set combat speed (0=SLOW, 1=NORMAL, 2=FAST, 3=FASTEST) |
+| `settings` | Toggle colors/animations/sound |
+| `save` | Save game to slot (1-3) |
+| `shop` | Re-display shop |
+| `ready` | Confirm formation & start battle |
+| `help` | Show all available commands |
+| `menu` | Return to main menu |
+| `quit` or `exit` | Quit (prompts to save) |
 
 ### Battle Phase
 
-| Input | Action               |
-|:------|:-------              |
-| Enter | Advance to next tick |
-| s | Skip to battle result |
+| Input | Action |
+|:------|:-------|
+| Enter | Advance to next combat tick |
+| `s` or `S` | Skip to battle result |
