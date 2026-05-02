@@ -248,3 +248,326 @@ If any of these are not true by Round 8, assess which is most achievable in the 
 
 *Auto-Battler Arena — Strategy Guide v1.0*  
 *Master the board. Master the economy. Master the arena.*
+
+---
+
+## 7. Advanced Matchup Manual
+
+This section provides concrete matchup plans you can execute in real games. The objective is to reduce decision stress during live rounds. Instead of improvising every time, use a default response for each enemy archetype.
+
+### 7.1 Versus 4-Mage Enemy
+
+**Threat profile:** Massive splash damage, weak frontline durability.
+
+**Default response plan:**
+1. Add one Assassin even if you are not running Assassin synergy.  
+2. Replace one fragile backline unit with a Tank.  
+3. Spread your backline units across columns 1, 3, and 4.  
+4. Avoid putting two Mages adjacent to each other.  
+5. Keep at least one Warrior in the front row centre to absorb first splash chains.
+
+**Shopping priority against 4-Mage:**
+- Tier 1: Pebble Shield, Shadow Cub.  
+- Tier 2: Stone Guardian, Nightblade.  
+- Tier 3: Fortress Titan, Phantom Sovereign.
+
+**Do not do this:**
+- Greed for economy when your HP is below 35.  
+- Run pure Archer with no frontliner.  
+- Keep rerolling for a perfect comp while your board is clearly weaker.
+
+### 7.2 Versus 4-Assassin Enemy
+
+**Threat profile:** Turn-1 backline burst, crit spikes, bleed pressure.
+
+**Default response plan:**
+1. Place one durable non-carry in back row as bait.  
+2. Move your primary carry to the opposite corner.  
+3. Raise frontline density to reduce Assassin escape routes.  
+4. Buy defense-heavy units over pure DPS for 2 rounds.  
+5. Stabilize first, then transition back to damage.
+
+**Stabilization checklist:**
+- At least 2 Tanks or 2 Warriors active.  
+- No empty slot in Row 1.  
+- Carry unit not exposed directly behind empty frontline slot.  
+- At least one upgrade completion targeted this round.
+
+**Do not do this:**
+- Stack all ranged units in one corner.  
+- Sell frontline to chase greedy rerolls.  
+- Ignore bleed damage and play as if fights are normal.
+
+### 7.3 Versus 4-Archer Enemy
+
+**Threat profile:** Consistent DPS, Pierce hitting backline through frontline.
+
+**Default response plan:**
+1. Increase healing or regeneration value through Warrior scaling.  
+2. Use Tanks with shield to absorb opening focus fire.  
+3. Add one Assassin to interrupt Archer backline rhythm.  
+4. Upgrade one frontline unit aggressively; starred frontline matters here.  
+5. Avoid slow all-backline compositions.
+
+**Tempo pattern:**
+- Round A: Spend to stabilize frontline.  
+- Round B: Save if result is strong win.  
+- Round C: Push XP if shop quality declines.
+
+### 7.4 Versus 4-Tank Enemy
+
+**Threat profile:** Very long fights, high defense wall, low burst.
+
+**Default response plan:**
+1. Prioritize Mage splash or Archer Pierce.  
+2. Avoid overinvesting in single-target low-attack units.  
+3. Position to maximize multi-target damage lanes.  
+4. Buy attack-speed scaling whenever offered.  
+5. Be willing to lose one round to complete a high-impact upgrade.
+
+**Damage sources that scale well into Tanks:**
+- Mage splash over time.  
+- Archer Pierce chains.  
+- Assassin bleed at 4-unit synergy.
+
+### 7.5 Versus Warrior Frontline Stack
+
+**Threat profile:** Mid-fight regeneration, sturdy melee pressure.
+
+**Default response plan:**
+1. Focus burst on one side of the board to break formation.  
+2. Keep ranged carries split so one survives dive pressure.  
+3. Use one expendable frontline unit to buy time.  
+4. Maintain at least one ranged upgrade path each round.  
+5. Do not mirror Warriors unless you are already ahead in upgrades.
+
+---
+
+## 8. Economy Decision Trees
+
+Use the following quick trees during planning phase.
+
+### 8.1 Gold 0-10 Tree
+
+If gold <= 10:
+1. Buy only immediate board upgrades.  
+2. Do not reroll unless one copy away from star.  
+3. Sell off-role bench units.  
+4. Preserve at least one flexible slot for emergency frontline.
+
+### 8.2 Gold 11-30 Tree
+
+If gold between 11 and 30:
+1. Check if next interest threshold is reachable.  
+2. If yes, spend only to hit threshold exactly.  
+3. If no, spend on XP when shop quality is low.  
+4. Reroll at most once unless at critical HP.
+
+### 8.3 Gold 31-50 Tree
+
+If gold between 31 and 50:
+1. Prioritize interest preservation.  
+2. Spend only for synergy-tier unlock or star completion.  
+3. Queue one carry upgrade target and one frontline target.  
+4. Avoid random speculative purchases.
+
+### 8.4 Gold 50+ Tree
+
+If gold >= 50:
+1. Identify your exact win condition unit.  
+2. Spend in controlled bursts (8-16 gold windows).  
+3. Re-evaluate board after each burst.  
+4. Stop when fight outcome becomes stable wins.  
+5. Bank again before next push.
+
+---
+
+## 9. Round-by-Round Planning Templates
+
+The following templates are defaults. Adapt when event cards force changes.
+
+### 9.1 Conservative Template
+
+Round 1: Buy strongest 1-cost frontline.  
+Round 2: Add one backline carry.  
+Round 3: Avoid reroll, save gold.  
+Round 4: Activate first 2-unit synergy.  
+Round 5: Buy XP once if close to level-up.  
+Round 6: Roll once for key upgrade completion.  
+Round 7: Choose final composition direction.  
+Round 8: Push for first 4-unit synergy.  
+Round 9: Stabilize HP, prioritize frontline star.  
+Round 10: Transition extra bench into final carries.
+
+### 9.2 Aggressive Template
+
+Round 1: Buy two cheap units if possible.  
+Round 2: Reroll once only if board is very weak.  
+Round 3: Push for early win streak board.  
+Round 4: Spend gold to preserve streak.  
+Round 5: Buy XP aggressively.  
+Round 6: Hunt one high-value Tier 2 carry.  
+Round 7: Continue tempo spending.  
+Round 8: Rebalance by adding one durable frontliner.  
+Round 9: If streak breaks, pivot to economy recovery.  
+Round 10: Force final comp completion.
+
+### 9.3 Recovery Template (Low HP)
+
+Round N: Sell all irrelevant bench units.  
+Round N+1: Spend to full board strength immediately.  
+Round N+2: Prioritize direct combat impact, not economy.  
+Round N+3: Lock shop if key unit appears and gold short.  
+Round N+4: Reassess if two consecutive wins achieved.
+
+---
+
+## 10. Positioning Micro-Patterns
+
+### 10.1 Anti-Splash Triangle
+
+Place ranged units in a loose triangle:
+- Back row column 1  
+- Back row column 3  
+- Front row column 4 (durable bait)
+
+Effect: Reduces simultaneous splash exposure while retaining damage lanes.
+
+### 10.2 Anti-Jump Backline Trap
+
+Place a medium-defense unit in back row column 2 as Assassin landing bait.
+
+Effect: Buys one extra turn for your primary carry to attack.
+
+### 10.3 Frontline Pivot Wall
+
+Front row columns 2 and 3 are occupied by Tanks, columns 1 and 4 by Warriors.
+
+Effect: Maximum melee contact coverage; prevents direct pathing to backline.
+
+### 10.4 Side-Bias Punish
+
+If enemy stacks left side, stack your highest burst units on right side and use one bait left.
+
+Effect: Forces enemy movement and delays their first optimal attack cycles.
+
+---
+
+## 11. Event-Specific Micro Plans
+
+### 11.1 Market Boom (reroll cost 1)
+
+Action list:
+1. Decide two target units before rerolling.  
+2. Roll in small batches (2-3 times), re-check bench each time.  
+3. Stop immediately once primary target appears.  
+4. Reserve at least 4 gold for emergency XP or lock.
+
+### 11.2 War Tax (base income reduced)
+
+Action list:
+1. Cut all speculative buys.  
+2. Sell bench duplicates not close to completion.  
+3. Keep combat-ready board first, economy second.  
+4. Avoid expensive pivot in tax round.
+
+### 11.3 XP Scholarship
+
+Action list:
+1. Calculate exact XP to next level.  
+2. Buy level at discount before rerolling.  
+3. Then roll once with improved odds.  
+4. Lock any premium Tier 3 appearing post-level.
+
+### 11.4 Wild Shop
+
+Action list:
+1. Buy universally strong Tier 3 frontline first.  
+2. Buy role-compatible carry second.  
+3. Do not overbuy off-synergy shiny units.  
+4. Rebuild board around two best Tier 3 units immediately.
+
+---
+
+## 12. Practice Drills
+
+Run these drills to improve decision speed.
+
+### Drill A: 20-Second Shop Read
+
+Goal: Decide buy/sell/reroll plan within 20 seconds.
+
+Method:
+1. Snapshot current board and bench.  
+2. Read all 5 shop slots once only.  
+3. State one primary and one secondary action.  
+4. Execute without reconsidering for 20 seconds.
+
+### Drill B: Loss Review in 3 Questions
+
+After every loss, answer:
+1. Which enemy unit dealt most decisive damage?  
+2. Which of my slots underperformed?  
+3. What one purchase would have changed this fight most?
+
+### Drill C: No-Reroll First 3 Rounds
+
+Goal: Strengthen economy discipline.
+
+Method:
+1. Forbid rerolls until Round 4.  
+2. Buy only synergy-compatible units.  
+3. Measure HP at Round 5 and compare over several games.
+
+---
+
+## 13. Common Mid-Game Pivot Recipes
+
+### Pivot 1: Warrior into Tank-Mage
+
+When to pivot:
+- You have 2 weak Warriors and repeated Mage offers.  
+- Enemy frontline is too durable for melee mirror.
+
+Steps:
+1. Keep one best Warrior as temporary frontliner.  
+2. Buy two Tanks and two Mages over two rounds.  
+3. Sell lowest-impact Warrior last.  
+4. Reposition carries to backline before combat.
+
+### Pivot 2: Archer into Assassin Splash
+
+When to pivot:
+- You face multiple backline-heavy enemies.  
+- Archer upgrades are blocked by pool scarcity.
+
+Steps:
+1. Maintain two best Archers temporarily.  
+2. Acquire two Assassins and one durable bait unit.  
+3. Move one Archer to safer corner.  
+4. Transition to 2 Archer + 2 Assassin hybrid first.
+
+### Pivot 3: Economy into Emergency Stabilization
+
+When to pivot:
+- HP below 30 and two losses in a row.  
+- Bench contains dead gold not helping current board.
+
+Steps:
+1. Sell dead gold immediately.  
+2. Spend down to 10-20 gold for immediate strength.  
+3. Force one frontline and one backline upgrade path.  
+4. Rebuild economy only after two stable rounds.
+
+---
+
+## 14. Final Competitive Checklist
+
+Before pressing start combat, check:
+- Row 1 fully covered when possible.  
+- At least one clear carry protected.  
+- Synergy count matches plan for this round.  
+- Gold spending this round had clear objective.  
+- One contingency prepared if this round is a loss.
+
+If all five checks pass consistently, your average placement improves significantly over long sessions.

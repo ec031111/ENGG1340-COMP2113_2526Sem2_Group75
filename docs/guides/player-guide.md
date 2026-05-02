@@ -329,3 +329,197 @@ You can view all records from the main menu by selecting `3. View Records`.
 
 *Auto-Battler Arena — Player Guide v1.0*  
 *Good luck, Commander. Aethelia is counting on you.*
+
+---
+
+## 13. Extended FAQ
+
+### 13.1 Gameplay Questions
+
+**Q1: Why did my unit not attack first even though it has high damage?**  
+A1: Action order is based on Speed, not Attack. A high-attack unit with lower Speed can still act later.
+
+**Q2: Does bench position matter for combat?**  
+A2: No. Bench units do not participate in combat and their placement on bench slots has no battle impact.
+
+**Q3: If I lock the shop, do the units stay forever?**  
+A3: They stay until you unlock or reroll. If you keep lock on, the same shop appears next planning phase.
+
+**Q4: Do event effects stack with synergy bonuses?**  
+A4: Yes. Event modifiers and synergy modifiers are both applied for that round unless an event states otherwise.
+
+**Q5: Why did I lose HP by more than expected?**  
+A5: Loss damage includes base damage plus the number of enemy survivors.
+
+**Q6: Can I get Tier 3 units early?**  
+A6: Yes, but odds are very low before Level 6.
+
+**Q7: Is it always correct to chase 4-unit synergy?**  
+A7: Not always. If forcing 4-unit synergy weakens your board too much, a stronger 2-unit hybrid can be better.
+
+**Q8: Should I sell a starred unit if off-composition?**  
+A8: Usually no in mid-game; starred units often provide enough raw stats to remain useful during transition.
+
+**Q9: Why do my Assassins sometimes fail to kill backline quickly?**  
+A9: Low crit rolls, high-defense targets, or poor follow-up support can reduce Assassin burst.
+
+**Q10: How many rerolls are safe each round?**  
+A10: In stable economy rounds, 0-1 reroll is typical. In emergency stabilization, you may reroll more aggressively.
+
+### 13.2 Economy Questions
+
+**Q11: Is 50 gold always mandatory?**  
+A11: No. 50 gold is an economic target, not a hard rule. Spend when your board is unstable.
+
+**Q12: Why do I feel rich but still lose?**  
+A12: Unspent gold has no combat value. Convert gold into board power before your HP becomes critical.
+
+**Q13: Should I buy XP before or after rerolling?**  
+A13: Usually before rerolling if level-up changes shop odds meaningfully.
+
+**Q14: Is loss streak strategy valid?**  
+A14: Yes, if controlled. You need enough HP buffer and a clear future spike plan.
+
+**Q15: When should I break interest threshold?**  
+A15: Break threshold if a purchase prevents major HP loss or secures a key upgrade.
+
+### 13.3 Positioning Questions
+
+**Q16: Where should I place one single Tank?**  
+A16: Front row centre is usually best for coverage and taunt value.
+
+**Q17: Should Archers always be back row?**  
+A17: Usually yes. Front-row Archers lose survivability and role advantage.
+
+**Q18: Is corner stacking good?**  
+A18: Situational. Good against some melee patterns, bad against splash and jump threats.
+
+**Q19: Why spread backline units?**  
+A19: To reduce multi-target splash damage and avoid chain losses.
+
+**Q20: Can I intentionally use bait units?**  
+A20: Yes. One bait slot can protect your main carry for a full turn.
+
+---
+
+## 14. Troubleshooting and Stability Notes
+
+### 14.1 Terminal Display Issues
+
+If colors or symbols look incorrect:
+1. Ensure terminal supports ANSI colors.  
+2. Use a monospace font with Unicode coverage.  
+3. Increase terminal width if board wrapping occurs.  
+4. Avoid legacy shell modes that strip ANSI escape sequences.
+
+If text appears misaligned:
+1. Reset terminal zoom to default.  
+2. Disable mixed-width fonts.  
+3. Use full-screen terminal mode for stable layout.
+
+### 14.2 Input Issues
+
+If key input feels delayed:
+1. Check terminal focus; click into terminal pane first.  
+2. Avoid running heavy background tasks on the same shell.  
+3. Do not paste multi-line key sequences accidentally.
+
+If wrong command is triggered:
+1. Press Escape to cancel current submenu when available.  
+2. Re-enter the intended action from main planning options.  
+3. Confirm selected unit index before final action.
+
+### 14.3 Save/Record Issues
+
+If records are not updating:
+1. Confirm game ended naturally (win or game over).  
+2. Ensure write permissions exist for records path.  
+3. Verify file is not locked by another process/editor.
+
+If records contain unexpected formatting:
+1. Keep file in plain text mode.  
+2. Avoid manual edits during active game session.  
+3. Ensure line endings are consistent across edits.
+
+---
+
+## 15. New Player Training Plan (5 Sessions)
+
+### Session 1: Basics Only
+
+Focus goals:
+1. Learn buy, sell, move, and start combat actions.  
+2. Keep Row 1 filled every round.  
+3. Avoid rerolls in first 3 rounds.
+
+Success metric:
+- Reach Round 6 without confusion about controls.
+
+### Session 2: Economy Awareness
+
+Focus goals:
+1. Track interest thresholds (10, 20, 30, 40, 50).  
+2. Keep at least 20 gold by Round 5 in one game.  
+3. Avoid panic spending after one loss.
+
+Success metric:
+- Finish one game with positive gold management and stable board.
+
+### Session 3: Positioning Practice
+
+Focus goals:
+1. Place Tanks center front.  
+2. Spread backline carries.  
+3. Use one bait unit vs Assassin-heavy fights.
+
+Success metric:
+- Reduce rounds lost due to instant backline collapse.
+
+### Session 4: Composition Discipline
+
+Focus goals:
+1. Commit to one core composition by Round 5.  
+2. Avoid buying off-plan units unless emergency frontline.  
+3. Complete at least one starred upgrade.
+
+Success metric:
+- Reach Round 8 with one clear synergy plan.
+
+### Session 5: Adaptive Play
+
+Focus goals:
+1. Read events and adjust one round ahead.  
+2. Identify enemy threat type each round.  
+3. Execute one pivot when current plan fails.
+
+Success metric:
+- Win at least one game or consistently reach late game.
+
+---
+
+## 16. Glossary for Quick Recall
+
+**Carry:** Your main damage dealer unit.  
+**Frontline:** Units in Row 1 that absorb first contact.  
+**Backline:** Units in Row 2, usually ranged damage dealers.  
+**Spike:** A sudden board power increase from key purchase/upgrade.  
+**Pivot:** Changing composition direction mid-game.  
+**Tempo:** Spending now for immediate round strength.  
+**Greed:** Saving gold for later strength.  
+**Stabilize:** Spend resources to stop HP bleeding and survive.
+
+---
+
+## 17. One-Page Quick Start
+
+If you only remember ten rules, remember these:
+1. Fill front row first.  
+2. Protect your carry.  
+3. Bench does not give synergy.  
+4. Buy XP when odds improvement matters.  
+5. Do not reroll mindlessly early.  
+6. Spend when HP is in danger.  
+7. Keep economy thresholds in mind.  
+8. Upgrade completion is high priority.  
+9. Adjust to events and enemy threats.  
+10. Review losses, then change one thing at a time.

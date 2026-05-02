@@ -188,3 +188,246 @@ The AI uses the same `Player` class as the human player, ensuring that all game 
 ---
 
 *End of AI Behaviour Design Document v1.0*
+
+---
+
+## 9. AI Parameter Tuning Sheet
+
+This sheet defines tunable constants used by the AI logic and recommended ranges for calibration.
+
+| Parameter Name | Default | Min | Max | Purpose |
+|---|---:|---:|---:|---|
+| `UpgradePriority` | 100 | 60 | 150 | Weight for buying third-copy upgrades |
+| `SynergyPriority` | 75 | 40 | 120 | Weight for completing synergy thresholds |
+| `RawPowerPriority` | 50 | 20 | 90 | Weight for best standalone unit purchase |
+| `MinGoldReserve` | 30 | 10 | 50 | Economy floor before reducing purchases |
+| `RerollLimitPerRound` | 1 | 0 | 3 | Maximum rerolls in planning phase |
+| `LowHPSpendThreshold` | 35 | 20 | 50 | HP threshold for emergency spending mode |
+| `EmergencySpendMultiplier` | 1.3 | 1.0 | 2.0 | How aggressively AI spends when low HP |
+| `SynergyTier2Bonus` | 1.0 | 0.8 | 1.5 | Additional factor for 0->2 synergy transition |
+| `SynergyTier4Bonus` | 1.2 | 1.0 | 2.0 | Additional factor for 2->4 synergy transition |
+| `CarryProtectionWeight` | 0.6 | 0.0 | 1.5 | Positioning weight for protecting top DPS unit |
+
+### 9.1 Suggested Presets
+
+**Easy Preset**
+- UpgradePriority = 80  
+- SynergyPriority = 60  
+- RawPowerPriority = 55  
+- MinGoldReserve = 35  
+- RerollLimitPerRound = 0
+
+**Normal Preset**
+- UpgradePriority = 100  
+- SynergyPriority = 75  
+- RawPowerPriority = 50  
+- MinGoldReserve = 30  
+- RerollLimitPerRound = 1
+
+**Hard Preset**
+- UpgradePriority = 120  
+- SynergyPriority = 95  
+- RawPowerPriority = 45  
+- MinGoldReserve = 20  
+- RerollLimitPerRound = 2
+
+---
+
+## 10. AI Behaviour State Machine
+
+The AI can be represented with the following high-level states:
+
+1. `EvaluateBoard`  
+2. `PurchasePhase`  
+3. `PositionPhase`  
+4. `ValidateBoard`  
+5. `CommitPhase`
+
+### 10.1 State Details
+
+`EvaluateBoard`
+- Count current role distribution.  
+- Identify missing frontline slots.  
+- Detect near-upgrades (two copies owned).  
+- Compute threat score based on recent loss streak.
+
+`PurchasePhase`
+- Build candidate list from shop.  
+- Score each candidate with weighted function.  
+- Buy until no high-value purchase remains or gold floor hit.  
+- Optional reroll once if upgrade chance remains high.
+
+`PositionPhase`
+- Place Tanks first (front centre preference).  
+- Place Warriors/Assassins in remaining front slots.  
+- Place Mages/Archers in backline.  
+- Reassign one durable bait if enemy dive risk estimated high.
+
+`ValidateBoard`
+- Ensure max unit cap not exceeded.  
+- Ensure minimum frontline presence.  
+- Ensure at least one carry remains protected.
+
+`CommitPhase`
+- Lock board for combat.  
+- Persist simple telemetry snapshot (for future tuning).  
+- End planning phase.
+
+---
+
+## 11. Telemetry Fields for AI Review
+
+If collecting AI tuning data, store these fields per round:
+
+| Field | Type | Description |
+|---|---|---|
+| `roundIndex` | int | Current round number |
+| `aiHP` | int | AI HP at start of planning |
+| `aiGoldStart` | int | Gold before purchases |
+| `aiGoldEnd` | int | Gold after purchases |
+| `aiLevel` | int | Player level |
+| `frontlineCount` | int | Units in Row 1 |
+| `backlineCount` | int | Units in Row 2 |
+| `activeSynergies` | string | Comma list of active synergies |
+| `rerollCount` | int | Number of rerolls this round |
+| `upgradesCompleted` | int | Number of auto-combines this round |
+| `combatResult` | string | Win/Loss |
+| `survivors` | int | Surviving AI units after combat |
+| `damageTaken` | int | HP lost this round |
+
+This telemetry can be reviewed in aggregate to detect weak AI phases. Example: if damageTaken spikes on rounds 5-6, mid-game transition logic may be too passive.
+
+---
+
+## 12. Scenario Test Matrix
+
+Use the following test matrix for regression checks after AI tuning changes.
+
+### 12.1 Economy Scenarios
+
+Scenario E1:
+- Start with gold 8, HP 100, mixed Tier 1 shop.  
+- Expected: AI buys one frontline + one carry, no reroll.
+
+Scenario E2:
+- Start with gold 34, HP 100, no upgrade opportunities.  
+- Expected: AI preserves reserve, minimal purchases.
+
+Scenario E3:
+- Start with gold 52, HP 100, one copy away from star.  
+- Expected: AI purchases upgrade path, may reroll once.
+
+Scenario E4:
+- Start with gold 22, HP 28, two recent losses.  
+- Expected: AI enters emergency spending mode.
+
+Scenario E5:
+- Start with gold 15, HP 75, high-value Tier 3 in shop at Level 5.  
+- Expected: AI buys if composition-compatible; avoids random greed.
+
+### 12.2 Positioning Scenarios
+
+Scenario P1:
+- Board has 2 Tanks, 2 Mages, 2 Archers.  
+- Expected: Tanks front, ranged back, no empty frontline centre.
+
+Scenario P2:
+- Board full of fragile units and one Tank.  
+- Expected: Tank front centre, fragile units spread backline.
+
+Scenario P3:
+- Assassin-heavy lineup with no Warriors.  
+- Expected: Assassins front row edges, one durable bait preserved.
+
+Scenario P4:
+- Unit cap exceeded by one due to level mismatch.  
+- Expected: lowest-value unit moved to bench automatically.
+
+Scenario P5:
+- No frontline unit available in roster.  
+- Expected: highest HP backline unit temporarily moved front.
+
+### 12.3 Synergy Scenarios
+
+Scenario S1:
+- 3 Warriors on board, one Warrior in shop.  
+- Expected: Warrior purchase strongly preferred.
+
+Scenario S2:
+- 2 Mages active, no Mage in shop, high raw-power Assassin appears.  
+- Expected: buy Assassin if no better synergy completion exists.
+
+Scenario S3:
+- 1 copy short of star and 1 copy short of 4-unit synergy simultaneously.  
+- Expected: upgrade completion chosen first.
+
+Scenario S4:
+- Multiple synergies possible with equal score.  
+- Expected: tie-break uses current composition commitment.
+
+Scenario S5:
+- 4-unit synergy active but weak frontline causing heavy losses.  
+- Expected: AI buys frontline stabilization even if synergy purity drops.
+
+### 12.4 Event Response Scenarios
+
+Scenario V1 (Market Boom):
+- Reroll cost reduced to 1.  
+- Expected: AI allows one additional reroll when near-upgrade.
+
+Scenario V2 (War Tax):
+- Base income reduced.  
+- Expected: AI trims speculative purchases.
+
+Scenario V3 (Mage Debuff):
+- Mages penalized this round.  
+- Expected: AI still follows comp but increases non-Mage buy tolerance.
+
+Scenario V4 (Wild Shop):
+- Tier 3-rich shop appears.  
+- Expected: AI buys composition-compatible Tier 3 first.
+
+Scenario V5 (Chaos Position Swap):
+- Random swap event active.  
+- Expected: AI re-validates frontline after swap in next planning phase.
+
+---
+
+## 13. Fail-Safe Rules
+
+To avoid degenerate AI behaviour, enforce these safeguards:
+
+1. AI cannot end planning with zero units on board.  
+2. AI cannot spend below zero gold via chained operations.  
+3. AI cannot reroll if bench is full and no sell path exists.  
+4. AI cannot lock shop and reroll in the same action cycle.  
+5. AI must resolve auto-combine before final positioning.  
+6. AI must recalculate synergy counts after every purchase.  
+7. AI must treat invalid board position as hard error and repair immediately.
+
+---
+
+## 14. Future Upgrade Paths
+
+### 14.1 Opponent-Aware AI
+
+Add lightweight scouting:
+- Read enemy top two damage sources.  
+- Increase purchase score for direct counters.  
+- Add one-time reposition each round against observed threat type.
+
+### 14.2 Adaptive Economy AI
+
+Adjust reserve dynamically:
+- If HP high and streak positive -> increase reserve target.  
+- If HP low and streak negative -> lower reserve and spend aggressively.
+
+### 14.3 Explainable AI Debug Output
+
+Optional debug mode should print:
+- Top 3 purchase candidates and scores.  
+- Reason for chosen purchase.  
+- Why reroll was or was not performed.  
+- Positioning rationale summary.
+
+This improves maintainability and speeds up balancing cycles.
